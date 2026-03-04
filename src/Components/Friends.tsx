@@ -16,6 +16,7 @@ function FriendListEntry({ friend, fetchFriends }: { friend: UserRecord; fetchFr
   const dialog = useDialog();
 
   const [miniStatsOpen, setMiniStatsOpen] = useState(false);
+  const [midiStatsOpen, setMidiStatsOpen] = useState(false);
   const [dailyStatsOpen, setDailyStatsOpen] = useState(false);
 
   async function remove() {
@@ -66,6 +67,13 @@ function FriendListEntry({ friend, fetchFriends }: { friend: UserRecord; fetchFr
             </MenuItem>
             <MenuItem
               onClick={() => {
+                setMidiStatsOpen(true);
+              }}
+            >
+              <ChartNoAxesColumnIcon /> Midi Stats
+            </MenuItem>
+            <MenuItem
+              onClick={() => {
                 setDailyStatsOpen(true);
               }}
             >
@@ -75,6 +83,7 @@ function FriendListEntry({ friend, fetchFriends }: { friend: UserRecord; fetchFr
         </HStack>
       </List.Item>
       <Stats open={miniStatsOpen} setOpen={setMiniStatsOpen} type="mini" user={friend} />
+      <Stats open={midiStatsOpen} setOpen={setMidiStatsOpen} type="midi" user={friend} />
       <Stats open={dailyStatsOpen} setOpen={setDailyStatsOpen} type="daily" user={friend} />
     </>
   );
