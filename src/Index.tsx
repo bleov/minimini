@@ -82,13 +82,7 @@ export default function Index() {
       </div>
       <CardGroup columns={2} className="game-cards" spacing={10}>
         <LinkCard title="The Mini" description="Tiny crossword puzzles" link="/mini" imageSrc="/icons/mini/pwa-192x192.png" />
-        <LinkCard
-          title="The Midi"
-          description="Medium crossword puzzles"
-          link="/midi"
-          imageSrc="/icons/midi/pwa-192x192.png"
-          badgeContent="New"
-        />
+        <LinkCard title="The Midi" description="Medium crossword puzzles" link="/midi" imageSrc="/icons/midi/pwa-192x192.png" />
         <LinkCard title="The Daily" description="Large crossword puzzles" link="/daily" imageSrc="/icons/daily/pwa-192x192.png" />
         <LinkCard title="Bonus Puzzles" description="Coming soon" link="" imageSrc="/icons/bonus.svg" disabled />
       </CardGroup>
