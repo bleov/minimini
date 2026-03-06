@@ -15,7 +15,6 @@ import Leaderboard from "@/Components/Leaderboard";
 import Rating from "@/Components/Rating";
 import { MiniState } from "@/routes/mini/state";
 import PuzzleMenu from "./PuzzleMenu";
-import { useNavigate } from "react-router";
 
 const Keyboard = lazy(async () => ({
   default: (await import("@/Components/VirtualKeyboard")).default
@@ -558,6 +557,9 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
         cloudSave(); // Force a cloud save upon completion
         submitScore();
       });
+      if (document.fullscreenElement) {
+        document.exitFullscreen();
+      }
     } else if (results.totalCells > 0 && results.totalCells === results.totalFilled && results.totalCorrect < results.totalCells) {
       if (incorrectShown.current) return;
       setModalType("incorrect");
