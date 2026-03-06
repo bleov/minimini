@@ -195,6 +195,12 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
     })();
   }, [cloudLoading, data, restoredTime]);
 
+  useEffect(() => {
+    if (!options.includes("hardcore") && document.fullscreenElement) {
+      document.exitFullscreen();
+    }
+  }, [options]);
+
   return (
     <MiniState.Provider value={miniState}>
       {data && restoredTime > -1 && (
@@ -267,6 +273,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
                     ) {
                       return;
                     }
+                    if (document.fullscreenEnabled) document.documentElement.requestFullscreen();
                   }
                   setModalState(null);
                   posthog.capture(restoredTime > 0 ? "continue_puzzle" : "start_puzzle", { puzzle: data.id });

@@ -1,6 +1,17 @@
 import { useContext, type RefObject } from "react";
 import posthog from "posthog-js";
-import { ArchiveIcon, LayoutGridIcon, MenuIcon, PrinterIcon, RotateCcwIcon, StarIcon, StarOffIcon, TrophyIcon, XIcon } from "lucide-react";
+import {
+  ArchiveIcon,
+  ExpandIcon,
+  LayoutGridIcon,
+  MenuIcon,
+  PrinterIcon,
+  RotateCcwIcon,
+  StarIcon,
+  StarOffIcon,
+  TrophyIcon,
+  XIcon
+} from "lucide-react";
 
 import type { MiniCrossword } from "@/lib/types";
 import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
@@ -139,13 +150,26 @@ export default function PuzzleMenu({
         Reset Puzzle
       </MenuItem>
       {hardcore && (
-        <MenuItem
-          onClick={() => {
-            setOptions((prev: string[]) => prev.filter((opt) => opt !== "hardcore"));
-          }}
-        >
-          <StarOffIcon /> Forfeit Hardcore
-        </MenuItem>
+        <>
+          <MenuItem
+            onClick={() => {
+              setOptions((prev: string[]) => prev.filter((opt) => opt !== "hardcore"));
+            }}
+          >
+            <StarOffIcon /> Forfeit Hardcore
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              if (document.fullscreenElement) {
+                document.exitFullscreen();
+              } else if (document.fullscreenEnabled) {
+                document.documentElement.requestFullscreen();
+              }
+            }}
+          >
+            <ExpandIcon /> Fullscreen
+          </MenuItem>
+        </>
       )}
     </Menu>
   );
