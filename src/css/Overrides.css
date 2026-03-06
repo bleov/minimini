@@ -81,3 +81,11 @@
 .rs-text .rs-text-bold {
   display: inline;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .rs-modal,
+  .rs-modal-backdrop {
+    animation-duration: 0s !important;
+    transition: none !important;
+  }
+}
