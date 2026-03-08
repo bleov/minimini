@@ -50,12 +50,13 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const { user } = useContext(GlobalState);
-  const { paused, type, options, setModalState, complete, setComplete } = useContext(MiniState);
+  const { paused, type, options, setModalState, complete, setComplete, setData } = useContext(MiniState);
 
   let relatedClues: number[] = [];
 
   function exit(destination: string = "welcome") {
     setComplete(false);
+    setData(null);
     setModalState(destination);
   }
 
