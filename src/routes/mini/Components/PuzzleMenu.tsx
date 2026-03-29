@@ -66,7 +66,7 @@ export default function PuzzleMenu({
         onClick={() => {
           onExit("welcome");
         }}
-        disabled={hardcore}
+        disabled={hardcore && !complete}
       >
         <XIcon />
         Quit
@@ -75,7 +75,7 @@ export default function PuzzleMenu({
         onClick={() => {
           onExit("archive");
         }}
-        disabled={hardcore}
+        disabled={hardcore && !complete}
       >
         <ArchiveIcon />
         Archive
@@ -84,7 +84,7 @@ export default function PuzzleMenu({
         onClick={() => {
           navigate("/");
         }}
-        disabled={hardcore}
+        disabled={hardcore && !complete}
       >
         <LayoutGridIcon />
         More Games
@@ -107,7 +107,7 @@ export default function PuzzleMenu({
               dialog.alert("This puzzle can't be printed at this time.");
             }
           }}
-          disabled={hardcore}
+          disabled={hardcore && !complete}
         >
           <PrinterIcon />
           Print
@@ -144,12 +144,12 @@ export default function PuzzleMenu({
             }
           });
         }}
-        disabled={hardcore}
+        disabled={hardcore && !complete}
       >
         <RotateCcwIcon />
         Reset Puzzle
       </MenuItem>
-      {hardcore && (
+      {hardcore && !complete && (
         <>
           <MenuItem
             onClick={() => {
