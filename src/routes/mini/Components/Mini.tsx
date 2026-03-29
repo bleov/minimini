@@ -62,7 +62,11 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
       boardState,
       setBoardState,
       autoCheck,
-      setAutoCheck
+      setAutoCheck,
+      getCellsInDirection,
+      getFirstEmptyCell,
+      getCurrentClueIndex,
+      getNextClueIndex
     };
   }
 
@@ -114,7 +118,7 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
   }
 
   function getCellsInDirection(start: number, dir: "across" | "down") {
-    if (!body.cells[start].clues) return [];
+    if (!body.cells[start].clues) return [start];
     const cells: number[] = [];
     body.cells[start].clues.forEach((clueIndex) => {
       const clue = body.clues[clueIndex];
@@ -122,6 +126,9 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
         cells.push(...clue.cells);
       }
     });
+    if (cells.length === 0) {
+      return [start];
+    }
     return cells;
   }
 
@@ -339,6 +346,7 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
   function next() {
     if (selected === null) return;
     const currentClue = getCurrentClueIndex();
+    if (currentClue === -1) return;
     const nextClueIndex = (currentClue + 1) % body.clues.length;
     if (nextClueIndex !== null) {
       setActiveClue(nextClueIndex);
@@ -348,6 +356,7 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
   function previous(start: boolean = false) {
     if (selected === null) return;
     const currentClue = getCurrentClueIndex();
+    if (currentClue === -1) return;
     const prevClue = body.clues[(currentClue - 1 + body.clues.length) % body.clues.length];
     if (prevClue) {
       if (start) {
@@ -360,6 +369,8 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
   }
 
   function nextEditableClue(previous: boolean = false) {
+    const currentClue = getCurrentClueIndex();
+    if (currentClue === -1) return;
     const nextClueIndex = getNextClueIndex(previous);
     if (nextClueIndex !== null) {
       setActiveClue(nextClueIndex);
@@ -628,6 +639,20 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
     selectedClue = activeClues.findIndex((clueIndex) => body.clues[clueIndex].direction.toLowerCase() === direction);
     globalSelectedClue =
       body.clues[activeClues.find((clueIndex) => body.clues[clueIndex].direction.toLowerCase() === direction) || 0] || {};
+
+    if (selectedClue === -1) {
+      globalSelectedClue = {
+        direction,
+        cells: [selected],
+        label: "",
+        text: [
+          {
+            plain: "",
+            formatted: ""
+          }
+        ]
+      };
+    }
 
     const selectedClueId = activeClues[selectedClue];
     if (selectedClueId && body.clues[selectedClueId].relatives) {
@@ -913,7 +938,7 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
             onExit={exit}
           />
         </div>
-        {keyboardOpen && selected !== null && selectedClue > -1 ? (
+        {keyboardOpen && selected !== null && selectedClue != null ? (
           <>
             <div className="clue-bar">
               <div

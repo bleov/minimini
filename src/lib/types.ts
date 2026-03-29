@@ -1,5 +1,3 @@
-import type { AuthRecord } from "pocketbase";
-
 export interface MiniCrossword {
   assets?: MiniCrosswordAsset[];
   body: MiniCrosswordBody[];
