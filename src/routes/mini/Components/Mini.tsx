@@ -52,6 +52,20 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
   const { user } = useContext(GlobalState);
   const { paused, type, options, setModalState, complete, setComplete, setData } = useContext(MiniState);
 
+  if (import.meta.env.DEV) {
+    // @ts-ignore
+    window.board = {
+      selected,
+      setSelected,
+      direction,
+      setDirection,
+      boardState,
+      setBoardState,
+      autoCheck,
+      setAutoCheck
+    };
+  }
+
   let relatedClues: number[] = [];
 
   function exit(destination: string = "welcome") {

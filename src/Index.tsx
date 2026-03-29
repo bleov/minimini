@@ -1,9 +1,8 @@
 import { ButtonGroup, Card, CardGroup, Heading, HStack, Image, Text, Center, Badge } from "rsuite";
 import { Link, useLocation } from "react-router";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import Account from "@/Components/Account";
-import { GlobalState } from "@/lib/GlobalState";
 import Friends from "@/Components/Friends";
 import SignIn from "@/Components/SignIn";
 import AccountButtons from "@/Components/AccountButtons";

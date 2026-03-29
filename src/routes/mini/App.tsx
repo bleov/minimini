@@ -66,6 +66,11 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
     [user, paused, data, modalState, type, options, complete]
   );
 
+  if (import.meta.env.DEV) {
+    // @ts-ignore
+    window.game = miniState;
+  }
+
   function pause() {
     if (options.includes("hardcore")) return;
     if (complete) return;
