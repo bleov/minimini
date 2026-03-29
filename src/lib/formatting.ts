@@ -1,6 +1,6 @@
 import type { MiniCrosswordClue } from "./types";
 
-export default function formatDate(publicationDate: string): string {
+export function formatDate(publicationDate: string): string {
   return new Date(publicationDate + "T00:00:00")
     .toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
     .replace(/\b(\d{1,2})\b/, (match) => {
@@ -27,15 +27,5 @@ export function decodeFormatted(input: string): string {
   textarea.innerHTML = s;
   s = textarea.value;
 
-  return s
-}
-
-export function renderClue(clue: MiniCrosswordClue): string {
-	return clue.text.map((part) => {
-		if (part.formatted) {
-			return decodeFormatted(part.formatted);
-		} else {
-			return part.plain;
-		}
-	}).join("");
+  return s;
 }

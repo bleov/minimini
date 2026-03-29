@@ -10,7 +10,7 @@ import type { MiniCrossword, MiniCrosswordClue } from "@/lib/types";
 import { pb } from "@/main";
 import { fireworks } from "@/lib/confetti";
 import { GlobalState } from "@/lib/GlobalState";
-import formatDate, { renderClue } from "@/lib/formatting";
+import { decodeFormatted, formatDate } from "@/lib/formatting";
 import Leaderboard from "@/Components/Leaderboard";
 import Rating from "@/Components/Rating";
 import { MiniState } from "@/routes/mini/state";
@@ -46,6 +46,11 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
   const rebusRef = useRef<HTMLInputElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
+  const renderedClues = useMemo(() => {
+    return body.clues.map((clue) => {
+      return renderClue(clue);
+    });
+  }, [data]);
 
   const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -293,6 +298,27 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
       }
     }
     return clue.cells[0];
+  }
+
+  function getRenderedClue(index: number): string {
+    if (renderedClues[index]) {
+      return renderedClues[index];
+    } else if (body.clues[index]) {
+      return renderClue(body.clues[index]);
+    }
+    return "";
+  }
+
+  function renderClue(clue: MiniCrosswordClue): string {
+    return clue.text
+      .map((part) => {
+        if (part.formatted) {
+          return decodeFormatted(part.formatted);
+        } else {
+          return part.plain;
+        }
+      })
+      .join("");
   }
 
   function getCurrentClueIndex(): number {
@@ -833,7 +859,7 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
                         }}
                       >
                         <span className="clue-label">{clue.label}</span>{" "}
-                        <span className="clue-text" dangerouslySetInnerHTML={{ __html: renderClue(clue) }}></span>
+                        <span className="clue-text" dangerouslySetInnerHTML={{ __html: getRenderedClue(clueIndex) }}></span>
                       </li>
                     );
                   })}
@@ -950,7 +976,7 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
                 <ChevronLeftIcon />
               </div>
               {globalSelectedClue !== null ? (
-                <span className="clue-bar-text" dangerouslySetInnerHTML={{ __html: renderClue(globalSelectedClue) }}></span>
+                <span className="clue-bar-text" dangerouslySetInnerHTML={{ __html: getRenderedClue(getCurrentClueIndex()) }}></span>
               ) : (
                 ""
               )}

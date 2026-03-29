@@ -21,7 +21,7 @@ import {
 import AccountButtons from "@/Components/AccountButtons";
 import SignIn from "@/Components/SignIn";
 import { GlobalState } from "@/lib/GlobalState";
-import formatDate from "@/lib/formatting";
+import { formatDate } from "@/lib/formatting";
 import type { MiniCrossword } from "@/lib/types";
 import { pb, pb_url } from "@/main";
 import { Archive } from "./Components/Archive";
