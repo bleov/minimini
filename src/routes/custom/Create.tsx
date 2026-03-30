@@ -189,6 +189,7 @@ export default function Create() {
                 onClick={() => {
                   if (shapesLoading) return;
                   if (shapes.length === 0) {
+                    setShapesLoading(true);
                     pb.collection("shapes")
                       .getFullList({ sort: "sort_order" })
                       .then((shapes) => {
