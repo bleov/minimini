@@ -26,6 +26,11 @@ export default function Custom() {
       });
   }, []);
 
+  useEffect(() => {
+    document.title = "Custom Puzzles - Glyph";
+    document.getElementById("favicon-svg")?.setAttribute("href", `/icons/custom/favicon.svg`);
+  }, []);
+
   return (
     <VStack spacing={15}>
       <VStack spacing={3} width={"100%"}>
