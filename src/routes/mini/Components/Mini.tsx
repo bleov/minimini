@@ -10,7 +10,7 @@ import type { MiniCrossword, MiniCrosswordClue } from "@/lib/types";
 import { pb } from "@/main";
 import { fireworks } from "@/lib/confetti";
 import { GlobalState } from "@/lib/GlobalState";
-import { decodeFormatted, formatDate } from "@/lib/formatting";
+import { decodeFormatted, formatDate, renderClue } from "@/lib/formatting";
 import Leaderboard from "@/Components/Leaderboard";
 import Rating from "@/Components/Rating";
 import { MiniState } from "@/routes/mini/state";
@@ -307,18 +307,6 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
       return renderClue(body.clues[index]);
     }
     return "";
-  }
-
-  function renderClue(clue: MiniCrosswordClue): string {
-    return clue.text
-      .map((part) => {
-        if (part.formatted) {
-          return decodeFormatted(part.formatted);
-        } else {
-          return part.plain;
-        }
-      })
-      .join("");
   }
 
   function getCurrentClueIndex(): number {

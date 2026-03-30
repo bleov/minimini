@@ -45,7 +45,7 @@
   outline: none;
 }
 
-.leaderboard-container {
+.rs-table {
   .rs-checkbox {
     transform: translate(4px, 0);
   }

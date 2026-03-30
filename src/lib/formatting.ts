@@ -29,3 +29,15 @@ export function decodeFormatted(input: string): string {
 
   return s;
 }
+
+export function renderClue(clue: MiniCrosswordClue): string {
+  return clue.text
+    .map((part) => {
+      if (part.formatted) {
+        return decodeFormatted(part.formatted);
+      } else {
+        return part.plain;
+      }
+    })
+    .join("");
+}
