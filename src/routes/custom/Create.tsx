@@ -66,6 +66,29 @@ export default function Create() {
     }
   });
 
+  function clearShape(shape: MiniCrossword) {
+    const newShape = { ...shape };
+    const body = newShape.body[0];
+    body.cells.forEach((cell) => {
+      if (cell.answer) {
+        cell.answer = "";
+      }
+      if (cell.moreAnswers) {
+        delete cell.moreAnswers;
+      }
+    });
+    body.clues.forEach((clue) => {
+      clue.text[0].plain = "Click to edit";
+      clue.text[0].formatted = "Click to edit";
+      if (clue.relatives) {
+        delete clue.relatives;
+      }
+    });
+    body.SVG = {};
+    newShape.constructors = [];
+    return newShape;
+  }
+
   useEffect(() => {
     document.title = "Create Custom Puzzle - Glyph";
     document.getElementById("favicon-svg")?.setAttribute("href", `/icons/custom/favicon.svg`);
@@ -79,10 +102,10 @@ export default function Create() {
             pb.collection("shapes")
               .getFirstListItem("", { sort: "sort_order" })
               .then((shape) => {
-                const newData = shape.data as MiniCrossword;
+                const newData = clearShape(shape.data as MiniCrossword);
                 record.puzzle = newData;
                 setRecord(record as CustomPuzzle);
-                setData(record.puzzle as MiniCrossword);
+                setData(newData);
               });
           } else {
             setRecord(record as CustomPuzzle);
@@ -407,7 +430,7 @@ export default function Create() {
                           if (
                             await dialog.confirm("Changing the puzzle shape will clear any existing edits.", { title: "Are you sure?" })
                           ) {
-                            setData(newShape.data);
+                            setData(clearShape(newShape.data));
                           } else {
                             setShapeDialogOpen(true);
                           }
