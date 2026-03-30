@@ -10,7 +10,7 @@ import type { MiniCrossword, MiniCrosswordClue } from "@/lib/types";
 import { pb } from "@/main";
 import { fireworks } from "@/lib/confetti";
 import { GlobalState } from "@/lib/GlobalState";
-import { decodeFormatted, formatDate, renderClue } from "@/lib/formatting";
+import { formatDate, renderClue } from "@/lib/formatting";
 import Leaderboard from "@/Components/Leaderboard";
 import Rating from "@/Components/Rating";
 import { MiniState } from "@/routes/mini/state";
@@ -301,6 +301,9 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
   }
 
   function getRenderedClue(index: number): string {
+    if (type === "custom") {
+      return body.clues[index].text[0].plain;
+    }
     if (renderedClues[index]) {
       return renderedClues[index];
     } else if (body.clues[index]) {

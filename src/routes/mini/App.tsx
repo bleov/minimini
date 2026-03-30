@@ -81,7 +81,6 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
   useEffect(() => {
     if (data) return;
     if (type === "custom") {
-      console.log("custom puzzle ", params.id);
       if (!params.id) {
         return;
       }

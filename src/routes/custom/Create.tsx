@@ -258,8 +258,7 @@ export default function Create() {
                             setHoveringClue(-1);
                           }}
                         >
-                          <span className="clue-label">{clue.label}</span>{" "}
-                          <span className="clue-text" dangerouslySetInnerHTML={{ __html: renderClue(clue) }}></span>
+                          <span className="clue-label">{clue.label}</span> <span className="clue-text">{clue.text[0].plain}</span>
                         </li>
                       );
                     })}
