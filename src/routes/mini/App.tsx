@@ -92,7 +92,6 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
           newData.title = record.title;
           newData.constructors = [record.expand?.author?.username ?? "Unknown User"];
           setData(newData);
-          type = record.type;
         })
         .catch((err) => {
           console.error(err);
