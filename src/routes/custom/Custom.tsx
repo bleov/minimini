@@ -1,28 +1,28 @@
-import type { CustomPuzzle } from "@/lib/types";
+import type { CustomPuzzle, CustomPuzzleData } from "@/lib/types";
 import { pb } from "@/main";
-import { ArrowLeftIcon, EyeIcon, LayoutGridIcon, PencilIcon, PlayIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { ArrowLeftIcon, EyeIcon, LayoutGridIcon, PencilIcon, PlayIcon, PlusIcon, StarIcon, TrashIcon, TrophyIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Button, ButtonGroup, ButtonToolbar, Center, Heading, HStack, IconButton, Image, List, Text, useDialog, VStack } from "rsuite";
 
 export default function Custom() {
-  const [userPuzzles, setUserPuzzles] = useState<CustomPuzzle[]>([]);
-  const [puzzles, setPuzzles] = useState<CustomPuzzle[]>([]);
+  const [userPuzzles, setUserPuzzles] = useState<CustomPuzzleData[]>([]);
+  const [puzzles, setPuzzles] = useState<CustomPuzzleData[]>([]);
   const [createLoading, setCreateLoading] = useState(false);
 
   const navigate = useNavigate();
   const dialog = useDialog();
 
   useEffect(() => {
-    pb.collection("custom_puzzles")
-      .getFullList({ expand: "author", fields: "title, author, created, id, public, type, updated" })
+    pb.collection("custom_puzzle_data")
+      .getFullList({ fields: "id, author, author_name, title, public, type, created, updated, avg_rating, completions" })
       .then((puzzles) => {
         if (pb.authStore.isValid && pb.authStore.record) {
           const userPuzzles = puzzles.filter((puzzle) => puzzle.author === pb.authStore.record?.id);
-          setUserPuzzles(userPuzzles as CustomPuzzle[]);
+          setUserPuzzles(userPuzzles as CustomPuzzleData[]);
           puzzles = puzzles.filter((puzzle) => puzzle.public === true);
         }
-        setPuzzles(puzzles as CustomPuzzle[]);
+        setPuzzles(puzzles as CustomPuzzleData[]);
       });
   }, []);
 
@@ -54,10 +54,13 @@ export default function Custom() {
               onClick={() => {
                 if (createLoading) return;
                 setCreateLoading(true);
-                const idDigits = new Array(15)
+                let idDigits = new Array(15)
                   .fill(0)
                   .map(() => Math.floor(Math.random() * 9))
                   .join("");
+                if (idDigits.startsWith("0")) {
+                  idDigits = "1" + idDigits.slice(1);
+                }
                 pb.collection("custom_puzzles")
                   .create({
                     id: idDigits,
@@ -144,7 +147,9 @@ export default function Custom() {
                 <HStack justifyContent="space-between" spacing={15}>
                   <VStack spacing={0}>
                     <Text>{puzzle.title}</Text>
-                    <Text muted>{puzzle.expand?.author?.username ?? "Unknown User"}</Text>
+                    <Text muted>
+                      <TrophyIcon /> {puzzle.completions} <StarIcon /> {puzzle.avg_rating.toFixed(1)} {puzzle.author_name}
+                    </Text>
                   </VStack>
                   <ButtonGroup width={"fit-content"}>
                     <Link to={`/custom/${puzzle.id}`}>

@@ -131,3 +131,9 @@ export interface CustomPuzzle extends BaseRecord {
     author: UserRecord;
   };
 }
+
+export interface CustomPuzzleData extends CustomPuzzle {
+  author_name: string;
+  avg_rating: number;
+  completions: number;
+}
