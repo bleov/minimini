@@ -1,7 +1,7 @@
 import { GlobalState } from "@/lib/GlobalState";
 import type { CustomPuzzle, CrosswordShape, MiniCrossword } from "@/lib/types";
 import { pb } from "@/main";
-import { Grid2X2PlusIcon, PencilIcon, SaveIcon, SaveOffIcon } from "lucide-react";
+import { CircleQuestionMarkIcon, Grid2X2PlusIcon, PencilIcon, SaveIcon, SaveOffIcon, Wand2Icon } from "lucide-react";
 import { useContext, useEffect, useLayoutEffect, useRef, useState, type SetStateAction } from "react";
 import {
   Box,
@@ -16,6 +16,7 @@ import {
   Heading,
   HStack,
   Input,
+  Link,
   Modal,
   PinInput,
   Row,
@@ -42,6 +43,8 @@ export default function Create() {
   const [editingClue, setEditingClue] = useState<number | null>(null);
   const [clueInputText, setClueInputText] = useState<string>("");
   const [clueAnswerText, setClueAnswerText] = useState<string>("");
+  const [clueSuggestions, setClueSuggestions] = useState<string[]>([]);
+  const [helpLoading, setHelpLoading] = useState(false);
   const [editingDetails, setEditingDetails] = useState<boolean>(false);
   const [details, setDetails] = useState({ title: "Untitled Puzzle", options: [] as string[] });
   const [hoveringClue, setHoveringClue] = useState(-1);
@@ -176,6 +179,26 @@ export default function Create() {
 
   if (data) {
     const body = data.body[0];
+
+    async function getHelp(clue: number, input: string) {
+      const clueData = body.clues[clue];
+      let query = new Array(clueData.cells.length).fill("?").join("");
+      for (let i = 0; i < input.length; i++) {
+        if (input[i] !== " ") {
+          query = query.substring(0, i) + input[i] + query.substring(i + 1);
+        }
+      }
+      setHelpLoading(true);
+      const response = await fetch(`https://api.datamuse.com/words?sp=${query}`);
+      const data = await response.json();
+      if (data.length === 0) {
+        setClueSuggestions(["No suggestions found."]);
+        setHelpLoading(false);
+      } else {
+        setClueSuggestions(data.map((item: any) => item.word));
+        setHelpLoading(false);
+      }
+    }
 
     function getClueAnswer(clueIndex: number) {
       const clue = body.clues[clueIndex];
@@ -332,6 +355,28 @@ export default function Create() {
                       }}
                     />
                   </div>
+                  <Button
+                    startIcon={<Wand2Icon />}
+                    onClick={() => {
+                      if (helpLoading) return;
+                      getHelp(editingClue, clueAnswerText);
+                    }}
+                    loading={helpLoading}
+                  >
+                    Suggest
+                  </Button>
+                  {clueSuggestions.length > 0 && (
+                    <Box width={"100%"}>
+                      {clueSuggestions.map((suggestion, index) => (
+                        <>
+                          <Link key={index} href={`https://www.onelook.com/?w=${suggestion}`} target="_blank" textDecoration={"underline"}>
+                            {suggestion}
+                          </Link>
+                          {index < clueSuggestions.length - 1 && <Text display={"inline"}>, </Text>}
+                        </>
+                      ))}
+                    </Box>
+                  )}
                 </VStack>
               </>
             )}
