@@ -15,7 +15,7 @@ export default function Custom() {
 
   useEffect(() => {
     pb.collection("custom_puzzles")
-      .getFullList({ expand: "author" })
+      .getFullList({ expand: "author", fields: "title, author, created, id, public, type, updated" })
       .then((puzzles) => {
         if (pb.authStore.isValid && pb.authStore.record) {
           const userPuzzles = puzzles.filter((puzzle) => puzzle.author === pb.authStore.record?.id);
