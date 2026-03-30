@@ -878,8 +878,9 @@ export default function Mini({ data, startTouched, timeRef, stateDocId, alreadyC
           <VStack spacing={5} width={"100%"} alignItems={"center"}>
             {timeRef.current.length === 2 && (
               <Text>
-                You solved The {type.charAt(0).toUpperCase()}
-                {type.substring(1)} in{" "}
+                {type === "custom"
+                  ? "You solved this puzzle in "
+                  : `You solved The #{type.charAt(0).toUpperCase()}${type.substring(1)} in `}
                 <Text weight="bold">
                   {timeRef.current[0]}:{timeRef.current[1].toString().padStart(2, "0")}
                 </Text>

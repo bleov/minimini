@@ -1,9 +1,9 @@
 import type { CustomPuzzle } from "@/lib/types";
 import { pb } from "@/main";
-import { EyeIcon, PencilIcon, PlayIcon, PlusIcon, TrashIcon } from "lucide-react";
+import { ArrowLeftIcon, EyeIcon, LayoutGridIcon, PencilIcon, PlayIcon, PlusIcon, TrashIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { Button, ButtonGroup, Center, Heading, HStack, IconButton, List, Table, Text, useDialog, VStack } from "rsuite";
+import { Button, ButtonGroup, ButtonToolbar, Center, Heading, HStack, IconButton, Image, List, Text, useDialog, VStack } from "rsuite";
 
 export default function Custom() {
   const [userPuzzles, setUserPuzzles] = useState<CustomPuzzle[]>([]);
@@ -27,44 +27,59 @@ export default function Custom() {
   }, []);
 
   return (
-    <VStack spacing={10}>
-      <Heading level={1} className="merriweather-display">
-        Custom Puzzles
-      </Heading>
+    <VStack spacing={15}>
+      <VStack spacing={3} width={"100%"}>
+        <Center width={"100%"}>
+          <Image src={`/icons/custom/pwa-192x192.png`} width={48} />
+        </Center>
+        <Heading level={1} className="merriweather-display">
+          Custom Puzzles
+        </Heading>
+      </VStack>
       {pb.authStore.isValid && (
         <Center width={"100%"}>
-          <Button
-            appearance="default"
-            startIcon={<PlusIcon />}
-            loading={createLoading}
-            onClick={() => {
-              if (createLoading) return;
-              setCreateLoading(true);
-              const idDigits = new Array(15)
-                .fill(0)
-                .map(() => Math.floor(Math.random() * 9))
-                .join("");
-              pb.collection("custom_puzzles")
-                .create({
-                  id: idDigits,
-                  title: "Untitled Puzzle",
-                  author: pb.authStore.record?.id,
-                  puzzle: null,
-                  public: false,
-                  type: "mini"
-                })
-                .then((record) => {
-                  setCreateLoading(false);
-                  navigate(`/custom/${record.id}/edit`);
-                })
-                .catch((err) => {
-                  setCreateLoading(false);
-                  console.error(err);
-                });
-            }}
-          >
-            Create
-          </Button>{" "}
+          <ButtonToolbar>
+            <Button
+              startIcon={<ArrowLeftIcon />}
+              onClick={() => {
+                navigate("/");
+              }}
+            >
+              Back
+            </Button>
+            <Button
+              appearance="default"
+              startIcon={<PlusIcon />}
+              loading={createLoading}
+              onClick={() => {
+                if (createLoading) return;
+                setCreateLoading(true);
+                const idDigits = new Array(15)
+                  .fill(0)
+                  .map(() => Math.floor(Math.random() * 9))
+                  .join("");
+                pb.collection("custom_puzzles")
+                  .create({
+                    id: idDigits,
+                    title: "Untitled Puzzle",
+                    author: pb.authStore.record?.id,
+                    puzzle: null,
+                    public: false,
+                    type: "mini"
+                  })
+                  .then((record) => {
+                    setCreateLoading(false);
+                    navigate(`/custom/${record.id}/edit`);
+                  })
+                  .catch((err) => {
+                    setCreateLoading(false);
+                    console.error(err);
+                  });
+              }}
+            >
+              Create
+            </Button>
+          </ButtonToolbar>
         </Center>
       )}
 

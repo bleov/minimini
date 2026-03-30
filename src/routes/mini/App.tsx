@@ -243,8 +243,10 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
             <VStack width={"100%"} spacing={5} alignItems={"center"}>
               <Image src={`/icons/${type}/pwa-192x192.png`} width={48} />
               <Heading level={2} className="merriweather-display">
-                The {type.charAt(0).toUpperCase()}
+                {type !== "custom" && "The "}
+                {type.charAt(0).toUpperCase()}
                 {type.substring(1)}
+                {type === "custom" && " Puzzle"}
               </Heading>
               {data.title && (
                 <Heading level={3} className="merriweather-bold">
