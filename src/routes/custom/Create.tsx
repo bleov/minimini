@@ -1,9 +1,8 @@
-import { renderClue } from "@/lib/formatting";
 import { GlobalState } from "@/lib/GlobalState";
 import type { CustomPuzzle, CrosswordShape, MiniCrossword } from "@/lib/types";
 import { pb } from "@/main";
-import { Grid2X2PlusIcon, PencilIcon, SaveIcon, SaveOffIcon, UploadCloudIcon } from "lucide-react";
-import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type SetStateAction } from "react";
+import { Grid2X2PlusIcon, PencilIcon, SaveIcon, SaveOffIcon } from "lucide-react";
+import { useContext, useEffect, useLayoutEffect, useRef, useState, type SetStateAction } from "react";
 import {
   Box,
   Button,

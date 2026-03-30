@@ -11,7 +11,8 @@
   max-width: 600px;
   margin-left: auto;
 }
-.board-mini + .toggle-container {
+.board-mini + .toggle-container,
+.board-custom + .toggle-container {
   max-width: 400px;
 }
 
@@ -22,7 +23,8 @@
   display: block;
   margin-left: auto;
 }
-.board-mini {
+.board-mini,
+.board-custom {
   max-width: 400px;
 }
 
