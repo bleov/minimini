@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PB_VERSION="0.36.5"
+PB_VERSION="0.36.8"
 OS=$(uname -s | tr '[:upper:]' '[:lower:]')
 ARCH=$(uname -m | sed 's/x86_64/amd64/' | sed 's/aarch64/arm64/')
 
