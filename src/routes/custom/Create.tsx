@@ -367,14 +367,23 @@ export default function Create() {
                   </Button>
                   {clueSuggestions.length > 0 && (
                     <Box width={"100%"}>
-                      {clueSuggestions.map((suggestion, index) => (
-                        <>
-                          <Link key={index} href={`https://www.onelook.com/?w=${suggestion}`} target="_blank" textDecoration={"underline"}>
-                            {suggestion}
-                          </Link>
-                          {index < clueSuggestions.length - 1 && <Text display={"inline"}>, </Text>}
-                        </>
-                      ))}
+                      {clueSuggestions[0] === "No suggestions found." ? (
+                        <Text>{clueSuggestions[0]}</Text>
+                      ) : (
+                        clueSuggestions.map((suggestion, index) => (
+                          <>
+                            <Link
+                              key={index}
+                              href={`https://www.onelook.com/?w=${suggestion}`}
+                              target="_blank"
+                              textDecoration={"underline"}
+                            >
+                              {suggestion}
+                            </Link>
+                            {index < clueSuggestions.length - 1 && <Text display={"inline"}>, </Text>}
+                          </>
+                        ))
+                      )}
                     </Box>
                   )}
                 </VStack>
