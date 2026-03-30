@@ -1,13 +1,14 @@
 import { renderClue } from "@/lib/formatting";
 import { GlobalState } from "@/lib/GlobalState";
-import type { CrosswordShape, MiniCrossword } from "@/lib/types";
+import type { CustomPuzzle, CrosswordShape, MiniCrossword } from "@/lib/types";
 import { pb } from "@/main";
-import { Grid2X2PlusIcon, PencilIcon, UploadCloudIcon } from "lucide-react";
-import { useContext, useEffect, useLayoutEffect, useRef, useState, type SetStateAction } from "react";
+import { Grid2X2PlusIcon, PencilIcon, SaveIcon, SaveOffIcon, UploadCloudIcon } from "lucide-react";
+import { useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type SetStateAction } from "react";
 import {
   Box,
   Button,
   ButtonToolbar,
+  Center,
   Checkbox,
   CheckboxGroup,
   Col,
@@ -19,10 +20,12 @@ import {
   Modal,
   PinInput,
   Row,
+  Text,
   useDialog,
   VStack
 } from "rsuite";
 import ShapePreview from "./Components/ShapePreview";
+import { useBeforeUnload, useParams } from "react-router";
 
 function getTodayDateString() {
   const today = new Date();
@@ -33,13 +36,17 @@ function getTodayDateString() {
 }
 
 export default function Create() {
+  const [record, setRecord] = useState<CustomPuzzle | null>(null);
   const [data, setData] = useState<MiniCrossword | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
   const [editingClue, setEditingClue] = useState<number | null>(null);
   const [clueInputText, setClueInputText] = useState<string>("");
   const [clueAnswerText, setClueAnswerText] = useState<string>("");
   const [editingDetails, setEditingDetails] = useState<boolean>(false);
-  const [details, setDetails] = useState({ name: "Untitled Puzzle", public: true });
+  const [details, setDetails] = useState({ title: "Untitled Puzzle", options: [] as string[] });
   const [hoveringClue, setHoveringClue] = useState(-1);
+  const [saveStatus, setSaveStatus] = useState<"idle" | "unsaved" | "saving" | "saved" | "error">("idle");
 
   const [shapeDialogOpen, setShapeDialogOpen] = useState(false);
   const [shapes, setShapes] = useState<CrosswordShape[]>([]);
@@ -47,19 +54,50 @@ export default function Create() {
 
   const boardRef = useRef<HTMLDivElement>(null);
   const dialog = useDialog();
+  const params = useParams();
   const { user } = useContext(GlobalState);
 
   const type = "mini";
+
+  useBeforeUnload((e) => {
+    if (saveStatus === "unsaved" || saveStatus === "saving" || saveStatus === "error") {
+      e.preventDefault();
+      e.returnValue = "";
+    }
+  });
 
   useEffect(() => {
     document.title = "Create Custom Puzzle - Glyph";
     document.getElementById("favicon-svg")?.setAttribute("href", `/icons/custom/favicon.svg`);
 
-    pb.collection("shapes")
-      .getFirstListItem("sort_order=0")
-      .then((shape) => {
-        setData(shape.data as MiniCrossword);
-      });
+    if (params.id) {
+      // Existing puzzle
+      pb.collection("custom_puzzles")
+        .getOne(params.id)
+        .then((record) => {
+          if (record.puzzle == null) {
+            pb.collection("shapes")
+              .getFirstListItem("", { sort: "sort_order" })
+              .then((shape) => {
+                const newData = shape.data as MiniCrossword;
+                record.puzzle = newData;
+                setRecord(record as CustomPuzzle);
+                setData(record.puzzle as MiniCrossword);
+              });
+          } else {
+            setRecord(record as CustomPuzzle);
+            setDetails({ title: record.title, options: record.public ? ["public"] : [] });
+            setData(record.puzzle as MiniCrossword);
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          setError("Failed to load custom puzzle.");
+        });
+    } else {
+      // No puzzle found
+      setError("Custom puzzle not found.");
+    }
   }, []);
 
   useLayoutEffect(() => {
@@ -86,6 +124,34 @@ export default function Create() {
     }
   });
 
+  async function save() {
+    if (saveStatus === "saving") return;
+    if (!data || !record) return;
+    if (!user || !pb.authStore.isValid) {
+      return;
+    }
+    const customPuzzles = pb.collection("custom_puzzles");
+    const newRecord = {
+      author: user.id,
+      title: details.title || "Untitled Puzzle",
+      puzzle: data,
+      public: details.options.includes("public")
+    };
+    setSaveStatus("saving");
+    customPuzzles
+      .update(record.id, newRecord)
+      .then(() => {
+        setSaveStatus("saved");
+      })
+      .catch(() => {
+        setSaveStatus("error");
+      });
+  }
+
+  useEffect(() => {
+    setSaveStatus("unsaved");
+  }, [data, details]);
+
   if (data) {
     const body = data.body[0];
 
@@ -104,45 +170,12 @@ export default function Create() {
       return answer;
     }
 
-    function generateId() {
-      const min = 1000000000;
-      const max = 9999999999;
-      return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    async function publish() {
-      if (!data) return;
-      if (!user || !pb.authStore.isValid) {
-        dialog.alert("You must be logged in to publish.", { title: "Error" });
-        return;
-      }
-      const response = await dialog.confirm(
-        `Are you sure you want to publish your puzzle under the name ${user.username}? Don't include sensitive information in public puzzles.`
+    if (error) {
+      return (
+        <Center style={{ height: "100vh" }}>
+          <Text>{error}</Text>
+        </Center>
       );
-      if (!response) return;
-      const puzzleId = generateId();
-      const customPuzzles = pb.collection("custom_puzzles");
-      data.publicationDate = getTodayDateString();
-      data.copyright = new Date().getFullYear().toString();
-      data.constructors = [user.username];
-      data.lastUpdated = "";
-      data.id = puzzleId;
-      const record = {
-        id: puzzleId.toString().padEnd(15, "0"),
-        author: user.id,
-        title: details.name || "Untitled Puzzle",
-        puzzle: data,
-        public: true
-      };
-      customPuzzles
-        .create(record)
-        .then(() => {
-          dialog.alert("Puzzle published successfully!", { title: "Success" });
-        })
-        .catch((err) => {
-          console.error(err);
-          dialog.alert("An error occurred while publishing the puzzle. It has been saved locally.", { title: "Error" });
-        });
     }
 
     return (
@@ -179,10 +212,24 @@ export default function Create() {
               >
                 Details
               </Button>
-              <Button appearance="primary" color="blue" startIcon={<UploadCloudIcon />} onClick={publish}>
-                Publish
+              <Button
+                startIcon={<SaveIcon />}
+                appearance="primary"
+                color={saveStatus === "unsaved" ? "blue" : undefined}
+                onClick={save}
+                loading={saveStatus === "saving"}
+                disabled={saveStatus === "saved"}
+              >
+                Save
               </Button>
             </ButtonToolbar>
+            <Text width={"100%"} align="center">
+              {saveStatus === "error" && (
+                <Text color={"red"}>
+                  <SaveOffIcon /> Failed to save changes
+                </Text>
+              )}
+            </Text>
           </VStack>
           <div className="clues">
             {body.clueLists.map((list, index) => {
@@ -305,27 +352,41 @@ export default function Create() {
             <Form
               fluid
               onChange={(formValue) => {
-                setDetails(formValue as SetStateAction<{ name: string; public: boolean }>);
+                setDetails(formValue as SetStateAction<{ title: string; options: string[] }>);
               }}
               formValue={details}
               onSubmit={() => {
                 setEditingDetails(false);
               }}
             >
-              <Form.Group>
-                <Form.Label>Puzzle Name</Form.Label>
-                <Form.Control name="name"></Form.Control>
-              </Form.Group>
-              <Form.Group>
-                <Form.Control name="options" accepter={CheckboxGroup}>
-                  <Checkbox value={"public"}>Publish Publicly</Checkbox>
-                </Form.Control>
-              </Form.Group>
+              <VStack spacing={15}>
+                <Form.Group width={"100%"}>
+                  <Form.Label>Puzzle Title</Form.Label>
+                  <Form.Control name="title"></Form.Control>
+                </Form.Group>
+                <Form.Group width={"100%"}>
+                  <Form.Control name="options" accepter={CheckboxGroup}>
+                    <Checkbox value={"public"}>Publish Publicly</Checkbox>
+                    <Form.Text>
+                      <Text muted align="left">
+                        Your puzzle will be visible publicly on the custom puzzles page, but your username will only be visible to friends.
+                      </Text>
+                    </Form.Text>
+                  </Form.Control>
+                </Form.Group>
+              </VStack>
             </Form>
           </Modal.Body>
 
           <Modal.Footer>
-            <Button appearance="primary">Save</Button>
+            <Button
+              appearance="primary"
+              onClick={() => {
+                setEditingDetails(false);
+              }}
+            >
+              Save
+            </Button>
           </Modal.Footer>
         </Modal>
         <Modal open={shapeDialogOpen} onClose={() => setShapeDialogOpen(false)} size={"md"}>

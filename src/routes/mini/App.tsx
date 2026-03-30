@@ -86,7 +86,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
         return;
       }
       pb.collection("custom_puzzles")
-        .getOne(params.id)
+        .getOne(params.id, { expand: "author" })
         .then((record) => {
           const newData = record.puzzle as MiniCrossword;
           newData.id = record.id as unknown as number;
@@ -398,17 +398,17 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
         </VStack>
       </Modal>
 
+      <SignIn
+        open={modalState === "sign-in"}
+        setOpen={() => {
+          setModalState("welcome");
+        }}
+      />
+
       {type !== "custom" && (
         <>
           <Archive
             open={modalState === "archive"}
-            setOpen={() => {
-              setModalState("welcome");
-            }}
-          />
-
-          <SignIn
-            open={modalState === "sign-in"}
             setOpen={() => {
               setModalState("welcome");
             }}

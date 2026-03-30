@@ -31,39 +31,49 @@ export default function Custom() {
       <Heading level={1} className="merriweather-display">
         Custom Puzzles
       </Heading>
-      <Center width={"100%"}>
-        <Button
-          appearance="default"
-          startIcon={<PlusIcon />}
-          loading={createLoading}
-          onClick={() => {
-            if (createLoading) return;
-            setCreateLoading(true);
-            const idDigits = new Array(15)
-              .fill(0)
-              .map(() => Math.floor(Math.random() * 9))
-              .join("");
-            pb.collection("custom_puzzles")
-              .create({ id: idDigits, title: "Untitled Puzzle", author: pb.authStore.record?.id, puzzle: null, public: false })
-              .then((record) => {
-                setCreateLoading(false);
-                navigate(`/custom/${record.id}/edit`);
-              })
-              .catch((err) => {
-                setCreateLoading(false);
-                console.error(err);
-              });
-          }}
-        >
-          Create
-        </Button>
-      </Center>
+      {pb.authStore.isValid && (
+        <Center width={"100%"}>
+          <Button
+            appearance="default"
+            startIcon={<PlusIcon />}
+            loading={createLoading}
+            onClick={() => {
+              if (createLoading) return;
+              setCreateLoading(true);
+              const idDigits = new Array(15)
+                .fill(0)
+                .map(() => Math.floor(Math.random() * 9))
+                .join("");
+              pb.collection("custom_puzzles")
+                .create({
+                  id: idDigits,
+                  title: "Untitled Puzzle",
+                  author: pb.authStore.record?.id,
+                  puzzle: null,
+                  public: false,
+                  type: "mini"
+                })
+                .then((record) => {
+                  setCreateLoading(false);
+                  navigate(`/custom/${record.id}/edit`);
+                })
+                .catch((err) => {
+                  setCreateLoading(false);
+                  console.error(err);
+                });
+            }}
+          >
+            Create
+          </Button>{" "}
+        </Center>
+      )}
+
       <Center width={"100%"}>
         {pb.authStore.isValid && (
           <VStack>
             <Heading level={3}>My Puzzles</Heading>
             {userPuzzles.length > 0 ? (
-              <List bordered width={400}>
+              <List bordered width={400} maxHeight={56 * 4 + 5}>
                 {userPuzzles.map((puzzle) => (
                   <List.Item key={puzzle.id}>
                     <HStack justifyContent="space-between" spacing={15}>
@@ -113,7 +123,7 @@ export default function Custom() {
       <Center width={"100%"}>
         <VStack>
           <Heading level={3}>Public Puzzles</Heading>
-          <List bordered width={400}>
+          <List bordered width={400} maxHeight={56 * 4 + 5}>
             {puzzles.map((puzzle) => (
               <List.Item key={puzzle.id}>
                 <HStack justifyContent="space-between" spacing={15}>
