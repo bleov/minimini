@@ -156,7 +156,7 @@ export default function Create() {
     const customPuzzles = pb.collection("custom_puzzles");
     const newRecord = {
       author: user.id,
-      title: details.title || "Untitled Puzzle",
+      title: details.title?.substring(0, 35) || "Untitled Puzzle",
       puzzle: data,
       public: details.options.includes("public")
     };
@@ -385,14 +385,15 @@ export default function Create() {
               <VStack spacing={15}>
                 <Form.Group width={"100%"}>
                   <Form.Label>Puzzle Title</Form.Label>
-                  <Form.Control name="title"></Form.Control>
+                  <Form.Control name="title" maxLength={35}></Form.Control>
                 </Form.Group>
                 <Form.Group width={"100%"}>
                   <Form.Control name="options" accepter={CheckboxGroup}>
                     <Checkbox value={"public"}>Publish Publicly</Checkbox>
                     <Form.Text>
                       <Text muted align="left">
-                        Your puzzle will be visible publicly on the custom puzzles page, but your username will only be visible to friends.
+                        Your puzzle will be visible publicly on the custom puzzles page. When your puzzle is private, you can still share
+                        the preview link with others.
                       </Text>
                     </Form.Text>
                   </Form.Control>
