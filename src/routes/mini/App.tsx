@@ -22,16 +22,16 @@ import AccountButtons from "@/Components/AccountButtons";
 import SignIn from "@/Components/SignIn";
 import { GlobalState } from "@/lib/GlobalState";
 import { formatDate } from "@/lib/formatting";
-import type { MiniCrossword } from "@/lib/types";
+import type { CustomPuzzle, MiniCrossword } from "@/lib/types";
 import { pb, pb_url } from "@/main";
 import { Archive } from "./Components/Archive";
 import Mini from "./Components/Mini";
 import Timer from "./Components/Timer";
 import { MiniState } from "./state";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { Stats } from "./Components/Stats";
 
-function App({ type }: { type: "mini" | "daily" | "midi" }) {
+function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
   const [data, setData] = useState<MiniCrossword | null>(null);
   const [restoredTime, setRestoredTime] = useState<number>(-1);
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +47,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
   const stateDocId = useRef<string>("");
   const dialog = useDialog();
   const navigate = useNavigate();
+  const params = useParams();
 
   const { user } = useContext(GlobalState);
 
@@ -79,6 +80,25 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
 
   useEffect(() => {
     if (data) return;
+    if (type === "custom") {
+      if (!params.id) {
+        return;
+      }
+      pb.collection("custom_puzzles")
+        .getOne(params.id, { expand: "author" })
+        .then((record) => {
+          const newData = record.puzzle as MiniCrossword;
+          newData.id = record.id as unknown as number;
+          newData.title = record.title;
+          newData.constructors = [record.expand?.author?.username ?? "Unknown User"];
+          setData(newData);
+        })
+        .catch((err) => {
+          console.error(err);
+          setError("Failed to load custom puzzle.");
+        });
+      return;
+    }
     fetch(pb_url + "/api/today/" + type)
       .then((res) => res.json())
       .then((json) => {
@@ -221,8 +241,10 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
             <VStack width={"100%"} spacing={5} alignItems={"center"}>
               <Image src={`/icons/${type}/pwa-192x192.png`} width={48} />
               <Heading level={2} className="merriweather-display">
-                The {type.charAt(0).toUpperCase()}
+                {type !== "custom" && "The "}
+                {type.charAt(0).toUpperCase()}
                 {type.substring(1)}
+                {type === "custom" && " Puzzle"}
               </Heading>
               {data.title && (
                 <Heading level={3} className="merriweather-bold">
@@ -235,9 +257,11 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
                 By {data.constructors.join(", ")}
                 {data.editor && ` · Edited by ${data.editor}`}
               </Text>
-              <Text width={"100%"} textAlign={"center"}>
-                {formatDate(data.publicationDate)}
-              </Text>
+              {type !== "custom" && (
+                <Text width={"100%"} textAlign={"center"}>
+                  {formatDate(data.publicationDate)}
+                </Text>
+              )}
             </VStack>
             {user && (
               <Center width={"100%"}>
@@ -278,7 +302,9 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
                     ) {
                       return;
                     }
-                    if (document.fullscreenEnabled) document.documentElement.requestFullscreen();
+                    if (document.fullscreenEnabled) {
+                      document.documentElement.requestFullscreen();
+                    }
                   }
                   setModalState(null);
                   posthog.capture(restoredTime > 0 ? "continue_puzzle" : "start_puzzle", { puzzle: data.id });
@@ -298,45 +324,45 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
                     ? "Continue Solving"
                     : `Start Solving${options.includes("hardcore") ? " (Hardcore)" : ""}`}
               </Button>
-              <Button
-                onClick={() => {
-                  setModalState("archive");
-                  posthog.capture("open_archive");
-                }}
-                appearance="default"
-                startIcon={<ArchiveIcon />}
-              >
-                Archive
-              </Button>
+              {type !== "custom" && (
+                <Button
+                  onClick={() => {
+                    setModalState("archive");
+                    posthog.capture("open_archive");
+                  }}
+                  appearance="default"
+                  startIcon={<ArchiveIcon />}
+                >
+                  Archive
+                </Button>
+              )}
             </ButtonGroup>
             <ButtonGroup justified>
               <Button
                 startIcon={<ArrowLeftIcon />}
                 appearance="subtle"
                 onClick={() => {
+                  if (type === "custom") {
+                    navigate("/custom");
+                    return;
+                  }
                   navigate("/");
                 }}
               >
                 Back
               </Button>
-              {user ? (
-                <Button startIcon={<ChartNoAxesColumnIcon />} appearance="subtle" onClick={() => setModalState("stats")}>
-                  Stats
-                </Button>
-              ) : (
-                <AccountButtons setModalState={setModalState} appearance="subtle" />
-              )}
+              {type !== "custom" &&
+                (user ? (
+                  <Button startIcon={<ChartNoAxesColumnIcon />} appearance="subtle" onClick={() => setModalState("stats")}>
+                    Stats
+                  </Button>
+                ) : (
+                  <AccountButtons setModalState={setModalState} appearance="subtle" />
+                ))}
             </ButtonGroup>
           </VStack>
         </Modal>
       )}
-
-      <Archive
-        open={modalState === "archive"}
-        setOpen={() => {
-          setModalState("welcome");
-        }}
-      />
 
       <Modal
         open={paused}
@@ -379,13 +405,24 @@ function App({ type }: { type: "mini" | "daily" | "midi" }) {
         }}
       />
 
-      <Stats
-        open={modalState === "stats"}
-        setOpen={() => {
-          setModalState("welcome");
-        }}
-        type={type}
-      />
+      {type !== "custom" && (
+        <>
+          <Archive
+            open={modalState === "archive"}
+            setOpen={() => {
+              setModalState("welcome");
+            }}
+          />
+
+          <Stats
+            open={modalState === "stats"}
+            setOpen={() => {
+              setModalState("welcome");
+            }}
+            type={type}
+          />
+        </>
+      )}
 
       {data && restoredTime > -1 && modalState === null ? (
         <Timer

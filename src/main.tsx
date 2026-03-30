@@ -48,11 +48,16 @@ import "rsuite/Divider/styles/index.css";
 import "rsuite/StatGroup/styles/index.css";
 import "rsuite/Stat/styles/index.css";
 import "rsuite/ProgressCircle/styles/index.css";
+import "rsuite/Grid/styles/index.css";
+import "rsuite/Col/styles/index.css";
+import "rsuite/Row/styles/index.css";
 
 import "./css/App.css";
 import "./css/Index.css";
 import "./css/Cascades.css";
 import "./css/rsuite-reset.css";
+import Create from "./routes/custom/Create.tsx";
+import Custom from "./routes/custom/Custom.tsx";
 
 const Index = lazy(() => import("./Index.tsx"));
 const Mini = lazy(() => import("./routes/mini/App.tsx"));
@@ -90,11 +95,17 @@ function Main() {
         <Suspense fallback={null}>
           <Routes>
             <Route path="/" element={<Index />} />
+
             <Route path="/mini" element={<Mini type={"mini"} />} />
             <Route path="/crossword" element={<Navigate to="/daily" replace />} />
             <Route path="/daily" element={<Mini type={"daily"} />} />
             <Route path="/midi" element={<Mini type={"midi"} />} />
+
             <Route path="/cascades" element={<Cascades />} />
+
+            <Route path="/custom" element={<Custom />} />
+            <Route path="/custom/:id/edit" element={<Create />}></Route>
+            <Route path="/custom/:id" element={<Mini type={"custom"} />}></Route>
           </Routes>
         </Suspense>
       </BrowserRouter>

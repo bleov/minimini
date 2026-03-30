@@ -114,3 +114,20 @@ export interface UserRecord extends BaseRecord {
   friend_code: string;
   avatar?: string;
 }
+
+export interface CrosswordShape extends BaseRecord {
+  sort_order: number;
+  type: string;
+  data: MiniCrossword;
+}
+
+export interface CustomPuzzle extends BaseRecord {
+  author: string;
+  title: string;
+  puzzle: MiniCrossword | null;
+  public: boolean;
+  type: string;
+  expand?: {
+    author: UserRecord;
+  };
+}

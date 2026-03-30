@@ -83,7 +83,7 @@ export default function Index() {
         <LinkCard title="The Mini" description="Tiny crossword puzzles" link="/mini" imageSrc="/icons/mini/pwa-192x192.png" />
         <LinkCard title="The Midi" description="Medium crossword puzzles" link="/midi" imageSrc="/icons/midi/pwa-192x192.png" />
         <LinkCard title="The Daily" description="Large crossword puzzles" link="/daily" imageSrc="/icons/daily/pwa-192x192.png" />
-        <LinkCard title="Bonus Puzzles" description="Coming soon" link="" imageSrc="/icons/bonus.svg" disabled />
+        <LinkCard title="Custom Puzzles" description="Create your own crossword" link="/custom" imageSrc="/icons/custom/pwa-192x192.png" />
       </CardGroup>
     </main>
   );
