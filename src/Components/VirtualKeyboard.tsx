@@ -1,5 +1,5 @@
 import { useState } from "react";
-import KeyboardReact from "react-simple-keyboard";
+import { KeyboardReact } from "react-simple-keyboard";
 
 interface VirtualKeyboardProps {
   handleKeyDown: (event: KeyboardEvent, virtual: boolean) => void;
