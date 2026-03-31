@@ -60,7 +60,7 @@ import Create from "./routes/custom/Create.tsx";
 import Custom from "./routes/custom/Custom.tsx";
 
 const Index = lazy(() => import("./Index.tsx"));
-const Mini = lazy(() => import("./routes/mini/App.tsx"));
+const CrosswordApp = lazy(() => import("./routes/crossword/App.tsx"));
 const Cascades = lazy(() => import("./routes/cascades/App.tsx"));
 
 export const pb_url = import.meta.env.VITE_POCKETBASE_URL || location.origin;
@@ -96,16 +96,16 @@ function Main() {
           <Routes>
             <Route path="/" element={<Index />} />
 
-            <Route path="/mini" element={<Mini type={"mini"} />} />
+            <Route path="/mini" element={<CrosswordApp type={"mini"} />} />
             <Route path="/crossword" element={<Navigate to="/daily" replace />} />
-            <Route path="/daily" element={<Mini type={"daily"} />} />
-            <Route path="/midi" element={<Mini type={"midi"} />} />
+            <Route path="/daily" element={<CrosswordApp type={"daily"} />} />
+            <Route path="/midi" element={<CrosswordApp type={"midi"} />} />
 
             <Route path="/cascades" element={<Cascades />} />
 
             <Route path="/custom" element={<Custom />} />
             <Route path="/custom/:id/edit" element={<Create />}></Route>
-            <Route path="/custom/:id" element={<Mini type={"custom"} />}></Route>
+            <Route path="/custom/:id" element={<CrosswordApp type={"custom"} />}></Route>
           </Routes>
         </Suspense>
       </BrowserRouter>

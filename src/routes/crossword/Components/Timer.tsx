@@ -6,7 +6,7 @@ import { HStack, Text } from "rsuite";
 import { PauseIcon } from "lucide-react";
 
 import type { MiniCrossword } from "@/lib/types";
-import { MiniState } from "../state";
+import { CrosswordAppState } from "../state";
 
 interface TimerProps {
   onPause: () => void;
@@ -26,7 +26,7 @@ export default function Timer({ onPause, running, setTime, puzzle, restoredTime 
   });
 
   const [justPaused, setJustPaused] = useState(false);
-  const { type, options } = useContext(MiniState);
+  const { type, options } = useContext(CrosswordAppState);
 
   useEffect(() => {
     if (running) {
@@ -44,7 +44,7 @@ export default function Timer({ onPause, running, setTime, puzzle, restoredTime 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        if (type === "crossword") return;
+        if (type === "daily") return;
         if (justPaused) {
           setJustPaused(false);
           return;

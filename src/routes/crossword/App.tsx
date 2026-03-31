@@ -25,9 +25,9 @@ import { formatDate } from "@/lib/formatting";
 import type { CustomPuzzle, MiniCrossword } from "@/lib/types";
 import { pb, pb_url } from "@/main";
 import { Archive } from "./Components/Archive";
-import Mini from "./Components/Mini";
+import Crossword from "./Components/Crossword";
 import Timer from "./Components/Timer";
-import { MiniState } from "./state";
+import { CrosswordAppState } from "./state";
 import { useNavigate, useParams } from "react-router";
 import { Stats } from "./Components/Stats";
 
@@ -51,7 +51,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
 
   const { user } = useContext(GlobalState);
 
-  const miniState = useMemo(
+  const appState = useMemo(
     () => ({
       paused,
       data,
@@ -69,7 +69,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
 
   if (import.meta.env.DEV) {
     // @ts-ignore
-    window.game = miniState;
+    window.game = appState;
   }
 
   function pause() {
@@ -231,7 +231,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
   }, [options]);
 
   return (
-    <MiniState.Provider value={miniState}>
+    <CrosswordAppState.Provider value={appState}>
       {data && restoredTime > -1 && (
         <Modal
           open={modalState === "welcome"}
@@ -444,7 +444,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
         ""
       )}
       {data && restoredTime > -1 && modalState === null ? (
-        <Mini
+        <Crossword
           data={data}
           startTouched={startTouched.current}
           timeRef={timeRef}
@@ -455,7 +455,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
         !data && !error && <Text className="loading centered block"></Text>
       )}
       {error && <div className="error centered block">{error}</div>}
-    </MiniState.Provider>
+    </CrosswordAppState.Provider>
   );
 }
 

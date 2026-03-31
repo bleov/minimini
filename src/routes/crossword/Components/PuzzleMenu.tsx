@@ -15,7 +15,7 @@ import {
 
 import type { MiniCrossword } from "@/lib/types";
 import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
-import { MiniState } from "@/routes/mini/state";
+import { CrosswordAppState } from "@/routes/crossword/state";
 import { pb, pb_url } from "@/main";
 import { GlobalState } from "@/lib/GlobalState";
 import { useDialog } from "rsuite";
@@ -35,7 +35,7 @@ export default function PuzzleMenu({
   onExit: (destination: string) => void;
 }) {
   const { user } = useContext(GlobalState);
-  const { type, options, complete, setOptions } = useContext(MiniState);
+  const { type, options, complete, setOptions } = useContext(CrosswordAppState);
   const dialog = useDialog();
   const navigate = useNavigate();
 

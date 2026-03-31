@@ -7,7 +7,7 @@ import { ArchiveIcon, CircleCheckIcon, HourglassIcon } from "lucide-react";
 import { pb } from "@/main";
 import type { ArchiveRecord, ArchiveStateRecord, BasicArchiveRecord, MiniCrossword } from "@/lib/types";
 import { formatDuration } from "@/lib/formatting";
-import { MiniState } from "@/routes/mini/state";
+import { CrosswordAppState } from "@/routes/crossword/state";
 
 function getMonthFilter(date: Date) {
   const year = date.getFullYear();
@@ -32,7 +32,8 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
   const archive = pb.collection("archive");
   const puzzleState = pb.collection("puzzle_state");
 
-  const { setData: setPuzzleData, type }: { setData: (x: MiniCrossword) => void; type: "mini" | "daily" | "midi" } = useContext(MiniState);
+  const { setData: setPuzzleData, type }: { setData: (x: MiniCrossword) => void; type: "mini" | "daily" | "midi" } =
+    useContext(CrosswordAppState);
 
   useEffect(() => {
     if (!data && open) {

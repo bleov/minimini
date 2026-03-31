@@ -1,4 +1,4 @@
-import { MiniState } from "@/routes/mini/state";
+import { CrosswordAppState } from "@/routes/crossword/state";
 import { LogInIcon, MonitorIcon, SmartphoneIcon, StarIcon, TrophyIcon, UsersIcon } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
@@ -25,7 +25,7 @@ export default function Leaderboard({
   const [data, setData] = useState<StateRecord[]>([]);
 
   const { user } = useContext(GlobalState);
-  const { setModalState, setComplete } = useContext(MiniState);
+  const { setModalState, setComplete } = useContext(CrosswordAppState);
   const navigate = useNavigate();
 
   useEffect(() => {

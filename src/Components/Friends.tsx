@@ -8,7 +8,7 @@ import "../css/Friends.css";
 import { getDefaultAvatar } from "../lib/avatars";
 import { ChartNoAxesColumnIcon, MenuIcon, UsersIcon, UserXIcon } from "lucide-react";
 import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
-import { Stats } from "@/routes/mini/Components/Stats";
+import { Stats } from "@/routes/crossword/Components/Stats";
 import Nudge from "./Nudge";
 
 function FriendListEntry({ friend, fetchFriends }: { friend: UserRecord; fetchFriends: () => Promise<void> }) {
