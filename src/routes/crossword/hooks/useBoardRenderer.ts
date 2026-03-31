@@ -1,6 +1,6 @@
 import { useLayoutEffect } from "react";
 
-import { useCrosswordContext } from "./CrosswordContext";
+import { useCrosswordContext } from "../Components/CrosswordContext";
 
 export function useBoardRenderer() {
   const {

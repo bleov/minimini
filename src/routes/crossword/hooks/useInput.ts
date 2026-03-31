@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from "react";
 
-import { useCrosswordContext } from "./CrosswordContext";
+import { useCrosswordContext } from "../Components/CrosswordContext";
 
 export function useInput() {
   const {

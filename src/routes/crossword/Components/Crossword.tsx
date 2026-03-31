@@ -13,9 +13,9 @@ import { CrosswordProvider, type CrosswordContextValue } from "./CrosswordContex
 import IncorrectModal from "./IncorrectModal";
 import PuzzleMenu from "./PuzzleMenu";
 import VictoryModal from "./VictoryModal";
-import { useBoardRenderer } from "./useBoardRenderer";
-import { useInput } from "./useInput";
-import { usePersistence } from "./usePersistence";
+import { useBoardRenderer } from "../hooks/useBoardRenderer";
+import { useInput } from "../hooks/useInput";
+import { usePersistence } from "../hooks/usePersistence";
 
 const Keyboard = lazy(async () => ({
   default: (await import("@/Components/VirtualKeyboard")).default

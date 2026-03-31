@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo } from "react";
 
 import { fireworks } from "@/lib/confetti";
 import { pb } from "@/main";
-import { useCrosswordContext } from "./CrosswordContext";
+import { useCrosswordContext } from "../Components/CrosswordContext";
 
 export function usePersistence() {
   const {
