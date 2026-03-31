@@ -75,7 +75,7 @@ export default function PuzzleMenu({
         onClick={() => {
           onExit("archive");
         }}
-        disabled={hardcore && !complete}
+        disabled={(hardcore && !complete) || type === "custom"}
       >
         <ArchiveIcon />
         Archive
