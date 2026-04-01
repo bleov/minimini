@@ -1,6 +1,7 @@
+import Nudge from "@/Components/Nudge";
 import type { CustomPuzzle, CustomPuzzleData } from "@/lib/types";
 import { pb } from "@/main";
-import { ArrowLeftIcon, EyeIcon, LayoutGridIcon, PencilIcon, PlayIcon, PlusIcon, StarIcon, TrashIcon, TrophyIcon } from "lucide-react";
+import { ArrowLeftIcon, EyeIcon, LogInIcon, PencilIcon, PlayIcon, PlusIcon, StarIcon, TrashIcon, TrophyIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Button, ButtonGroup, ButtonToolbar, Center, Heading, HStack, IconButton, Image, List, Text, useDialog, VStack } from "rsuite";
@@ -41,8 +42,8 @@ export default function Custom() {
           Custom Puzzles
         </Heading>
       </VStack>
-      {pb.authStore.isValid && (
-        <Center width={"100%"}>
+      <Center width={"100%"}>
+        {pb.authStore.isValid ? (
           <ButtonToolbar>
             <Button
               startIcon={<ArrowLeftIcon />}
@@ -88,8 +89,22 @@ export default function Custom() {
               Create
             </Button>
           </ButtonToolbar>
-        </Center>
-      )}
+        ) : (
+          <Nudge
+            title="Sign in to create puzzles"
+            body="With an account, you can create and share custom crossword puzzles"
+            color="#3C6FD3"
+            className="custom-puzzle-nudge icon-bg"
+            cta={
+              <Link to="/#sign-in">
+                <Button startIcon={<LogInIcon />} appearance="ghost">
+                  Sign In
+                </Button>
+              </Link>
+            }
+          />
+        )}
+      </Center>
 
       <Center width={"100%"}>
         {pb.authStore.isValid && (
