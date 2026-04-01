@@ -13,7 +13,7 @@
         "localforage": "^1.10.0",
         "lucide-react": "^1.7.0",
         "pocketbase": "^0.26.8",
-        "posthog-js": "^1.364.2",
+        "posthog-js": "^1.364.4",
         "puppeteer": "^24.40.0",
         "rdndmb-html5-to-touch": "^9.0.0",
         "react": "^19.2.4",
@@ -43,9 +43,6 @@
         "vite": "^8.0.3",
       },
     },
-  },
-  "patchedDependencies": {
-    "rsuite@6.1.2": "patches/rsuite@6.1.2.patch",
   },
   "packages": {
     "@babel/code-frame": ["@babel/code-frame@7.27.1", "", { "dependencies": { "@babel/helper-validator-identifier": "^7.27.1", "js-tokens": "^4.0.0", "picocolors": "^1.1.1" } }, "sha512-cjQ7ZlQ0Mv3b47hABuTevyTuYN4i+loJKGeV9flcCgIK37cCXRh+L1bd3iBHlynerhQ7BhCkn2BPbQUL+rGqFg=="],

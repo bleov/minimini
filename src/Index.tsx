@@ -55,6 +55,9 @@ export default function Index() {
       case "#account":
         setModalState("account");
         break;
+      case "#sign-in":
+        setModalState("sign-in");
+        break;
       default:
         break;
     }

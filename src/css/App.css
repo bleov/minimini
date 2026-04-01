@@ -218,3 +218,12 @@ canvas {
 .friends-nudge {
   background-image: url("/icons/users-bg.svg");
 }
+
+.custom-puzzle-nudge {
+  background-image: url("/icons/star-bg.svg");
+}
+
+.answer-input-box {
+  flex-grow: 1;
+  text-align: center;
+}

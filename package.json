@@ -47,8 +47,5 @@
     "typescript": "~6.0.2",
     "typescript-eslint": "^8.58.0",
     "vite": "^8.0.3"
-  },
-  "patchedDependencies": {
-    "rsuite@6.1.2": "patches/rsuite@6.1.2.patch"
   }
 }

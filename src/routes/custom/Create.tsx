@@ -26,6 +26,7 @@ import {
 } from "rsuite";
 import ShapePreview from "./Components/ShapePreview";
 import { useBeforeUnload, useParams } from "react-router";
+import AnswerInput from "./Components/AnswerInput";
 
 function getTodayDateString() {
   const today = new Date();
@@ -345,15 +346,7 @@ export default function Create() {
                     <Heading level={3} textAlign={"left"}>
                       Answer
                     </Heading>
-                    <PinInput
-                      length={body.clues[editingClue].cells.length}
-                      attached
-                      type={"alphanumeric"}
-                      value={clueAnswerText}
-                      onChange={(val) => {
-                        setClueAnswerText(val.toUpperCase());
-                      }}
-                    />
+                    <AnswerInput value={clueAnswerText} onChange={(value) => setClueAnswerText(value)} />
                   </div>
                   <Button
                     startIcon={<Wand2Icon />}
