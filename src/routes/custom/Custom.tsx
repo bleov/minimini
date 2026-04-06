@@ -202,7 +202,8 @@ export default function Custom() {
                     author: pb.authStore.record?.id,
                     puzzle: null,
                     public: false,
-                    type: "mini"
+                    type: "mini",
+                    shape: null
                   })
                   .then((record) => {
                     setCreateLoading(false);

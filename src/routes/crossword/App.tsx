@@ -85,12 +85,18 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
         return;
       }
       pb.collection("custom_puzzles")
-        .getOne(params.id, { expand: "author" })
+        .getOne(params.id, { expand: "author,shape" })
         .then((record) => {
+          if (!record.expand?.shape) {
+            setError("Puzzle data is corrupted.");
+            return;
+          }
           const newData = record.puzzle as MiniCrossword;
           newData.id = record.id as unknown as number;
           newData.title = record.title;
           newData.constructors = [record.expand?.author?.username ?? "Unknown User"];
+          newData.editor = "";
+          newData.body[0].board = record.expand.shape.data.body[0].board;
           setData(newData);
         })
         .catch((err) => {

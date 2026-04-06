@@ -58,6 +58,7 @@ export default function Create() {
   const dialog = useDialog();
   const params = useParams();
   const { user } = useContext(GlobalState);
+  const shapeRef = useRef<string | null>(null);
 
   const type = "mini";
 
@@ -98,7 +99,7 @@ export default function Create() {
     if (params.id) {
       // Existing puzzle
       pb.collection("custom_puzzles")
-        .getOne(params.id)
+        .getOne(params.id, { expand: "shape" })
         .then((record) => {
           if (record.puzzle == null) {
             pb.collection("shapes")
@@ -108,11 +109,16 @@ export default function Create() {
                 record.puzzle = newData;
                 setRecord(record as CustomPuzzle);
                 setData(newData);
+                shapeRef.current = shape.id;
               });
           } else {
             setRecord(record as CustomPuzzle);
             setDetails({ title: record.title, options: record.public ? ["public"] : [] });
+            if (record.expand?.shape) {
+              record.puzzle.body[0].board = record.expand.shape.data.body[0].board;
+            }
             setData(record.puzzle as MiniCrossword);
+            shapeRef.current = record.shape || null;
           }
         })
         .catch((err) => {
@@ -156,11 +162,16 @@ export default function Create() {
       return;
     }
     const customPuzzles = pb.collection("custom_puzzles");
+    const puzzle = {
+      ...data,
+      body: data.body.map((bodyItem, index) => (index === 0 ? { ...bodyItem, board: "" } : bodyItem))
+    };
     const newRecord = {
       author: user.id,
       title: details.title?.substring(0, 35) || "Untitled Puzzle",
-      puzzle: data,
-      public: details.options.includes("public")
+      puzzle,
+      public: details.options.includes("public"),
+      shape: shapeRef.current
     };
     setSaveStatus("saving");
     customPuzzles
@@ -477,6 +488,7 @@ export default function Create() {
                             await dialog.confirm("Changing the puzzle shape will clear any existing edits.", { title: "Are you sure?" })
                           ) {
                             setData(clearShape(newShape.data));
+                            shapeRef.current = newShape.id;
                           }
                         }}
                       />

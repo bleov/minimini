@@ -127,8 +127,10 @@ export interface CustomPuzzle extends BaseRecord {
   puzzle: MiniCrossword | null;
   public: boolean;
   type: string;
+  shape: string | null;
   expand?: {
     author: UserRecord;
+    shape: CrosswordShape;
   };
 }
 
