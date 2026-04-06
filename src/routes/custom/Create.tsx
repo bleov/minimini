@@ -18,7 +18,6 @@ import {
   Input,
   Link,
   Modal,
-  PinInput,
   Row,
   Text,
   useDialog,
@@ -478,8 +477,6 @@ export default function Create() {
                             await dialog.confirm("Changing the puzzle shape will clear any existing edits.", { title: "Are you sure?" })
                           ) {
                             setData(clearShape(newShape.data));
-                          } else {
-                            setShapeDialogOpen(true);
                           }
                         }}
                       />

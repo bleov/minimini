@@ -51,6 +51,7 @@ import "rsuite/ProgressCircle/styles/index.css";
 import "rsuite/Grid/styles/index.css";
 import "rsuite/Col/styles/index.css";
 import "rsuite/Row/styles/index.css";
+import "rsuite/Placeholder/styles/index.css";
 
 import "./css/App.css";
 import "./css/Index.css";

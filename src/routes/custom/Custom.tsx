@@ -4,7 +4,113 @@ import { pb } from "@/main";
 import { ArrowLeftIcon, EyeIcon, LogInIcon, PencilIcon, PlayIcon, PlusIcon, StarIcon, TrashIcon, TrophyIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { Button, ButtonGroup, ButtonToolbar, Center, Heading, HStack, IconButton, Image, List, Text, useDialog, VStack } from "rsuite";
+import {
+  Button,
+  ButtonGroup,
+  ButtonToolbar,
+  Center,
+  Heading,
+  HStack,
+  IconButton,
+  Image,
+  List,
+  Placeholder,
+  Stack,
+  Text,
+  useDialog,
+  VStack
+} from "rsuite";
+
+function UserPuzzles({ userPuzzles }: { userPuzzles: CustomPuzzleData[] }) {
+  const navigate = useNavigate();
+  const dialog = useDialog();
+
+  return (
+    <VStack width={400}>
+      <Heading level={3}>My Puzzles</Heading>
+      {userPuzzles.length > 0 ? (
+        <List bordered width={400} maxHeight={56 * 4 + 5}>
+          {userPuzzles.map((puzzle) => (
+            <List.Item key={puzzle.id}>
+              <HStack justifyContent="space-between" spacing={15}>
+                <VStack spacing={0}>
+                  <Text>{puzzle.title}</Text>
+                  <Text muted>{puzzle.public ? "Public" : "Private"}</Text>
+                </VStack>
+                <ButtonGroup width={"fit-content"}>
+                  <IconButton
+                    icon={<EyeIcon />}
+                    onClick={() => {
+                      navigate(`/custom/${puzzle.id}`);
+                    }}
+                  />
+                  <IconButton
+                    icon={<PencilIcon />}
+                    onClick={() => {
+                      navigate(`/custom/${puzzle.id}/edit`);
+                    }}
+                  />
+                  <IconButton
+                    icon={<TrashIcon />}
+                    onClick={async () => {
+                      if (await dialog.confirm(`"${puzzle.title}" will be permanently deleted.`, { title: "Are you sure?" })) {
+                        pb.collection("custom_puzzles")
+                          .delete(puzzle.id)
+                          .then(() => {
+                            location.reload();
+                          })
+                          .catch((err) => {
+                            console.error(err);
+                          });
+                      }
+                    }}
+                  />
+                </ButtonGroup>
+              </HStack>
+            </List.Item>
+          ))}
+        </List>
+      ) : (
+        <Text align="center" width={"100%"}>
+          You haven't created any puzzles yet.
+        </Text>
+      )}
+    </VStack>
+  );
+}
+
+function PublicPuzzles({ puzzles }: { puzzles: CustomPuzzleData[] }) {
+  return (
+    <VStack width={400}>
+      <Heading level={3}>Public Puzzles</Heading>
+      <List bordered width={400} maxHeight={56 * 4 + 5}>
+        {puzzles.map((puzzle) => (
+          <List.Item key={puzzle.id}>
+            <HStack justifyContent="space-between" spacing={15}>
+              <VStack spacing={0}>
+                <Text>{puzzle.title}</Text>
+                <Text muted>
+                  <TrophyIcon /> {puzzle.completions} <StarIcon /> {puzzle.avg_rating.toFixed(1)} {puzzle.author_name}
+                </Text>
+              </VStack>
+              <ButtonGroup width={"fit-content"}>
+                <Link to={`/custom/${puzzle.id}`}>
+                  <IconButton icon={<PlayIcon />} />
+                </Link>
+              </ButtonGroup>
+            </HStack>
+          </List.Item>
+        ))}
+        {puzzles.length === 0 &&
+          new Array(4).fill(0).map((_, i) => (
+            <List.Item key={i}>
+              <Placeholder.Paragraph rows={2} active />
+            </List.Item>
+          ))}
+      </List>
+    </VStack>
+  );
+}
 
 export default function Custom() {
   const [userPuzzles, setUserPuzzles] = useState<CustomPuzzleData[]>([]);
@@ -16,7 +122,10 @@ export default function Custom() {
 
   useEffect(() => {
     pb.collection("custom_puzzle_data")
-      .getFullList({ fields: "id, author, author_name, title, public, type, created, updated, avg_rating, completions" })
+      .getFullList({
+        fields: "id, author, author_name, title, public, type, created, updated, avg_rating, completions",
+        sort: "-completions"
+      })
       .then((puzzles) => {
         if (pb.authStore.isValid && pb.authStore.record) {
           const userPuzzles = puzzles.filter((puzzle) => puzzle.author === pb.authStore.record?.id);
@@ -107,80 +216,10 @@ export default function Custom() {
       </Center>
 
       <Center width={"100%"}>
-        {pb.authStore.isValid && (
-          <VStack>
-            <Heading level={3}>My Puzzles</Heading>
-            {userPuzzles.length > 0 ? (
-              <List bordered width={400} maxHeight={56 * 4 + 5}>
-                {userPuzzles.map((puzzle) => (
-                  <List.Item key={puzzle.id}>
-                    <HStack justifyContent="space-between" spacing={15}>
-                      <VStack spacing={0}>
-                        <Text>{puzzle.title}</Text>
-                        <Text muted>{puzzle.public ? "Public" : "Private"}</Text>
-                      </VStack>
-                      <ButtonGroup width={"fit-content"}>
-                        <IconButton
-                          icon={<EyeIcon />}
-                          onClick={() => {
-                            navigate(`/custom/${puzzle.id}`);
-                          }}
-                        />
-                        <IconButton
-                          icon={<PencilIcon />}
-                          onClick={() => {
-                            navigate(`/custom/${puzzle.id}/edit`);
-                          }}
-                        />
-                        <IconButton
-                          icon={<TrashIcon />}
-                          onClick={async () => {
-                            if (await dialog.confirm(`"${puzzle.title}" will be permanently deleted.`, { title: "Are you sure?" })) {
-                              pb.collection("custom_puzzles")
-                                .delete(puzzle.id)
-                                .then(() => {
-                                  location.reload();
-                                })
-                                .catch((err) => {
-                                  console.error(err);
-                                });
-                            }
-                          }}
-                        />
-                      </ButtonGroup>
-                    </HStack>
-                  </List.Item>
-                ))}
-              </List>
-            ) : (
-              <Text>You haven't created any puzzles yet.</Text>
-            )}
-          </VStack>
-        )}
-      </Center>
-      <Center width={"100%"}>
-        <VStack>
-          <Heading level={3}>Public Puzzles</Heading>
-          <List bordered width={400} maxHeight={56 * 4 + 5}>
-            {puzzles.map((puzzle) => (
-              <List.Item key={puzzle.id}>
-                <HStack justifyContent="space-between" spacing={15}>
-                  <VStack spacing={0}>
-                    <Text>{puzzle.title}</Text>
-                    <Text muted>
-                      <TrophyIcon /> {puzzle.completions} <StarIcon /> {puzzle.avg_rating.toFixed(1)} {puzzle.author_name}
-                    </Text>
-                  </VStack>
-                  <ButtonGroup width={"fit-content"}>
-                    <Link to={`/custom/${puzzle.id}`}>
-                      <IconButton icon={<PlayIcon />} />
-                    </Link>
-                  </ButtonGroup>
-                </HStack>
-              </List.Item>
-            ))}
-          </List>
-        </VStack>
+        <Stack direction={{ xs: "column", lg: "row" }} spacing={15}>
+          {pb.authStore.isValid && <UserPuzzles userPuzzles={userPuzzles} />}
+          <PublicPuzzles puzzles={puzzles} />
+        </Stack>
       </Center>
     </VStack>
   );
