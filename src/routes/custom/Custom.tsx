@@ -1,7 +1,18 @@
 import Nudge from "@/Components/Nudge";
 import type { CustomPuzzle, CustomPuzzleData } from "@/lib/types";
 import { pb } from "@/main";
-import { ArrowLeftIcon, EyeIcon, LogInIcon, PencilIcon, PlayIcon, PlusIcon, StarIcon, TrashIcon, TrophyIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  ExternalLinkIcon,
+  LogInIcon,
+  PencilIcon,
+  PlayIcon,
+  PlusIcon,
+  ShareIcon,
+  StarIcon,
+  TrashIcon,
+  TrophyIcon
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import {
@@ -39,9 +50,17 @@ function UserPuzzles({ userPuzzles }: { userPuzzles: CustomPuzzleData[] }) {
                 </VStack>
                 <ButtonGroup width={"fit-content"}>
                   <IconButton
-                    icon={<EyeIcon />}
+                    icon={"share" in navigator ? <ShareIcon /> : <ExternalLinkIcon />}
                     onClick={() => {
-                      navigate(`/custom/${puzzle.id}`);
+                      const shareData = {
+                        title: puzzle.title,
+                        url: `${window.location.origin}/custom/${puzzle.id}`
+                      };
+                      if ("share" in navigator && navigator.canShare(shareData)) {
+                        navigator.share(shareData);
+                      } else {
+                        location.href = `/custom/${puzzle.id}`;
+                      }
                     }}
                   />
                   <IconButton
