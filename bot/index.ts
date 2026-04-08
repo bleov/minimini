@@ -1,7 +1,7 @@
 import PocketBase from "pocketbase";
 import puppeteer from "puppeteer";
 
-import type { MiniCrossword } from "../src/lib/types";
+import type { ConnectionsGame, MiniCrossword } from "../src/lib/types";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -60,6 +60,11 @@ await page.goto(MIDI_URL);
 const midiData: MiniCrossword = JSON.parse(await page.evaluate(() => document.querySelector("pre")?.innerText ?? "{}"));
 midiData.body[0].SVG = {};
 
+console.log("Fetching connections data...");
+const connectionsDate = miniData.publicationDate;
+await page.goto(`${HOST}/svc/connections/v2/${connectionsDate}.json`);
+const connectionsData: ConnectionsGame = JSON.parse(await page.evaluate(() => document.querySelector("pre")?.innerText ?? "{}"));
+
 let pdf: File | "" = "";
 try {
   console.log("Fetching daily printout...");
@@ -81,6 +86,8 @@ const data = {
   daily: dailyData,
   midi_id: midiData.id,
   midi: midiData,
+  connections_id: connectionsData.id,
+  connections: connectionsData,
   media: [pdf]
 };
 

@@ -40,7 +40,7 @@ export default function Index() {
   const location = useLocation();
 
   useEffect(() => {
-    document.title = "Glyph - Daily word games";
+    document.title = "Glyph – Daily word games";
     document.getElementById("favicon-ico")?.setAttribute("href", `/icons/mini/favicon.ico`);
     document.getElementById("favicon-svg")?.setAttribute("href", `/icons/mini/favicon.svg`);
     document.getElementById("apple-touch-icon")?.setAttribute("href", `/icons/mini/apple-touch-icon.png`);
@@ -83,10 +83,16 @@ export default function Index() {
         </Center>
       </div>
       <CardGroup columns={2} className="game-cards" spacing={10}>
-        <LinkCard title="The Mini" description="Tiny crossword puzzles" link="/mini" imageSrc="/icons/mini/pwa-192x192.png" />
-        <LinkCard title="The Midi" description="Medium crossword puzzles" link="/midi" imageSrc="/icons/midi/pwa-192x192.png" />
-        <LinkCard title="The Daily" description="Large crossword puzzles" link="/daily" imageSrc="/icons/daily/pwa-192x192.png" />
-        <LinkCard title="Custom Puzzles" description="Create your own crossword" link="/custom" imageSrc="/icons/custom/pwa-192x192.png" />
+        <LinkCard title="The Mini" description="Tiny crossword puzzles" link="/mini" imageSrc="/icons/mini/favicon.svg" />
+        <LinkCard title="The Midi" description="Medium crossword puzzles" link="/midi" imageSrc="/icons/midi/favicon.svg" />
+        <LinkCard title="The Daily" description="Large crossword puzzles" link="/daily" imageSrc="/icons/daily/favicon.svg" />
+        <LinkCard title="Custom Puzzles" description="Create your own crossword" link="/custom" imageSrc="/icons/custom/favicon.svg" />
+        <LinkCard
+          title="Connections"
+          description="Connect words to make groups"
+          link="/connections"
+          imageSrc="/icons/connections/favicon.svg"
+        />
       </CardGroup>
     </main>
   );

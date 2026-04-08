@@ -56,6 +56,7 @@ import "rsuite/Placeholder/styles/index.css";
 import "./css/App.css";
 import "./css/Index.css";
 import "./css/Cascades.css";
+import "./css/Connections.css";
 import "./css/rsuite-reset.css";
 import Create from "./routes/custom/Create.tsx";
 import Custom from "./routes/custom/Custom.tsx";
@@ -63,6 +64,7 @@ import Custom from "./routes/custom/Custom.tsx";
 const Index = lazy(() => import("./Index.tsx"));
 const CrosswordApp = lazy(() => import("./routes/crossword/App.tsx"));
 const Cascades = lazy(() => import("./routes/cascades/App.tsx"));
+const ConnectionsApp = lazy(() => import("./routes/connections/App.tsx"));
 
 export const pb_url = import.meta.env.VITE_POCKETBASE_URL || location.origin;
 
@@ -107,6 +109,8 @@ function Main() {
             <Route path="/custom" element={<Custom />} />
             <Route path="/custom/:id/edit" element={<Create />}></Route>
             <Route path="/custom/:id" element={<CrosswordApp type={"custom"} />}></Route>
+
+            <Route path="/connections" element={<ConnectionsApp />} />
           </Routes>
         </Suspense>
       </BrowserRouter>
