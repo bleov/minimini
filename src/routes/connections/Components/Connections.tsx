@@ -1,6 +1,6 @@
 import type { ConnectionsCard, ConnectionsGame } from "@/lib/types";
 import { createContext, useEffect, useLayoutEffect, useState, type Dispatch, type SetStateAction } from "react";
-import { Box, Text, VStack, HStack, Center, Button, ButtonToolbar } from "rsuite";
+import { Box, Text, VStack, HStack, Center, Button, ButtonToolbar, useToaster, Message } from "rsuite";
 import { ConnectionsCard as ConnectionsCardElement } from "./ConnectionsCard";
 import { ConnectionsMistakes } from "./ConnectionsMistakes";
 import { ConnectionsCategory } from "./ConnectionsCategory";
@@ -45,6 +45,8 @@ export default function Connections({ data }: ConnectionsProps) {
   const [cards, setCards] = useState<ConnectionsCard[]>(data.categories.flatMap((x) => x.cards).sort((a, b) => a.position - b.position));
   const [rows, setRows] = useState(splitRows(cards));
 
+  const toaster = useToaster();
+
   const context: ConnectionsContextType = {
     selectedCards,
     setSelectedCards,
@@ -66,10 +68,24 @@ export default function Connections({ data }: ConnectionsProps) {
     window.connections = { ...context };
   }
 
+  function toast(message: string) {
+    toaster.push(<Message>{message}</Message>, {
+      placement: "topCenter",
+      duration: 3000,
+      container: document.documentElement
+    });
+  }
+
   function check() {
     if (checking) return;
     setChecking(true);
-    const guess = selectedCards.map((position) => cards.find((card) => card.position === position)!);
+
+    if (guesses.some((guess) => guess.every((card) => selectedCards.includes(card)) && guess.length === selectedCards.length)) {
+      setChecking(false);
+      toast("Already guessed!");
+      return;
+    }
+
     let correct = false;
     data.categories.forEach((category) => {
       let correctInCategory = 0;
@@ -92,6 +108,20 @@ export default function Connections({ data }: ConnectionsProps) {
       } else {
         setMistakes((prevMistakes) => prevMistakes + 1);
         setGuesses((prevGuesses) => [...prevGuesses, selectedCards]);
+        // one away detection
+        const categoryMistakes = data.categories.map((category) => {
+          let correctInCategory = 0;
+          category.cards.forEach((card) => {
+            if (selectedCards.includes(card.position)) {
+              correctInCategory++;
+            }
+          });
+          return correctInCategory;
+        });
+        const oneAway = categoryMistakes.some((mistakes) => mistakes === 3);
+        if (oneAway) {
+          toast("One away...");
+        }
       }
       setChecking(false);
     }, 150 * 8);
@@ -107,6 +137,14 @@ export default function Connections({ data }: ConnectionsProps) {
     });
     setCards(newCards);
     setRows(splitRows(newCards));
+
+    if (correctCategories.length === 4) {
+      if (mistakes === 3) {
+        toast("Phew...");
+      } else {
+        toast("Well done!");
+      }
+    }
   }, [correctCategories]);
 
   usePersistence(context);
