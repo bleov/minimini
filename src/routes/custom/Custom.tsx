@@ -219,19 +219,31 @@ export default function Custom() {
             </Button>
           </ButtonToolbar>
         ) : (
-          <Nudge
-            title="Sign in to create puzzles"
-            body="With an account, you can create and share custom crossword puzzles"
-            color="#3C6FD3"
-            className="custom-puzzle-nudge icon-bg"
-            cta={
-              <Link to="/#sign-in">
-                <Button startIcon={<LogInIcon />} appearance="ghost">
-                  Sign In
-                </Button>
-              </Link>
-            }
-          />
+          <VStack spacing={15}>
+            <ButtonToolbar width={"100%"} justify={"center"}>
+              <Button
+                startIcon={<ArrowLeftIcon />}
+                onClick={() => {
+                  navigate("/");
+                }}
+              >
+                Back
+              </Button>
+            </ButtonToolbar>
+            <Nudge
+              title="Sign in to create puzzles"
+              body="With an account, you can create and share custom crossword puzzles"
+              color="#3C6FD3"
+              className="custom-puzzle-nudge icon-bg"
+              cta={
+                <Link to="/#sign-in">
+                  <Button startIcon={<LogInIcon />} appearance="ghost">
+                    Sign In
+                  </Button>
+                </Link>
+              }
+            />
+          </VStack>
         )}
       </Center>
 
