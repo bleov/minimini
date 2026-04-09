@@ -6,6 +6,7 @@ import { ConnectionsMistakes } from "./ConnectionsMistakes";
 import { ConnectionsCategory } from "./ConnectionsCategory";
 import usePersistence from "../hooks/usePersistence";
 import ConnectionsResults from "./ConnectionsResults";
+import ConnectionsLeaderboard from "./ConnectionsLeaderboard";
 
 export interface ConnectionsContextType {
   selectedCards: number[];
@@ -50,7 +51,7 @@ export default function Connections({ data }: ConnectionsProps) {
   const [checking, setChecking] = useState<boolean>(false);
   const [cards, setCards] = useState<ConnectionsCard[]>(data.categories.flatMap((x) => x.cards).sort((a, b) => a.position - b.position));
   const [rows, setRows] = useState(splitRows(cards));
-  const [resultsOpen, setResultsOpen] = useState(false);
+  const [modalState, setModalState] = useState<"results" | "leaderboard" | null>(null);
   const [resultText, setResultText] = useState<string>("Well done!");
 
   const toaster = useToaster();
@@ -232,15 +233,22 @@ export default function Connections({ data }: ConnectionsProps) {
               <HStack spacing={10}>
                 <Button
                   appearance="ghost"
-                  className={!resultsOpen ? "breathe" : ""}
+                  className={modalState === null ? "breathe" : ""}
                   onClick={() => {
-                    setResultsOpen(true);
+                    setModalState("results");
                   }}
                 >
                   View Results
                 </Button>
               </HStack>
-              <ConnectionsResults open={resultsOpen} setOpen={setResultsOpen} />
+              <ConnectionsResults
+                open={modalState === "results"}
+                onClose={() => setModalState(null)}
+                onOpenLeaderboard={() => {
+                  setModalState("leaderboard");
+                }}
+              />
+              <ConnectionsLeaderboard open={modalState === "leaderboard"} onClose={() => setModalState(null)} puzzleData={data} />
             </>
           )}
         </ButtonToolbar>

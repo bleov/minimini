@@ -59,6 +59,7 @@ export default function usePersistence(context: ConnectionsContextType): () => v
     if (!pb.authStore.isValid) return;
     const user = pb.authStore.record;
     if (!user) return;
+    if (saveRef.current.guesses.length === 0) return;
     const states = pb.collection("connections_state");
 
     const record = {
@@ -100,6 +101,7 @@ export default function usePersistence(context: ConnectionsContextType): () => v
       puzzle_id: data.id,
       puzzle_date: data.print_date,
       mistakes: saveRef.current.mistakes,
+      order: saveRef.current.correctCategories,
       guesses: saveRef.current.guesses
     };
     leaderboard.create(record);

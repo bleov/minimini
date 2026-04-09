@@ -2,29 +2,21 @@ import Rating from "@/Components/Rating";
 import { useContext, type Dispatch, type SetStateAction } from "react";
 import { Button, ButtonGroup, Center, Heading, Image, Modal, VStack } from "rsuite";
 import { ConnectionsContext } from "./Connections";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, TrophyIcon } from "lucide-react";
 import { useNavigate } from "react-router";
 
 interface ConnectionsResultsProps {
   open: boolean;
-  setOpen: Dispatch<SetStateAction<boolean>>;
+  onClose: () => void;
+  onOpenLeaderboard: () => void;
 }
 
-export default function ConnectionsResults({ open, setOpen }: ConnectionsResultsProps) {
+export default function ConnectionsResults({ open, onClose, onOpenLeaderboard }: ConnectionsResultsProps) {
   const { data, resultText } = useContext(ConnectionsContext)!;
   const navigate = useNavigate();
 
   return (
-    <Modal
-      open={open}
-      onClose={() => {
-        setOpen(false);
-      }}
-      dialogClassName="complete-dialog"
-      centered
-      size="fit-content"
-      overflow={false}
-    >
+    <Modal open={open} onClose={onClose} dialogClassName="complete-dialog" centered size="fit-content" overflow={false}>
       <VStack spacing={15} width={"100%"}>
         <VStack spacing={5} width={"100%"}>
           <Center width={"100%"}>
@@ -38,15 +30,15 @@ export default function ConnectionsResults({ open, setOpen }: ConnectionsResults
         <ButtonGroup vertical block width={"100%"}>
           <Button
             onClick={() => {
-              setOpen(false);
+              onClose();
             }}
             appearance="primary"
           >
             Admire Puzzle
           </Button>
-          {/* <Button onClick={onOpenLeaderboard} startIcon={<TrophyIcon />}>
-              Leaderboard
-            </Button> */}
+          <Button onClick={onOpenLeaderboard} startIcon={<TrophyIcon />}>
+            Leaderboard
+          </Button>
           <Button
             appearance="default"
             startIcon={<ArrowLeftIcon />}

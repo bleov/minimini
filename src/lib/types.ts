@@ -157,3 +157,14 @@ export interface ConnectionsGame {
   editor: string;
   categories: ConnectionsCategory[];
 }
+
+export interface ConnectionsLeaderboardRecord extends BaseRecord {
+  puzzle_id: number;
+  puzzle_date: string;
+  mistakes: number;
+  order: number[];
+  guesses: number[][];
+  expand: {
+    user: UserRecord;
+  };
+}
