@@ -13,56 +13,20 @@ import "@szhsin/react-menu/dist/core.css";
 import "@szhsin/react-menu/dist/index.css";
 import "@szhsin/react-menu/dist/transitions/zoom.css";
 import "react-simple-keyboard/build/css/index.css";
-
-import "rsuite/Animation/styles/index.css";
-import "rsuite/Toggle/styles/index.css";
-import "rsuite/Rate/styles/index.css";
-import "rsuite/Text/styles/index.css";
-import "rsuite/Loader/styles/index.css";
-import "rsuite/Calendar/styles/index.css";
-import "rsuite/Badge/styles/index.css";
-import "rsuite/ButtonGroup/styles/index.css";
-import "rsuite/Button/styles/index.css";
-import "rsuite/IconButton/styles/index.css";
-import "rsuite/Input/styles/index.css";
-import "rsuite/Table/styles/index.css";
-import "rsuite/Checkbox/styles/index.css";
-import "rsuite/List/styles/index.css";
-import "rsuite/Stack/styles/index.css";
-import "rsuite/Heading/styles/index.css";
-import "rsuite/PinInput/styles/index.css";
-import "rsuite/PasswordInput/styles/index.css";
-import "rsuite/InputGroup/styles/index.css";
-import "rsuite/Avatar/styles/index.css";
-import "rsuite/Box/styles/index.css";
-import "rsuite/Modal/styles/index.css";
-import "rsuite/Card/styles/index.css";
-import "rsuite/CardGroup/styles/index.css";
-import "rsuite/Image/styles/index.css";
-import "rsuite/Center/styles/index.css";
-import "rsuite/toaster/styles/index.css";
-import "rsuite/useToaster/styles/index.css";
-import "rsuite/Notification/styles/index.css";
-import "rsuite/Tooltip/styles/index.css";
-import "rsuite/Divider/styles/index.css";
-import "rsuite/StatGroup/styles/index.css";
-import "rsuite/Stat/styles/index.css";
-import "rsuite/ProgressCircle/styles/index.css";
-import "rsuite/Grid/styles/index.css";
-import "rsuite/Col/styles/index.css";
-import "rsuite/Row/styles/index.css";
-import "rsuite/Placeholder/styles/index.css";
+import "rsuite/dist/rsuite-no-reset.css";
+import "./css/rsuite-reset.css";
 
 import "./css/App.css";
 import "./css/Index.css";
 import "./css/Cascades.css";
-import "./css/rsuite-reset.css";
+import "./css/Connections.css";
 import Create from "./routes/custom/Create.tsx";
 import Custom from "./routes/custom/Custom.tsx";
 
 const Index = lazy(() => import("./Index.tsx"));
 const CrosswordApp = lazy(() => import("./routes/crossword/App.tsx"));
 const Cascades = lazy(() => import("./routes/cascades/App.tsx"));
+const ConnectionsApp = lazy(() => import("./routes/connections/App.tsx"));
 
 export const pb_url = import.meta.env.VITE_POCKETBASE_URL || location.origin;
 
@@ -107,6 +71,8 @@ function Main() {
             <Route path="/custom" element={<Custom />} />
             <Route path="/custom/:id/edit" element={<Create />}></Route>
             <Route path="/custom/:id" element={<CrosswordApp type={"custom"} />}></Route>
+
+            <Route path="/connections" element={<ConnectionsApp />} />
           </Routes>
         </Suspense>
       </BrowserRouter>

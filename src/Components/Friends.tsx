@@ -187,7 +187,14 @@ export default function Friends({ open, setOpen }: { open: boolean; setOpen: (op
                   Your friend code: <Text weight="bold">{pb.authStore.record?.friend_code}</Text>
                 </Text>
                 <Form.Group controlId="code">
-                  <Form.Control className="friend-code-input" name="code" accepter={PinInput} length={6} size="sm" />
+                  <Form.Control
+                    className="friend-code-input"
+                    name="code"
+                    accepter={PinInput}
+                    length={6}
+                    size="sm"
+                    justifyContent={"center"}
+                  />
                   {result && (
                     <Text className="block centered" style={{ marginTop: 5 }}>
                       {result}

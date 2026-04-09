@@ -10,6 +10,49 @@ import type { LeaderboardRecord, MiniCrossword, StateRecord } from "../lib/types
 import { pb } from "../main";
 import Nudge from "./Nudge";
 
+export function FriendsNudge() {
+  const navigate = useNavigate();
+
+  return (
+    <Nudge
+      title="Add Friends to Compete"
+      body="When you add friends, you can see their scores on the leaderboard"
+      color="var(--rs-violet-500)"
+      className="icon-bg friends-nudge"
+      width={320}
+      cta={
+        <Button appearance="ghost" startIcon={<UsersIcon />} onClick={() => navigate("/#friends")}>
+          Friends
+        </Button>
+      }
+    />
+  );
+}
+
+export function LeaderboardNudge() {
+  const navigate = useNavigate();
+
+  return (
+    <Nudge
+      title="Compete with Friends"
+      body="Sign in to access the leaderboard and compete with friends"
+      color="var(--rs-yellow-500)"
+      className="icon-bg leaderboard-nudge"
+      cta={
+        <Button
+          appearance="ghost"
+          startIcon={<LogInIcon />}
+          onClick={() => {
+            navigate("/#sign-in");
+          }}
+        >
+          Sign In
+        </Button>
+      }
+    />
+  );
+}
+
 export default function Leaderboard({
   open,
   setOpen,
@@ -88,24 +131,7 @@ export default function Leaderboard({
       >
         <ModalHeader />
         <Modal.Body>
-          <Nudge
-            title="Compete with Friends"
-            body="Sign in to access the leaderboard and compete with friends"
-            color="var(--rs-yellow-500)"
-            className="icon-bg leaderboard-nudge"
-            cta={
-              <Button
-                appearance="ghost"
-                startIcon={<LogInIcon />}
-                onClick={() => {
-                  setComplete(false);
-                  setModalState("sign-in");
-                }}
-              >
-                Sign In
-              </Button>
-            }
-          />
+          <LeaderboardNudge />
         </Modal.Body>
       </Modal>
     );
@@ -186,18 +212,7 @@ export default function Leaderboard({
               </Table>
               {user.friends.length === 0 && (
                 <Center marginTop={10}>
-                  <Nudge
-                    title="Add Friends to Compete"
-                    body="When you add friends, you can see their scores on the leaderboard"
-                    color="var(--rs-violet-500)"
-                    className="icon-bg friends-nudge"
-                    width={320}
-                    cta={
-                      <Button appearance="ghost" startIcon={<UsersIcon />} onClick={() => navigate("/#friends")}>
-                        Friends
-                      </Button>
-                    }
-                  />
+                  <FriendsNudge />
                 </Center>
               )}
             </>

@@ -139,3 +139,32 @@ export interface CustomPuzzleData extends CustomPuzzle {
   avg_rating: number;
   completions: number;
 }
+
+export interface ConnectionsCard {
+  content: string;
+  position: number;
+}
+
+export interface ConnectionsCategory {
+  title: string;
+  cards: ConnectionsCard[];
+}
+
+export interface ConnectionsGame {
+  status: string;
+  id: number;
+  print_date: string;
+  editor: string;
+  categories: ConnectionsCategory[];
+}
+
+export interface ConnectionsLeaderboardRecord extends BaseRecord {
+  puzzle_id: number;
+  puzzle_date: string;
+  mistakes: number;
+  order: number[];
+  guesses: number[][];
+  expand: {
+    user: UserRecord;
+  };
+}

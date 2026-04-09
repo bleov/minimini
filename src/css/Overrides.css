@@ -82,6 +82,23 @@
   display: inline;
 }
 
+.rs-message-container {
+  background-color: black;
+}
+
+.rs-message-body {
+  color: white;
+}
+
+.rs-form-control,
+.rs-form-control .rs-input {
+  width: 100%;
+}
+
+.rs-modal[role="dialog"] .rs-form-group {
+  flex-direction: column;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rs-modal,
   .rs-modal-backdrop {

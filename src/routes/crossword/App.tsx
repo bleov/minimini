@@ -122,9 +122,9 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
 
   useEffect(() => {
     if (type === "custom") {
-      document.title = "Custom Puzzle - Glyph";
+      document.title = "Custom Puzzle – Glyph";
     } else {
-      document.title = `The ${type.charAt(0).toUpperCase()}${type.substring(1)} - Glyph`;
+      document.title = `The ${type.charAt(0).toUpperCase()}${type.substring(1)} – Glyph`;
     }
     document.getElementById("favicon-ico")?.setAttribute("href", `/icons/${type}/favicon.ico`);
     document.getElementById("favicon-svg")?.setAttribute("href", `/icons/${type}/favicon.svg`);
