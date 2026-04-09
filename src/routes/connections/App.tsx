@@ -13,7 +13,7 @@ export default function App() {
     document.getElementById("favicon-ico")?.setAttribute("href", `/icons/connections/favicon.ico`);
     document.getElementById("favicon-svg")?.setAttribute("href", `/icons/connections/favicon.svg`);
     document.getElementById("apple-touch-icon")?.setAttribute("href", `/icons/connections/apple-touch-icon.png`);
-    document.getElementById("site-manifest")?.setAttribute("href", `/pwa/index.webmanifest`);
+    document.getElementById("site-manifest")?.setAttribute("href", `/pwa/connections.webmanifest`);
   }, []);
 
   async function fetchData() {
