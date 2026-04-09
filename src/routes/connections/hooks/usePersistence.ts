@@ -18,8 +18,8 @@ export default function usePersistence(context: ConnectionsContextType): () => v
     setRows,
     data,
     complete,
-    loading,
-    setLoading
+    setLoading,
+    revealedCategoriesRef
   } = context;
 
   const save = {
@@ -95,13 +95,19 @@ export default function usePersistence(context: ConnectionsContextType): () => v
     if (!pb.authStore.isValid) return;
     const user = pb.authStore.record;
     if (!user) return;
+    const order = saveRef.current.correctCategories.map((x) => {
+      if (revealedCategoriesRef.current.includes(x)) {
+        return -1;
+      }
+      return x;
+    });
     const leaderboard = pb.collection("connections_leaderboard");
     const record = {
       user: user.id,
       puzzle_id: data.id,
       puzzle_date: data.print_date,
       mistakes: saveRef.current.mistakes,
-      order: saveRef.current.correctCategories,
+      order,
       guesses: saveRef.current.guesses
     };
     leaderboard.create(record);
