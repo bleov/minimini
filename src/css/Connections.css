@@ -16,6 +16,20 @@
   }
 }
 
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25%,
+  75% {
+    transform: translateX(-5px);
+  }
+  50% {
+    transform: translateX(5px);
+  }
+}
+
 .connections {
   --card-bg: #efefe6;
   --card-bg-active: #5a594e;
@@ -98,5 +112,9 @@
 
   .breathe {
     animation: breathe 1s alternate-reverse cubic-bezier(0.39, 0.575, 0.565, 1) infinite;
+  }
+
+  .shake {
+    animation: shake 0.3s cubic-bezier(0.455, 0.03, 0.515, 0.955) both;
   }
 }

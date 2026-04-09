@@ -22,6 +22,7 @@ export interface ConnectionsContextType {
   loading: boolean;
   setLoading: Dispatch<SetStateAction<boolean>>;
   checking: boolean;
+  shaking: boolean;
   resultText: string;
   cards: ConnectionsCard[];
   data: ConnectionsGame;
@@ -49,6 +50,7 @@ export default function Connections({ data }: ConnectionsProps) {
   const [correctCategories, setCorrectCategories] = useState<number[]>([]);
   const [mistakes, setMistakes] = useState<number>(0);
   const [checking, setChecking] = useState<boolean>(false);
+  const [shaking, setShaking] = useState(false);
   const [cards, setCards] = useState<ConnectionsCard[]>(data.categories.flatMap((x) => x.cards).sort((a, b) => a.position - b.position));
   const [rows, setRows] = useState(splitRows(cards));
   const [modalState, setModalState] = useState<"results" | "leaderboard" | null>(null);
@@ -71,6 +73,7 @@ export default function Connections({ data }: ConnectionsProps) {
     loading,
     setLoading,
     checking,
+    shaking,
     resultText,
     cards,
     data,
@@ -117,11 +120,14 @@ export default function Connections({ data }: ConnectionsProps) {
     const correctCategory = data.categories.findIndex((category) => category.cards.every((card) => selectedCards.includes(card.position)));
     setTimeout(() => {
       if (correct) {
-        console.log("correct");
         setGuesses((prevGuesses) => [...prevGuesses, selectedCards]);
         setCorrectCategories((prevCorrectCategories) => [...prevCorrectCategories, correctCategory]);
         setSelectedCards([]);
       } else {
+        setShaking(true);
+        setTimeout(() => {
+          setShaking(false);
+        }, 500);
         setMistakes((prevMistakes) => prevMistakes + 1);
         setGuesses((prevGuesses) => [...prevGuesses, selectedCards]);
         if (mistakes + 1 >= 4) {
