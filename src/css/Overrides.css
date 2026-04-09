@@ -90,6 +90,15 @@
   color: white;
 }
 
+.rs-form-control,
+.rs-form-control .rs-input {
+  width: 100%;
+}
+
+.rs-modal[role="dialog"] .rs-form-group {
+  flex-direction: column;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rs-modal,
   .rs-modal-backdrop {
