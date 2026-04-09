@@ -17,16 +17,16 @@ export default function App() {
   }, []);
 
   async function fetchData() {
-    const todayResponse = await fetch(`${pb_url}/api/today/connections`);
-    if (!todayResponse.ok) {
-      setError("Failed to fetch today's puzzle.");
-      return;
-    }
     try {
+      const todayResponse = await fetch(`${pb_url}/api/today/connections`);
+      if (!todayResponse.ok) {
+        setError("Failed to fetch today's puzzle.");
+        return;
+      }
       const todayData = await todayResponse.json();
       setData(todayData);
     } catch (err) {
-      setError("Failed to parse today's puzzle data.");
+      setError("Failed to load today's puzzle.");
     }
   }
 

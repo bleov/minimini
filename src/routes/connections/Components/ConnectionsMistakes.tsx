@@ -21,7 +21,7 @@ export function ConnectionsMistakes() {
     <Center>
       <HStack spacing={10} alignItems={"center"}>
         <Text>Mistakes Remaining: </Text>
-        {new Array(4).fill("").map((_, index) => (
+        {new Array(maxMistakes).fill("").map((_, index) => (
           <Bubble key={index} mistakes={mistakes} index={index} />
         ))}
       </HStack>

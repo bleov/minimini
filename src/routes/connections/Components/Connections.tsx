@@ -184,7 +184,7 @@ export default function Connections({ data }: ConnectionsProps) {
       toast(result);
       setResultText(result);
     }
-  }, [correctCategories]);
+  }, [correctCategories, loading]);
 
   if (loading) {
     return <Loader center />;
