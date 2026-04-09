@@ -147,7 +147,7 @@ export default function ConnectionsLeaderboard({
                   <Table.Cell
                     dataKey="order"
                     renderCell={(order: number[]) => {
-                      return order.map((index) => categoryEmojis[index]).join(" ");
+                      return order.map((index) => categoryEmojis[index] ?? "❌").join(" ");
                     }}
                   />
                 </Table.Column>

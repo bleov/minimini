@@ -1,5 +1,5 @@
 import type { ConnectionsCard, ConnectionsGame } from "@/lib/types";
-import { createContext, useEffect, useLayoutEffect, useState, type Dispatch, type SetStateAction } from "react";
+import { createContext, useEffect, useLayoutEffect, useRef, useState, type Dispatch, type RefObject, type SetStateAction } from "react";
 import { Box, Text, VStack, HStack, Center, Button, ButtonToolbar, useToaster, Message, Loader } from "rsuite";
 import { ConnectionsCard as ConnectionsCardElement } from "./ConnectionsCard";
 import { ConnectionsMistakes } from "./ConnectionsMistakes";
@@ -27,6 +27,7 @@ export interface ConnectionsContextType {
   cards: ConnectionsCard[];
   data: ConnectionsGame;
   complete: boolean;
+  revealedCategoriesRef: RefObject<number[]>;
 }
 
 interface ConnectionsProps {
@@ -58,6 +59,7 @@ export default function Connections({ data }: ConnectionsProps) {
 
   const toaster = useToaster();
   const complete = correctCategories.length === 4 || mistakes >= 4;
+  const revealedCategoriesRef = useRef<number[]>([]);
 
   const context: ConnectionsContextType = {
     selectedCards,
@@ -77,7 +79,8 @@ export default function Connections({ data }: ConnectionsProps) {
     resultText,
     cards,
     data,
-    complete
+    complete,
+    revealedCategoriesRef
   };
 
   usePersistence(context);
@@ -131,10 +134,11 @@ export default function Connections({ data }: ConnectionsProps) {
         setMistakes((prevMistakes) => prevMistakes + 1);
         setGuesses((prevGuesses) => [...prevGuesses, selectedCards]);
         if (mistakes + 1 >= 4) {
-          setCorrectCategories((prevCorrectCategories) => [
-            ...prevCorrectCategories,
-            ...data.categories.map((_, i) => i).filter((i) => !prevCorrectCategories.includes(i))
-          ]);
+          setCorrectCategories((prevCorrectCategories) => {
+            const revealedCategories = data.categories.map((_, i) => i).filter((i) => !prevCorrectCategories.includes(i));
+            revealedCategoriesRef.current = revealedCategories;
+            return [...prevCorrectCategories, ...revealedCategories];
+          });
         }
         // one away detection
         const categoryMistakes = data.categories.map((category) => {
