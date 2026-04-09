@@ -50,7 +50,6 @@ export default function usePersistence(context: ConnectionsContextType): () => v
       recordIdRef.current = record.id;
       return record.id;
     } catch (err) {
-      console.error(err);
       return "";
     }
   }
@@ -91,6 +90,21 @@ export default function usePersistence(context: ConnectionsContextType): () => v
     }
   }, [data.id, data.print_date]);
 
+  const submitScore = useCallback(() => {
+    if (!pb.authStore.isValid) return;
+    const user = pb.authStore.record;
+    if (!user) return;
+    const leaderboard = pb.collection("connections_leaderboard");
+    const record = {
+      user: user.id,
+      puzzle_id: data.id,
+      puzzle_date: data.print_date,
+      mistakes: saveRef.current.mistakes,
+      guesses: saveRef.current.guesses
+    };
+    leaderboard.create(record);
+  }, [data.id, data.print_date]);
+
   const throttledCloudSave = useMemo(() => throttle(cloudSave, 1000), [cloudSave]);
 
   function applySave(save: any) {
@@ -127,6 +141,12 @@ export default function usePersistence(context: ConnectionsContextType): () => v
     if (!saveReadyRef.current) return;
     throttledCloudSave();
   }, [guesses]);
+
+  useEffect(() => {
+    if (complete) {
+      submitScore();
+    }
+  }, [complete]);
 
   return throttledCloudSave;
 }
