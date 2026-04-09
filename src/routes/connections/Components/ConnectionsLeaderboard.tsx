@@ -49,8 +49,16 @@ export default function ConnectionsLeaderboard({
 
         const pointData = leaderboardData.items.map((item, i) => {
           const purplePosition = item.order.findIndex((index) => index === 3);
-          const orderPoints = -(purplePosition - 3);
-          console.log(orderPoints);
+          let orderPoints = 0;
+          if (!item.order.includes(-1)) {
+            // reward based on the position of the first purple category, but only if all categories were found
+            orderPoints = -(purplePosition - 3);
+          }
+          item.order.forEach((categoryId, idx) => {
+            if (categoryId === -1) {
+              orderPoints -= 4 - idx; // penalize revealed categories
+            }
+          });
           return { ...item, points: orderPoints };
         });
 
