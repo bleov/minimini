@@ -196,7 +196,7 @@ export default function Connections({ data }: ConnectionsProps) {
 
   return (
     <ConnectionsContext.Provider value={context}>
-      <VStack spacing={24} width={"100%"}>
+      <VStack spacing={24} width={"100%"} className="connections-container">
         <VStack spacing={8} width={"100%"}>
           {correctCategories.map((category, index) => (
             <ConnectionsCategory key={index} index={category} />

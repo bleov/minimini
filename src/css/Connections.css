@@ -30,12 +30,34 @@
   }
 }
 
+#root:has(.connections) {
+  margin-inline: 0;
+}
+
 .connections {
   --card-bg: #efefe6;
   --card-bg-active: #5a594e;
 
   --card-text: #121212;
   --card-text-active: #f8f8f8;
+
+  --expanded-width: 624px;
+  --collapsed-width: 344px;
+  --full-height: 460px;
+
+  position: absolute;
+  width: 100vw;
+  height: max(100vh, var(--full-height));
+  top: 0;
+  left: 0;
+  display: grid;
+  justify-content: center;
+  align-content: center;
+
+  .connections-container {
+    max-width: var(--expanded-width);
+    min-width: var(--collapsed-width);
+  }
 
   .connections-card {
     width: 150px;
@@ -54,6 +76,8 @@
       font-weight: 700;
       font-size: 20px;
       user-select: none;
+      text-align: center;
+      width: max(100%, 80px);
     }
 
     &.selected {
@@ -105,8 +129,8 @@
 
   .connections-category {
     height: 80px;
-    min-width: 344px;
-    width: 624px;
+    min-width: var(--collapsed-width);
+    width: var(--expanded-width);
     border-radius: 6px;
   }
 
@@ -116,5 +140,26 @@
 
   .shake {
     animation: shake 0.3s cubic-bezier(0.455, 0.03, 0.515, 0.955) both;
+  }
+}
+
+@media (max-width: 644px) {
+  .connections {
+    padding-inline: 10px;
+
+    .connections-category p.rs-text {
+      font-size: 18px;
+    }
+    .connections-card > p.rs-text {
+      font-size: 16px;
+    }
+  }
+}
+
+@media (max-width: 405px) {
+  .connections {
+    .connections-card > p.rs-text {
+      font-size: 14px;
+    }
   }
 }
