@@ -47,6 +47,24 @@
     user-select: none;
     pointer-events: none;
   }
+
+  .rs-card[data-direction="row"] {
+    padding-block: 16px;
+
+    .rs-image {
+      margin-block: 0;
+      margin-inline-start: 16px;
+      width: fit-content;
+    }
+
+    .rs-card-header {
+      padding-block: 0;
+    }
+
+    .rs-card-body {
+      padding-block: 0;
+    }
+  }
 }
 
 @media (max-width: 680px) {

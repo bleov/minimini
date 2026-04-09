@@ -248,7 +248,7 @@ export default function Connections({ data }: ConnectionsProps) {
                   setModalState("leaderboard");
                 }}
               />
-              <ConnectionsLeaderboard open={modalState === "leaderboard"} onClose={() => setModalState(null)} puzzleData={data} />
+              <ConnectionsLeaderboard open={modalState === "leaderboard"} onClose={() => setModalState("results")} puzzleData={data} />
             </>
           )}
         </ButtonToolbar>
