@@ -50,6 +50,7 @@ function LinkCard({ title, description, imageSrc, link, disabled, badgeContent, 
             <Text size="lg" weight="bold">
               {title}
             </Text>
+            {badgeContent && <Badge content={badgeContent} />}
           </HStack>
         </Card.Header>
         <Card.Body>{description} </Card.Body>
