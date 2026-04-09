@@ -3,7 +3,7 @@
 set -e
 
 bun install
-bun run build
+bunx --bun vite build
 rm -rfv ./pb_public
 mkdir ./pb_public
 cp -r ./dist/* ./pb_public/
