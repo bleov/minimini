@@ -7,6 +7,15 @@
   }
 }
 
+@keyframes breathe {
+  0% {
+    scale: 1;
+  }
+  100% {
+    scale: 1.08;
+  }
+}
+
 .connections {
   --card-bg: #efefe6;
   --card-bg-active: #5a594e;
@@ -85,5 +94,9 @@
     min-width: 344px;
     width: 624px;
     border-radius: 6px;
+  }
+
+  .breathe {
+    animation: breathe 1s alternate-reverse cubic-bezier(0.39, 0.575, 0.565, 1) infinite;
   }
 }

@@ -1,10 +1,11 @@
 import type { ConnectionsCard, ConnectionsGame } from "@/lib/types";
 import { createContext, useEffect, useLayoutEffect, useState, type Dispatch, type SetStateAction } from "react";
-import { Box, Text, VStack, HStack, Center, Button, ButtonToolbar, useToaster, Message } from "rsuite";
+import { Box, Text, VStack, HStack, Center, Button, ButtonToolbar, useToaster, Message, Loader } from "rsuite";
 import { ConnectionsCard as ConnectionsCardElement } from "./ConnectionsCard";
 import { ConnectionsMistakes } from "./ConnectionsMistakes";
 import { ConnectionsCategory } from "./ConnectionsCategory";
 import usePersistence from "../hooks/usePersistence";
+import ConnectionsResults from "./ConnectionsResults";
 
 export interface ConnectionsContextType {
   selectedCards: number[];
@@ -17,9 +18,13 @@ export interface ConnectionsContextType {
   setCorrectCategories: Dispatch<SetStateAction<number[]>>;
   rows: ConnectionsCard[][];
   setRows: Dispatch<SetStateAction<ConnectionsCard[][]>>;
+  loading: boolean;
+  setLoading: Dispatch<SetStateAction<boolean>>;
   checking: boolean;
+  resultText: string;
   cards: ConnectionsCard[];
   data: ConnectionsGame;
+  complete: boolean;
 }
 
 interface ConnectionsProps {
@@ -37,6 +42,7 @@ function splitRows(arr: any[]): any[][] {
 }
 
 export default function Connections({ data }: ConnectionsProps) {
+  const [loading, setLoading] = useState(true);
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const [guesses, setGuesses] = useState<number[][]>([]);
   const [correctCategories, setCorrectCategories] = useState<number[]>([]);
@@ -44,8 +50,11 @@ export default function Connections({ data }: ConnectionsProps) {
   const [checking, setChecking] = useState<boolean>(false);
   const [cards, setCards] = useState<ConnectionsCard[]>(data.categories.flatMap((x) => x.cards).sort((a, b) => a.position - b.position));
   const [rows, setRows] = useState(splitRows(cards));
+  const [resultsOpen, setResultsOpen] = useState(false);
+  const [resultText, setResultText] = useState<string>("Well done!");
 
   const toaster = useToaster();
+  const complete = correctCategories.length === 4 || mistakes >= 4;
 
   const context: ConnectionsContextType = {
     selectedCards,
@@ -58,10 +67,16 @@ export default function Connections({ data }: ConnectionsProps) {
     setCorrectCategories,
     rows,
     setRows,
+    loading,
+    setLoading,
     checking,
+    resultText,
     cards,
-    data
+    data,
+    complete
   };
+
+  usePersistence(context);
 
   if (import.meta.env.DEV) {
     // @ts-ignore
@@ -108,6 +123,12 @@ export default function Connections({ data }: ConnectionsProps) {
       } else {
         setMistakes((prevMistakes) => prevMistakes + 1);
         setGuesses((prevGuesses) => [...prevGuesses, selectedCards]);
+        if (mistakes + 1 >= 4) {
+          setCorrectCategories((prevCorrectCategories) => [
+            ...prevCorrectCategories,
+            ...data.categories.map((_, i) => i).filter((i) => !prevCorrectCategories.includes(i))
+          ]);
+        }
         // one away detection
         const categoryMistakes = data.categories.map((category) => {
           let correctInCategory = 0;
@@ -128,26 +149,39 @@ export default function Connections({ data }: ConnectionsProps) {
   }
 
   useLayoutEffect(() => {
-    let newCards = [...cards];
-    correctCategories.forEach((categoryIndex) => {
-      const category = data.categories[categoryIndex];
-      category.cards.forEach((card) => {
-        newCards = newCards.filter((c) => c.position !== card.position);
+    if (!loading) {
+      let newCards = [...cards];
+      correctCategories.forEach((categoryIndex) => {
+        const category = data.categories[categoryIndex];
+        category.cards.forEach((card) => {
+          newCards = newCards.filter((c) => c.position !== card.position);
+        });
       });
-    });
-    setCards(newCards);
-    setRows(splitRows(newCards));
+      setCards(newCards);
+      setRows(splitRows(newCards));
+    }
 
-    if (correctCategories.length === 4) {
-      if (mistakes === 3) {
-        toast("Phew...");
+    if (complete) {
+      let result = "";
+      if (correctCategories.length === 4 && mistakes < 4) {
+        if (mistakes === 3) {
+          result = "Phew...";
+        } else if (mistakes === 0) {
+          result = "Perfect!";
+        } else {
+          result = "Well done!";
+        }
       } else {
-        toast("Well done!");
+        result = "Next time!";
       }
+      toast(result);
+      setResultText(result);
     }
   }, [correctCategories]);
 
-  usePersistence(context);
+  if (loading) {
+    return <Loader center />;
+  }
 
   return (
     <ConnectionsContext.Provider value={context}>
@@ -168,30 +202,47 @@ export default function Connections({ data }: ConnectionsProps) {
           <ConnectionsMistakes />
         </Box>
         <ButtonToolbar width={"100%"} justifyContent={"center"} className="action-btns">
-          <HStack spacing={10}>
-            <Button
-              appearance="ghost"
-              onClick={() => {
-                if (checking) return;
-                setRows(splitRows([...cards].sort(() => Math.random() - 0.5)));
-              }}
-            >
-              Shuffle
-            </Button>
-            <Button
-              appearance="ghost"
-              onClick={() => {
-                if (checking) return;
-                setSelectedCards([]);
-              }}
-              disabled={selectedCards.length === 0}
-            >
-              Deselect All
-            </Button>
-            <Button appearance={selectedCards.length < 4 ? "ghost" : "primary"} disabled={selectedCards.length < 4} onClick={check}>
-              Submit
-            </Button>
-          </HStack>
+          {!complete ? (
+            <HStack spacing={10}>
+              <Button
+                appearance="ghost"
+                onClick={() => {
+                  if (checking) return;
+                  setRows(splitRows([...cards].sort(() => Math.random() - 0.5)));
+                }}
+              >
+                Shuffle
+              </Button>
+              <Button
+                appearance="ghost"
+                onClick={() => {
+                  if (checking) return;
+                  setSelectedCards([]);
+                }}
+                disabled={selectedCards.length === 0}
+              >
+                Deselect All
+              </Button>
+              <Button appearance={selectedCards.length < 4 ? "ghost" : "primary"} disabled={selectedCards.length < 4} onClick={check}>
+                Submit
+              </Button>
+            </HStack>
+          ) : (
+            <>
+              <HStack spacing={10}>
+                <Button
+                  appearance="ghost"
+                  className={!resultsOpen ? "breathe" : ""}
+                  onClick={() => {
+                    setResultsOpen(true);
+                  }}
+                >
+                  View Results
+                </Button>
+              </HStack>
+              <ConnectionsResults open={resultsOpen} setOpen={setResultsOpen} />
+            </>
+          )}
         </ButtonToolbar>
       </VStack>
     </ConnectionsContext.Provider>
