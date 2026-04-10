@@ -22,8 +22,8 @@ import AccountButtons from "@/Components/AccountButtons";
 import SignIn from "@/Components/SignIn";
 import { GlobalState } from "@/lib/GlobalState";
 import { formatDate } from "@/lib/formatting";
-import type { CustomPuzzle, MiniCrossword } from "@/lib/types";
-import { pb, pb_url } from "@/main";
+import type { MiniCrossword } from "@/lib/types";
+import { pb } from "@/main";
 import { Archive } from "./Components/Archive";
 import Crossword from "./Components/Crossword";
 import Timer from "./Components/Timer";
@@ -105,8 +105,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
         });
       return;
     }
-    fetch(pb_url + "/api/today/" + type)
-      .then((res) => res.json())
+    pb.send("/api/today/" + type, { method: "GET" })
       .then((json) => {
         if (json.error && json.error === "Not Found") {
           setError("Failed to load today's puzzle.");
@@ -116,7 +115,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
       })
       .catch((err) => {
         console.error(err);
-        setError(`${import.meta.env.DEV ? `Failed to access the Pocketbase API at ${pb_url}` : "Failed to load today's puzzle."}`);
+        setError(`${import.meta.env.DEV ? `Failed to access the Pocketbase API at ${pb.baseURL}` : "Failed to load today's puzzle."}`);
       });
   }, [data]);
 

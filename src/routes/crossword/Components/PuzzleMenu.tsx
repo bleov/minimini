@@ -16,7 +16,7 @@ import {
 import type { MiniCrossword } from "@/lib/types";
 import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
 import { CrosswordAppState } from "@/routes/crossword/state";
-import { pb, pb_url } from "@/main";
+import { pb } from "@/main";
 import { GlobalState } from "@/lib/GlobalState";
 import { useDialog } from "rsuite";
 import { useNavigate } from "react-router";
@@ -102,7 +102,7 @@ export default function PuzzleMenu({
               if (!printout) {
                 dialog.alert("This puzzle can't be printed at this time.");
               }
-              window.open(`${pb_url}/api/files/archive/${item.id}/${printout}`, "_blank");
+              window.open(`${pb.baseURL}/api/files/archive/${item.id}/${printout}`, "_blank");
             } else {
               dialog.alert("This puzzle can't be printed at this time.");
             }

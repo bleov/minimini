@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Box, Center, Modal, useDialog } from "rsuite";
-import { Button, Form, HStack, VStack, List, Text, Heading, PinInput, Avatar } from "rsuite";
-import { pb, pb_url } from "../main";
+import { Modal, useDialog } from "rsuite";
+import { Button, Form, HStack, VStack, List, Text, PinInput, Avatar } from "rsuite";
+import { pb } from "../main";
 import type { UserRecord } from "../lib/types";
 
 import "../css/Friends.css";
@@ -156,23 +156,21 @@ export default function Friends({ open, setOpen }: { open: boolean; setOpen: (op
                 setLoading(true);
                 try {
                   if (!pb.authStore.isValid || !pb.authStore.record?.id) return;
-                  const response = await fetch(pb_url + "/api/friends/from_code/" + e.code, {
+                  const response = await pb.send("/api/friends/from_code/" + e.code, {
                     method: "GET"
                   });
-                  const json = await response.json();
-                  console.log(json);
-                  if (json.id) {
-                    if (json.id === pb.authStore.record?.id) {
+                  if (response.id) {
+                    if (response.id === pb.authStore.record?.id) {
                       setResult("You can't add yourself as a friend");
                       return;
                     }
                     await pb.collection("users").update(pb.authStore.record.id, {
-                      "friends+": [json.id]
+                      "friends+": [response.id]
                     });
-                    setResult(`Added ${json.username} as a friend`);
+                    setResult(`Added ${response.username} as a friend`);
                     fetchFriends();
                   } else {
-                    setResult(json.error ?? "An unexpected error occurred");
+                    setResult(response.error ?? "An unexpected error occurred");
                   }
                 } catch (err) {
                   console.error(err);

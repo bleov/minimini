@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Connections from "./Components/Connections";
 import type { ConnectionsGame } from "@/lib/types";
 import { Center, Content, Loader, Text } from "rsuite";
-import { pb_url } from "@/main";
+import { pb } from "@/main";
 
 export default function App() {
   const [data, setData] = useState<ConnectionsGame | null>(null);
@@ -18,14 +18,12 @@ export default function App() {
 
   async function fetchData() {
     try {
-      const todayResponse = await fetch(`${pb_url}/api/today/connections`);
-      if (!todayResponse.ok) {
-        setError("Failed to fetch today's puzzle.");
-        return;
-      }
-      const todayData = await todayResponse.json();
+      const todayData = await pb.send("/api/today/connections", {
+        method: "GET"
+      });
       setData(todayData);
     } catch (err) {
+      console.error(err);
       setError("Failed to load today's puzzle.");
     }
   }
