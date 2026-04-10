@@ -1,5 +1,5 @@
 .friends-list {
-  width: 256px;
+  width: 100%;
   max-height: 211px;
   overflow-y: auto;
 }
