@@ -94,20 +94,20 @@
     cursor: pointer;
     transition: 150ms linear;
     transition-property: background-color, color;
+    container: connections-card;
 
-    .rs-text {
+    .card-label {
       color: var(--card-text);
       font-weight: 700;
-      font-size: 20px;
       user-select: none;
-      text-align: center;
-      width: max(100%, 80px);
+      white-space: nowrap;
+      line-height: 1;
     }
 
     &.selected {
       background-color: var(--card-bg-active);
 
-      .rs-text {
+      .card-label {
         color: var(--card-text-active);
       }
     }
@@ -185,17 +185,6 @@
 
     .connections-category p.rs-text {
       font-size: 18px;
-    }
-    .connections-card > p.rs-text {
-      font-size: 16px;
-    }
-  }
-}
-
-@media (max-width: 405px) {
-  .connections {
-    .connections-card > p.rs-text {
-      font-size: 14px;
     }
   }
 }
