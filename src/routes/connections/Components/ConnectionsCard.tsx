@@ -1,13 +1,30 @@
 import type { ConnectionsCard } from "@/lib/types";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Center, Text } from "rsuite";
 import { ConnectionsContext } from "./Connections";
 
-export function ConnectionsCard({ content, position }: ConnectionsCard) {
+interface ConnectionsCardProps extends ConnectionsCard {
+  row: number;
+  column: number;
+  slideTo?: { x: number; y: number };
+}
+
+function getGridOffset(from: HTMLDivElement, toX: number, toY: number): string {
+  let fromX: number = parseInt(from.dataset.column ?? "0") ?? 0;
+  let fromY: number = parseInt(from.dataset.row ?? "0") ?? 0;
+  const offsetX = fromX * from.offsetWidth + 8 * fromX;
+  const offsetY = fromY * from.offsetHeight + 8 * fromY;
+  const toOffsetX = offsetX + (toX - fromX) * (from.offsetWidth + 8);
+  const toOffsetY = offsetY + (toY - fromY) * (from.offsetHeight + 8);
+  return `translate(${toOffsetX - offsetX}px, ${toOffsetY - offsetY}px)`;
+}
+
+export function ConnectionsCard({ content, position, row, column, slideTo }: ConnectionsCardProps) {
   const { selectedCards, setSelectedCards, checking, cards, complete, shaking } = useContext(ConnectionsContext)!;
 
   const [animationOffset, setAnimationOffset] = useState(0);
   const selected = selectedCards.includes(position);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   const classList = ["connections-card"];
   if (selected && !complete) {
@@ -32,9 +49,19 @@ export function ConnectionsCard({ content, position }: ConnectionsCard) {
     }
   }
 
+  useEffect(() => {
+    if (slideTo && cardRef.current) {
+      cardRef.current.classList.add("slide");
+      cardRef.current.style.transform = getGridOffset(cardRef.current, slideTo.x, slideTo.y);
+    }
+  }, [slideTo]);
+
   return (
     <Center
+      data-row={row}
+      data-column={column}
       className={classList.join(" ")}
+      ref={cardRef}
       onMouseDown={() => {
         if (checking) return;
         if (classList.includes("disabled")) {
@@ -48,7 +75,9 @@ export function ConnectionsCard({ content, position }: ConnectionsCard) {
           return newSelectedCards;
         });
       }}
-      style={{ animationDelay: `${Math.max(0, animationOffset - 1)}ms` }}
+      style={{
+        animationDelay: `${Math.max(0, animationOffset - 1)}ms`
+      }}
     >
       <Text>{content}</Text>
     </Center>

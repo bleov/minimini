@@ -56,6 +56,7 @@ export default function Connections({ data }: ConnectionsProps) {
   const [rows, setRows] = useState(splitRows(cards));
   const [modalState, setModalState] = useState<"results" | "leaderboard" | null>(null);
   const [resultText, setResultText] = useState<string>("Well done!");
+  const [slidingCards, setSlidingCards] = useState<number[]>([]);
 
   const toaster = useToaster();
   const complete = correctCategories.length === 4 || mistakes >= 4;
@@ -98,6 +99,94 @@ export default function Connections({ data }: ConnectionsProps) {
     });
   }
 
+  function revealCategory(category: ConnectionsGame["categories"][number]) {
+    const revealPositions = category.cards.map((card) => card.position);
+    const categoryIndex = data.categories.findIndex((c) => c === category);
+    if (categoryIndex < 0) {
+      setChecking(false);
+      return;
+    }
+
+    const rowZeroUnselectedPositions = rows[0].filter((card) => !revealPositions.includes(card.position)).map((card) => card.position);
+    setSlidingCards([...revealPositions, ...rowZeroUnselectedPositions]);
+
+    setTimeout(() => {
+      const gridLocations = new Map<number, { x: number; y: number }>();
+      rows.forEach((row, y) => {
+        row.forEach((card, x) => {
+          gridLocations.set(card.position, { x, y });
+        });
+      });
+
+      const resolvedGrid: (ConnectionsCard | undefined)[][] = rows.map((row) => row.map(() => undefined));
+      const movedCardPositions = new Set<number>();
+
+      revealPositions.forEach((position) => {
+        const card = rows.flat().find((c) => c.position === position);
+        if (!card) {
+          return;
+        }
+
+        const relativeCardIndex = category.cards.findIndex((c) => c.position === position);
+        if (relativeCardIndex < 0 || !resolvedGrid[0]) {
+          return;
+        }
+        if (resolvedGrid[0][relativeCardIndex]) {
+          return;
+        }
+
+        resolvedGrid[0][relativeCardIndex] = card;
+        movedCardPositions.add(position);
+      });
+
+      if (rows.length > 1 && rows[0]) {
+        const rowZeroUnselectedSliding = rows[0]
+          .filter((card) => !revealPositions.includes(card.position))
+          .sort((a, b) => a.position - b.position);
+
+        const movingUpSelected = revealPositions
+          .map((position) => {
+            const location = gridLocations.get(position);
+            return location ? { position, location } : undefined;
+          })
+          .filter((item): item is { position: number; location: { x: number; y: number } } => !!item && item.location.y > 0)
+          .sort((a, b) => a.position - b.position);
+
+        rowZeroUnselectedSliding.forEach((rowZeroCard, index) => {
+          const vacatedSlot = movingUpSelected[index];
+          if (!vacatedSlot) {
+            return;
+          }
+          resolvedGrid[vacatedSlot.location.y][vacatedSlot.location.x] = rowZeroCard;
+          movedCardPositions.add(rowZeroCard.position);
+        });
+      }
+
+      rows.forEach((row, y) => {
+        row.forEach((card, x) => {
+          if (movedCardPositions.has(card.position)) {
+            return;
+          }
+          if (!resolvedGrid[y][x]) {
+            resolvedGrid[y][x] = card;
+          }
+        });
+      });
+
+      const orderedResolvedCards = resolvedGrid.flat().filter((card): card is ConnectionsCard => !!card);
+      const revealedCardSet = new Set(revealPositions);
+      const remainingCards = orderedResolvedCards.filter((card) => !revealedCardSet.has(card.position));
+
+      setCards(remainingCards);
+      setRows(splitRows(remainingCards));
+      setSelectedCards([]);
+      setGuesses((prevGuesses) => [...prevGuesses, revealPositions]);
+      setCorrectCategories((prevCorrectCategories) => [...prevCorrectCategories, categoryIndex]);
+      setSlidingCards([]);
+      setChecking(false);
+    }, 600);
+  }
+
   function check() {
     if (checking) return;
     setChecking(true);
@@ -109,6 +198,7 @@ export default function Connections({ data }: ConnectionsProps) {
     }
 
     let correct = false;
+    let matchedCategory: ConnectionsGame["categories"][number] | undefined;
     data.categories.forEach((category) => {
       let correctInCategory = 0;
       category.cards.forEach((card) => {
@@ -118,14 +208,16 @@ export default function Connections({ data }: ConnectionsProps) {
       });
       if (correctInCategory === 4) {
         correct = true;
+        matchedCategory = category;
       }
     });
-    const correctCategory = data.categories.findIndex((category) => category.cards.every((card) => selectedCards.includes(card.position)));
     setTimeout(() => {
       if (correct) {
-        setGuesses((prevGuesses) => [...prevGuesses, selectedCards]);
-        setCorrectCategories((prevCorrectCategories) => [...prevCorrectCategories, correctCategory]);
-        setSelectedCards([]);
+        if (!matchedCategory) {
+          setChecking(false);
+          return;
+        }
+        revealCategory(matchedCategory);
       } else {
         setShaking(true);
         setTimeout(() => {
@@ -133,6 +225,7 @@ export default function Connections({ data }: ConnectionsProps) {
         }, 500);
         setMistakes((prevMistakes) => prevMistakes + 1);
         setGuesses((prevGuesses) => [...prevGuesses, selectedCards]);
+        // reveal remaining categories on last mistake
         if (mistakes + 1 >= 4) {
           setCorrectCategories((prevCorrectCategories) => {
             const revealedCategories = data.categories.map((_, i) => i).filter((i) => !prevCorrectCategories.includes(i));
@@ -154,8 +247,8 @@ export default function Connections({ data }: ConnectionsProps) {
         if (oneAway) {
           toast("One away...");
         }
+        setChecking(false);
       }
-      setChecking(false);
     }, 150 * 8);
   }
 
@@ -194,6 +287,36 @@ export default function Connections({ data }: ConnectionsProps) {
     return <Loader center />;
   }
 
+  const cardGridLocation = new Map<number, { x: number; y: number }>();
+  rows.forEach((row, y) => {
+    row.forEach((card, x) => {
+      cardGridLocation.set(card.position, { x, y });
+    });
+  });
+
+  const swapSlideTargets = new Map<number, { x: number; y: number }>();
+  if (rows.length > 1 && rows[0]) {
+    const rowZeroUnselectedSliding = rows[0]
+      .filter((card) => slidingCards.includes(card.position) && !selectedCards.includes(card.position))
+      .sort((a, b) => a.position - b.position);
+
+    const movingUpSelected = selectedCards
+      .map((position) => {
+        const location = cardGridLocation.get(position);
+        return location ? { position, location } : undefined;
+      })
+      .filter((item): item is { position: number; location: { x: number; y: number } } => !!item && item.location.y > 0)
+      .sort((a, b) => a.position - b.position);
+
+    rowZeroUnselectedSliding.forEach((rowZeroCard, index) => {
+      const vacatedSlot = movingUpSelected[index];
+      if (!vacatedSlot) {
+        return;
+      }
+      swapSlideTargets.set(rowZeroCard.position, vacatedSlot.location);
+    });
+  }
+
   return (
     <ConnectionsContext.Provider value={context}>
       <VStack spacing={24} width={"100%"} className="connections-container">
@@ -203,9 +326,29 @@ export default function Connections({ data }: ConnectionsProps) {
           ))}
           {rows.map((row, rowIndex) => (
             <HStack key={rowIndex} spacing={8} justify={"center"} width={"100%"}>
-              {row.map((card) => (
-                <ConnectionsCardElement key={card.position} content={card.content} position={card.position} />
-              ))}
+              {row.map((card, columnIndex) => {
+                let slideTo: { x: number; y: number } | undefined;
+                if (slidingCards.includes(card.position) && selectedCards.includes(card.position)) {
+                  const categoryIndex = data.categories.findIndex((category) => category.cards.some((c) => c.position === card.position));
+                  const relativeCardIndex = data.categories[categoryIndex].cards.findIndex((c) => c.position === card.position);
+                  slideTo = { x: relativeCardIndex, y: 0 };
+                }
+
+                if (!slideTo) {
+                  slideTo = swapSlideTargets.get(card.position);
+                }
+
+                return (
+                  <ConnectionsCardElement
+                    key={card.position}
+                    content={card.content}
+                    position={card.position}
+                    row={rowIndex}
+                    column={columnIndex}
+                    slideTo={slideTo}
+                  />
+                );
+              })}
             </HStack>
           ))}
         </VStack>
@@ -219,7 +362,9 @@ export default function Connections({ data }: ConnectionsProps) {
                 appearance="ghost"
                 onClick={() => {
                   if (checking) return;
-                  setRows(splitRows([...cards].sort(() => Math.random() - 0.5)));
+                  const shuffledCards = [...cards].sort(() => Math.random() - 0.5);
+                  setCards(shuffledCards);
+                  setRows(splitRows(shuffledCards));
                 }}
               >
                 Shuffle
