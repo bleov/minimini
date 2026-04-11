@@ -248,7 +248,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
         >
           <VStack spacing={10}>
             <VStack width={"100%"} spacing={5} alignItems={"center"}>
-              <Image src={`/icons/${type}/pwa-192x192.png`} width={48} />
+              <Image src={type === "custom" ? `/icons/custom_crossword/pwa-192x192.png` : `/icons/${type}/pwa-192x192.png`} width={48} />
               <Heading level={2} className="merriweather-display">
                 {type !== "custom" && "The "}
                 {type.charAt(0).toUpperCase()}

@@ -64,7 +64,8 @@ export default function Rating({ id }: { id: number }) {
           size="sm"
           onChange={rate}
           onChangeActive={setHovered}
-          onTouchEndCapture={() => {
+          onTouchEndCapture={(e) => {
+            console.log(e);
             rate(hovered);
           }}
         />

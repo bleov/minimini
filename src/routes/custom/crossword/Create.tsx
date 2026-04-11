@@ -23,9 +23,9 @@ import {
   useDialog,
   VStack
 } from "rsuite";
-import ShapePreview from "./Components/ShapePreview";
+import ShapePreview from "../Components/ShapePreview";
 import { useBeforeUnload, useParams } from "react-router";
-import AnswerInput from "./Components/AnswerInput";
+import AnswerInput from "../Components/AnswerInput";
 
 function getTodayDateString() {
   const today = new Date();
