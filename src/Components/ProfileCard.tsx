@@ -1,5 +1,4 @@
 import { getDefaultAvatar } from "@/lib/avatars";
-import type { UserRecord } from "@/lib/types";
 import { useMemo, type JSX } from "react";
 import { Avatar, Heading, Text, VStack, HStack, Box } from "rsuite";
 

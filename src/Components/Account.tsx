@@ -1,11 +1,10 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import { Form, Modal } from "rsuite";
 import { pb } from "../main";
-import { Avatar, Button, ButtonGroup, Heading, HStack, Text, useDialog, VStack } from "rsuite";
+import { Button, ButtonGroup, useDialog, VStack } from "rsuite";
 import { GlobalState } from "../lib/GlobalState";
 import type { RecordAuthResponse } from "pocketbase";
 import posthog from "posthog-js";
-import { getDefaultAvatar } from "../lib/avatars";
 import { CircleUserRoundIcon, LogOutIcon, PencilIcon, TrashIcon } from "lucide-react";
 import localforage from "localforage";
 import ProfileCard from "./ProfileCard";
