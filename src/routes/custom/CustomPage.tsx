@@ -131,19 +131,33 @@ function PublicPuzzles({ puzzles }: { puzzles: CustomPuzzleData[] }) {
   );
 }
 
-export default function Custom() {
+interface CustomPageProps {
+  type: "crossword" | "connections";
+}
+
+export default function CustomPage({ type }: CustomPageProps) {
   const [userPuzzles, setUserPuzzles] = useState<CustomPuzzleData[]>([]);
   const [puzzles, setPuzzles] = useState<CustomPuzzleData[]>([]);
   const [createLoading, setCreateLoading] = useState(false);
 
   const navigate = useNavigate();
-  const dialog = useDialog();
+  let typeFilter = "";
+  let defaultType = "";
+
+  if (type === "connections") {
+    typeFilter = `type="connections"`;
+    defaultType = "connections";
+  } else {
+    typeFilter = `type!="connections"`;
+    defaultType = "mini";
+  }
 
   useEffect(() => {
     pb.collection("custom_puzzle_data")
       .getFullList({
         fields: "id, author, author_name, title, public, type, created, updated, avg_rating, completions",
-        sort: "-completions"
+        sort: "-completions",
+        filter: typeFilter
       })
       .then((puzzles) => {
         if (pb.authStore.isValid && pb.authStore.record) {
@@ -157,14 +171,14 @@ export default function Custom() {
 
   useEffect(() => {
     document.title = "Custom Puzzles - Glyph";
-    document.getElementById("favicon-svg")?.setAttribute("href", `/icons/custom/favicon.svg`);
+    document.getElementById("favicon-svg")?.setAttribute("href", `/icons/custom_${type}/favicon.svg`);
   }, []);
 
   return (
     <VStack spacing={15}>
       <VStack spacing={3} width={"100%"}>
         <Center width={"100%"}>
-          <Image src={`/icons/custom/pwa-192x192.png`} width={48} />
+          <Image src={`/icons/custom_${type}/pwa-192x192.png`} width={48} />
         </Center>
         <Heading level={1} className="merriweather-display">
           Custom Puzzles
@@ -202,7 +216,7 @@ export default function Custom() {
                     author: pb.authStore.record?.id,
                     puzzle: null,
                     public: false,
-                    type: "mini",
+                    type: defaultType,
                     shape: null
                   })
                   .then((record) => {

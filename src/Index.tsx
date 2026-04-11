@@ -114,19 +114,28 @@ export default function Index() {
         </Center>
       </div>
       <CardGroup columns={2} className="game-cards" spacing={10}>
-        <LinkCard title="The Mini" description="Tiny crossword puzzles" link="/mini" imageSrc="/icons/mini/favicon.svg" />
-        <LinkCard title="The Midi" description="Medium crossword puzzles" link="/midi" imageSrc="/icons/midi/favicon.svg" />
-        <LinkCard title="The Daily" description="Large crossword puzzles" link="/daily" imageSrc="/icons/daily/favicon.svg" />
-        <LinkCard title="Custom Puzzles" description="Create your own crossword" link="/custom" imageSrc="/icons/custom/favicon.svg" />
+        <LinkCard title="The Mini" description="Tiny crossword puzzles" link="/mini" imageSrc="/icons/mini/pwa-192x192.png" />
+        <LinkCard title="The Midi" description="Medium crossword puzzles" link="/midi" imageSrc="/icons/midi/pwa-192x192.png" />
+        <LinkCard title="The Daily" description="Large crossword puzzles" link="/daily" imageSrc="/icons/daily/pwa-192x192.png" />
+        <LinkCard
+          title="Custom Crosswords"
+          description="Create your own crossword"
+          link="/custom/crosswords"
+          imageSrc="/icons/custom_crossword/pwa-192x192.png"
+        />
       </CardGroup>
-      <CardGroup columns={1} className="game-cards" spacing={10} marginTop={10}>
+      <CardGroup columns={2} className="game-cards" spacing={10} marginTop={10}>
         <LinkCard
           title="Connections"
           description="Connect words to make groups"
           link="/connections"
-          imageSrc="/icons/connections/favicon.svg"
-          badgeContent="New"
-          horizontal
+          imageSrc="/icons/connections/pwa-192x192.png"
+        />
+        <LinkCard
+          title="Custom Connections"
+          description="Create your own connections"
+          link="/custom/connections"
+          imageSrc="/icons/custom_connections/pwa-192x192.png"
         />
       </CardGroup>
     </main>

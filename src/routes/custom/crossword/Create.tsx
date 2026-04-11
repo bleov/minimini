@@ -1,7 +1,7 @@
 import { GlobalState } from "@/lib/GlobalState";
 import type { CustomPuzzle, CrosswordShape, MiniCrossword } from "@/lib/types";
 import { pb } from "@/main";
-import { CircleQuestionMarkIcon, Grid2X2PlusIcon, PencilIcon, SaveIcon, SaveOffIcon, Wand2Icon } from "lucide-react";
+import { Grid2X2PlusIcon, PencilIcon, SaveIcon, SaveOffIcon, Wand2Icon } from "lucide-react";
 import { useContext, useEffect, useLayoutEffect, useRef, useState, type SetStateAction } from "react";
 import {
   Box,
@@ -93,8 +93,8 @@ export default function Create() {
   }
 
   useEffect(() => {
-    document.title = "Create Custom Puzzle - Glyph";
-    document.getElementById("favicon-svg")?.setAttribute("href", `/icons/custom/favicon.svg`);
+    document.title = "Create Custom Crossword - Glyph";
+    document.getElementById("favicon-svg")?.setAttribute("href", `/icons/custom_crossword/favicon.svg`);
 
     if (params.id) {
       // Existing puzzle
