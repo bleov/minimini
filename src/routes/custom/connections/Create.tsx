@@ -46,8 +46,8 @@ export default function ConnectionsCreator() {
   });
 
   useEffect(() => {
-    document.title = "Create Custom Puzzle - Glyph";
-    document.getElementById("favicon-svg")?.setAttribute("href", `/icons/custom/favicon.svg`);
+    document.title = "Create Custom Connections - Glyph";
+    document.getElementById("favicon-svg")?.setAttribute("href", `/icons/custom_connections/favicon.svg`);
 
     if (params.id) {
       // Existing puzzle

@@ -93,8 +93,8 @@ export default function Create() {
   }
 
   useEffect(() => {
-    document.title = "Create Custom Puzzle - Glyph";
-    document.getElementById("favicon-svg")?.setAttribute("href", `/icons/custom/favicon.svg`);
+    document.title = "Create Custom Crossword - Glyph";
+    document.getElementById("favicon-svg")?.setAttribute("href", `/icons/custom_crossword/favicon.svg`);
 
     if (params.id) {
       // Existing puzzle
