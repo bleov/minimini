@@ -1,15 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
-import { ButtonGroup, Modal, useDialog } from "rsuite";
+import { ButtonGroup, IconButton, Modal, useDialog } from "rsuite";
 import { Button, Form, HStack, VStack, List, Text, PinInput, Avatar } from "rsuite";
 import { pb } from "../main";
 import type { UserRecord } from "../lib/types";
 
 import "../css/Friends.css";
 import { getDefaultAvatar } from "../lib/avatars";
-import { ArrowLeftIcon, ChartNoAxesColumnIcon, HashIcon, MenuIcon, UserPlus2, UserSearchIcon, UsersIcon, UserXIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  ChartNoAxesColumnIcon,
+  HashIcon,
+  MenuIcon,
+  UserPlusIcon,
+  UserSearchIcon,
+  UsersIcon,
+  UserXIcon
+} from "lucide-react";
 import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
 import { Stats } from "@/routes/crossword/Components/Stats";
 import Nudge from "./Nudge";
+import ProfileCard from "./ProfileCard";
 
 const pages = ["main", "list", "code", "mutual"] as const;
 
@@ -33,7 +43,7 @@ function FriendListEntry({
     if (!pb.authStore.isValid || !pb.authStore.record) return;
     if (
       !(await dialog.confirm(
-        `Are you sure you want to remove ${friend.username} from your friends? You'll need their friend code again to add them back.`,
+        `Are you sure you want to remove ${friend.username} from your friends? You may need their friend code to add them back.`,
         { title: "Confirm" }
       ))
     ) {
@@ -202,8 +212,96 @@ function FriendCode() {
   );
 }
 
+interface MutualFriend {
+  id: string;
+  username: string;
+  mutual: string[];
+}
+
 function MutualPage() {
-  return <VStack spacing={10} alignItems={"center"}></VStack>;
+  const [loading, setLoading] = useState(true);
+  const [mutualFriends, setMutualFriends] = useState<MutualFriend[]>([]);
+  const [adding, setAdding] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (mutualFriends.length === 0) {
+      setLoading(true);
+      pb.send("/api/friends/mutual", {
+        method: "GET"
+      })
+        .then((response) => {
+          if (response.result) {
+            setMutualFriends(response.result as MutualFriend[]);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          setLoading(false);
+        });
+    }
+
+    return () => {
+      setMutualFriends([]);
+    };
+  }, []);
+
+  function getMutualText(mutual: string[]) {
+    if (mutual.length === 1) {
+      return `${mutual[0]}`;
+    } else if (mutual.length === 2) {
+      return `${mutual[0]}, ${mutual[1]}`;
+    } else {
+      return `${mutual[0]}, ${mutual[1]}, and ${mutual.length - 2} ${mutual.length - 2 === 1 ? "other" : "others"}`;
+    }
+  }
+
+  return (
+    <VStack spacing={5} alignItems={"center"}>
+      {mutualFriends.map((friend) => (
+        <ProfileCard
+          key={friend.id}
+          width={"100%"}
+          username={friend.username}
+          secondaryText={
+            <>
+              <UsersIcon /> {getMutualText(friend.mutual)}
+            </>
+          }
+          actions={
+            <IconButton
+              icon={<UserPlusIcon />}
+              loading={adding.includes(friend.id)}
+              onClick={() => {
+                setAdding((prev) => [...prev, friend.id]);
+                pb.collection("users")
+                  .update(pb.authStore.record?.id || "", {
+                    "friends+": [friend.id]
+                  })
+                  .then(() => {
+                    setAdding((prev) => prev.filter((id) => id !== friend.id));
+                    setMutualFriends((prev) => prev.filter((f) => f.id !== friend.id));
+                  })
+                  .catch((err) => {
+                    console.error(err);
+                    setAdding((prev) => prev.filter((id) => id !== friend.id));
+                  });
+              }}
+            />
+          }
+        />
+      ))}
+      {mutualFriends.length === 0 && !loading && (
+        <Nudge
+          title="No suggestions found"
+          body="People who are friends with two or more of your friends will show up here. Try adding more friends using their friend codes."
+          width={"100%"}
+          color="var(--rs-violet-500)"
+          className="icon-bg friends-nudge"
+        />
+      )}
+    </VStack>
+  );
 }
 
 function MainPage({ setPage }: { setPage: (page: (typeof pages)[number]) => void }) {

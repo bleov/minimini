@@ -127,7 +127,7 @@ export default function Account({ open, setOpen }: { open: boolean; setOpen: (op
         </Modal.Header>
         <Modal.Body>
           <VStack spacing={10}>
-            <ProfileCard user={user} />
+            <ProfileCard username={user.username} secondaryText={`Solving since ${new Date(user.created).toLocaleDateString("en-US")}`} />
             <ButtonGroup vertical block>
               <Button
                 startIcon={<PencilIcon />}
