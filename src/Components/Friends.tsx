@@ -330,7 +330,11 @@ export default function Friends({ open, setOpen }: { open: boolean; setOpen: (op
       overflow={false}
       open={open}
       onClose={() => {
-        setOpen(false);
+        if (page !== "main") {
+          setPage("main");
+        } else {
+          setOpen(false);
+        }
       }}
     >
       <VStack spacing={10}>
