@@ -6,6 +6,7 @@ import Account from "@/Components/Account";
 import Friends from "@/Components/Friends";
 import SignIn from "@/Components/SignIn";
 import AccountButtons from "@/Components/AccountButtons";
+import { pb } from "./main";
 
 interface LinkCardProps {
   title: string;
@@ -74,13 +75,19 @@ export default function Index() {
   useEffect(() => {
     switch (location.hash) {
       case "#friends":
-        setModalState("friends");
+        if (pb.authStore.isValid) {
+          setModalState("friends");
+        }
         break;
       case "#account":
-        setModalState("account");
+        if (pb.authStore.isValid) {
+          setModalState("account");
+        }
         break;
       case "#sign-in":
-        setModalState("sign-in");
+        if (!pb.authStore.isValid) {
+          setModalState("sign-in");
+        }
         break;
       default:
         break;

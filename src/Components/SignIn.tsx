@@ -36,7 +36,6 @@ export default function SignIn({ open, setOpen }: SignInProps) {
   }
 
   async function onSubmit(input: any, isSignUp: boolean = false) {
-    console.log(input);
     if (loading || !input) return;
     const username = input.username;
     const password = input.password;
