@@ -1,7 +1,7 @@
 import { GlobalState } from "@/lib/GlobalState";
 import type { CustomPuzzle, CrosswordShape, MiniCrossword } from "@/lib/types";
 import { pb } from "@/main";
-import { CircleQuestionMarkIcon, Grid2X2PlusIcon, PencilIcon, SaveIcon, SaveOffIcon, Wand2Icon } from "lucide-react";
+import { Grid2X2PlusIcon, PencilIcon, SaveIcon, SaveOffIcon, Wand2Icon } from "lucide-react";
 import { useContext, useEffect, useLayoutEffect, useRef, useState, type SetStateAction } from "react";
 import {
   Box,
@@ -23,9 +23,9 @@ import {
   useDialog,
   VStack
 } from "rsuite";
-import ShapePreview from "../Components/ShapePreview";
+import ShapePreview from "./Components/ShapePreview";
 import { useBeforeUnload, useParams } from "react-router";
-import AnswerInput from "../Components/AnswerInput";
+import AnswerInput from "./Components/AnswerInput";
 
 function getTodayDateString() {
   const today = new Date();
