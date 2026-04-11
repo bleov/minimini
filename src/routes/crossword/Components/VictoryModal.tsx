@@ -21,7 +21,7 @@ export default function VictoryModal({ open, onClose, onOpenLeaderboard, onExit,
       <VStack spacing={15} width={"100%"}>
         <VStack spacing={5} width={"100%"}>
           <Center width={"100%"}>
-            <Image src={`/icons/${type}/pwa-192x192.png`} width={42} />
+            <Image src={type === "custom" ? `/icons/custom_crossword/pwa-192x192.png` : `/icons/${type}/pwa-192x192.png`} width={42} />
           </Center>
           <Heading level={2} className="merriweather-display">
             Congratulations!
