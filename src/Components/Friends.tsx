@@ -6,16 +6,7 @@ import type { UserRecord } from "../lib/types";
 
 import "../css/Friends.css";
 import { getDefaultAvatar } from "../lib/avatars";
-import {
-  ArrowLeftIcon,
-  ChartNoAxesColumnIcon,
-  HashIcon,
-  MenuIcon,
-  UserPlusIcon,
-  UserSearchIcon,
-  UsersIcon,
-  UserXIcon
-} from "lucide-react";
+import { ArrowLeftIcon, ChartNoAxesColumnIcon, HashIcon, MenuIcon, UserPlusIcon, UserSearchIcon, UsersIcon, UserXIcon } from "lucide-react";
 import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
 import { Stats } from "@/routes/crossword/Components/Stats";
 import Nudge from "./Nudge";
@@ -125,8 +116,6 @@ async function fetchFriends(setFriends: (friends: UserRecord[]) => void, setFrie
 }
 
 function FriendsList() {
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<string | null>(null);
   const [friends, setFriends] = useState<UserRecord[]>([]);
   const [friendsLoading, setFriendsLoading] = useState(true);
 
