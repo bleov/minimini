@@ -1,13 +1,13 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import { Form, Modal } from "rsuite";
 import { pb } from "../main";
-import { Avatar, Button, ButtonGroup, Heading, HStack, Text, useDialog, VStack } from "rsuite";
+import { Button, ButtonGroup, useDialog, VStack } from "rsuite";
 import { GlobalState } from "../lib/GlobalState";
 import type { RecordAuthResponse } from "pocketbase";
 import posthog from "posthog-js";
-import { getDefaultAvatar } from "../lib/avatars";
 import { CircleUserRoundIcon, LogOutIcon, PencilIcon, TrashIcon } from "lucide-react";
 import localforage from "localforage";
+import ProfileCard from "./ProfileCard";
 
 const EditUsernameDialog = ({ payload, onClose }: { payload: string; onClose: (newUser: RecordAuthResponse | null) => void }) => {
   const [isOpen, setIsOpen] = useState(true);
@@ -108,8 +108,6 @@ export default function Account({ open, setOpen }: { open: boolean; setOpen: (op
 
   const { user, setUser } = useContext(GlobalState);
 
-  const defaultAvatar = useMemo(() => getDefaultAvatar(user?.username), [user]);
-
   if (user) {
     return (
       <Modal
@@ -128,15 +126,7 @@ export default function Account({ open, setOpen }: { open: boolean; setOpen: (op
         </Modal.Header>
         <Modal.Body>
           <VStack spacing={10}>
-            <HStack spacing={10} border={"1px solid var(--rs-border-primary)"} padding={10} borderRadius={"var(--rs-radius-sm)"}>
-              <Avatar src={defaultAvatar} />
-              <VStack spacing={0}>
-                <Heading level={3} textAlign={"left"}>
-                  {user.username}
-                </Heading>
-                <Text textAlign={"left"}>Solving since {new Date(user.created).toLocaleDateString("en-US")}</Text>
-              </VStack>
-            </HStack>
+            <ProfileCard username={user.username} secondaryText={`Solving since ${new Date(user.created).toLocaleDateString("en-US")}`} />
             <ButtonGroup vertical block>
               <Button
                 startIcon={<PencilIcon />}
