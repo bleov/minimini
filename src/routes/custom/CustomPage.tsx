@@ -11,6 +11,8 @@ import {
   PlayIcon,
   PlusIcon,
   ShareIcon,
+  SortAscIcon,
+  SortDescIcon,
   StarIcon,
   TrashIcon,
   TrophyIcon
@@ -80,7 +82,7 @@ function SortOptions({ setSort, sortValues }: { setSort: (sort: string) => void;
           setSortOrder(value!);
         }}
         cleanable={false}
-        label={<FilterIcon />}
+        label={sortOrder === "-" ? <SortDescIcon /> : <SortAscIcon />}
       />
     </HStack>
   );
