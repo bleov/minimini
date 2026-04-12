@@ -23,11 +23,10 @@ export default function App({ custom = false }: { custom?: boolean }) {
     if (custom) {
       if (params.id) {
         pb.collection("custom_puzzles")
-          .getOne(params.id, { expand: "author,shape" })
+          .getOne(params.id, { expand: "shape" })
           .then((record) => {
             const newData = record.puzzle as ConnectionsGame;
             newData.id = record.id as unknown as number;
-            newData.editor = record.expand?.author.username || "Unknown User";
             setData(newData);
           })
           .catch((err) => {
