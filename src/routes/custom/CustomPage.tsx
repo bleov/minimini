@@ -1,5 +1,5 @@
 import Nudge from "@/Components/Nudge";
-import type { CustomPuzzle, CustomPuzzleData } from "@/lib/types";
+import type { CustomPuzzleData } from "@/lib/types";
 import { pb } from "@/main";
 import {
   ArrowLeftIcon,
@@ -11,7 +11,6 @@ import {
   PlayIcon,
   PlusIcon,
   ShareIcon,
-  SortAscIcon,
   StarIcon,
   TrashIcon,
   TrophyIcon
@@ -19,7 +18,6 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import {
-  Box,
   Button,
   ButtonGroup,
   ButtonToolbar,
@@ -37,89 +35,21 @@ import {
   VStack
 } from "rsuite";
 
-function UserPuzzles({ userPuzzles }: { userPuzzles: CustomPuzzleData[] }) {
-  const navigate = useNavigate();
-  const dialog = useDialog();
+const defaultSortValues = {
+  Completions: "completions",
+  Difficulty: "avg_rating",
+  "Date Created": "created",
+  "Date Updated": "updated",
+  Title: "title"
+};
 
-  const puzzles = useMemo(() => {
-    return userPuzzles.sort((a, b) => {
-      return new Date(b.updated).getTime() - new Date(a.updated).getTime();
-    });
-  }, [userPuzzles]);
-
-  return (
-    <VStack width={400} spacing={10}>
-      <Heading level={3}>My Puzzles</Heading>
-      {userPuzzles.length > 0 ? (
-        <List bordered width={400} maxHeight={56 * 4 + 5}>
-          {userPuzzles.map((puzzle) => (
-            <List.Item key={puzzle.id}>
-              <HStack justifyContent="space-between" spacing={15}>
-                <VStack spacing={0}>
-                  <Text>{puzzle.title}</Text>
-                  <Text muted>{puzzle.public ? "Public" : "Private"}</Text>
-                </VStack>
-                <ButtonGroup width={"fit-content"}>
-                  <IconButton
-                    icon={"share" in navigator ? <ShareIcon /> : <ExternalLinkIcon />}
-                    onClick={() => {
-                      const shareData = {
-                        title: puzzle.title,
-                        url: `${window.location.origin}/custom/${puzzle.id}`
-                      };
-                      if ("share" in navigator && navigator.canShare(shareData)) {
-                        navigator.share(shareData);
-                      } else {
-                        location.href = `/custom/${puzzle.id}`;
-                      }
-                    }}
-                  />
-                  <IconButton
-                    icon={<PencilIcon />}
-                    onClick={() => {
-                      navigate(`/custom/${puzzle.id}/edit`);
-                    }}
-                  />
-                  <IconButton
-                    icon={<TrashIcon />}
-                    onClick={async () => {
-                      if (await dialog.confirm(`"${puzzle.title}" will be permanently deleted.`, { title: "Are you sure?" })) {
-                        pb.collection("custom_puzzles")
-                          .delete(puzzle.id)
-                          .then(() => {
-                            location.reload();
-                          })
-                          .catch((err) => {
-                            console.error(err);
-                          });
-                      }
-                    }}
-                  />
-                </ButtonGroup>
-              </HStack>
-            </List.Item>
-          ))}
-        </List>
-      ) : (
-        <Text align="center" width={"100%"}>
-          You haven't created any puzzles yet.
-        </Text>
-      )}
-    </VStack>
-  );
-}
-
-function PublicPuzzles({ puzzles, sort, setSort }: { puzzles: CustomPuzzleData[]; sort: string; setSort: (sort: string) => void }) {
-  const [sortValue, setSortValue] = useState<string>("completions");
+function SortOptions({ setSort, sortValues }: { setSort: (sort: string) => void; sortValues?: Record<string, string> }) {
+  const [sortValue, setSortValue] = useState<string>(Object.values(sortValues ?? defaultSortValues)[0] || "completions");
   const [sortOrder, setSortOrder] = useState<string>("-");
 
-  const sortValues = {
-    Completions: "completions",
-    Difficulty: "avg_rating",
-    "Date Created": "created",
-    "Date Updated": "updated",
-    Title: "title"
-  };
+  if (!sortValues) {
+    sortValues = defaultSortValues;
+  }
 
   const sortOrders = {
     Descending: "-",
@@ -131,32 +61,128 @@ function PublicPuzzles({ puzzles, sort, setSort }: { puzzles: CustomPuzzleData[]
   }, [sortValue, sortOrder]);
 
   return (
+    <HStack spacing={5}>
+      <SelectPicker
+        searchable={false}
+        data={Object.entries(sortValues).map(([label, value]) => ({ label, value }))}
+        value={sortValue}
+        onChange={(value) => {
+          setSortValue(value!);
+        }}
+        cleanable={false}
+        label={<ArrowUpDownIcon />}
+      />
+      <SelectPicker
+        searchable={false}
+        data={Object.entries(sortOrders).map(([label, value]) => ({ label, value }))}
+        value={sortOrder}
+        onChange={(value) => {
+          setSortOrder(value!);
+        }}
+        cleanable={false}
+        label={<FilterIcon />}
+      />
+    </HStack>
+  );
+}
+
+function UserPuzzles({ userPuzzles }: { userPuzzles: CustomPuzzleData[] }) {
+  const [userSort, setUserSort] = useState<string>("-updated");
+  const navigate = useNavigate();
+  const dialog = useDialog();
+
+  const puzzles = useMemo(() => {
+    return userPuzzles.sort((a, b) => {
+      const sortKey = userSort.replace(/^-|\+/, "");
+      const sortOrder = userSort.startsWith("-") ? -1 : 1;
+      if (sortKey === "title") {
+        return a.title.localeCompare(b.title) * sortOrder;
+      }
+      if (sortKey === "created" || sortKey === "updated") {
+        return (new Date(a[sortKey]).getTime() - new Date(b[sortKey]).getTime()) * sortOrder;
+      }
+      return ((a as any)[sortKey] - (b as any)[sortKey]) * sortOrder;
+    });
+  }, [userPuzzles, userSort]);
+
+  return (
+    <VStack width={400} spacing={10}>
+      <Heading level={3}>My Puzzles</Heading>
+      {puzzles.length > 0 ? (
+        <VStack spacing={5}>
+          <SortOptions
+            setSort={setUserSort}
+            sortValues={{
+              "Dated Updated": "updated",
+              "Date Created": "created",
+              Title: "title"
+            }}
+          />
+          <List bordered width={400} maxHeight={56 * 4 + 5}>
+            {puzzles.map((puzzle) => (
+              <List.Item key={puzzle.id}>
+                <HStack justifyContent="space-between" spacing={15}>
+                  <VStack spacing={0}>
+                    <Text>{puzzle.title}</Text>
+                    <Text muted>{puzzle.public ? "Public" : "Private"}</Text>
+                  </VStack>
+                  <ButtonGroup width={"fit-content"}>
+                    <IconButton
+                      icon={"share" in navigator ? <ShareIcon /> : <ExternalLinkIcon />}
+                      onClick={() => {
+                        const shareData = {
+                          title: puzzle.title,
+                          url: `${window.location.origin}/custom/${puzzle.id}`
+                        };
+                        if ("share" in navigator && navigator.canShare(shareData)) {
+                          navigator.share(shareData);
+                        } else {
+                          location.href = `/custom/${puzzle.id}`;
+                        }
+                      }}
+                    />
+                    <IconButton
+                      icon={<PencilIcon />}
+                      onClick={() => {
+                        navigate(`/custom/${puzzle.id}/edit`);
+                      }}
+                    />
+                    <IconButton
+                      icon={<TrashIcon />}
+                      onClick={async () => {
+                        if (await dialog.confirm(`"${puzzle.title}" will be permanently deleted.`, { title: "Are you sure?" })) {
+                          pb.collection("custom_puzzles")
+                            .delete(puzzle.id)
+                            .then(() => {
+                              location.reload();
+                            })
+                            .catch((err) => {
+                              console.error(err);
+                            });
+                        }
+                      }}
+                    />
+                  </ButtonGroup>
+                </HStack>
+              </List.Item>
+            ))}
+          </List>
+        </VStack>
+      ) : (
+        <Text align="center" width={"100%"}>
+          You haven't created any puzzles yet.
+        </Text>
+      )}
+    </VStack>
+  );
+}
+
+function PublicPuzzles({ puzzles, sort, setSort }: { puzzles: CustomPuzzleData[]; sort: string; setSort: (sort: string) => void }) {
+  return (
     <VStack width={400} spacing={10}>
       <Heading level={3}>Public Puzzles</Heading>
       <VStack spacing={5}>
-        <HStack spacing={5}>
-          <SelectPicker
-            searchable={false}
-            data={Object.entries(sortValues).map(([label, value]) => ({ label, value }))}
-            value={sortValue}
-            onChange={(value) => {
-              setSortValue(value!);
-            }}
-            cleanable={false}
-            label={<ArrowUpDownIcon />}
-          />
-          <SelectPicker
-            searchable={false}
-            data={Object.entries(sortOrders).map(([label, value]) => ({ label, value }))}
-            value={sortOrder}
-            onChange={(value) => {
-              setSortOrder(value!);
-            }}
-            cleanable={false}
-            label={<FilterIcon />}
-          />
-        </HStack>
-
+        <SortOptions setSort={setSort} />
         <List bordered width={400} maxHeight={56 * 4 + 5}>
           {puzzles.map((puzzle) => (
             <List.Item key={puzzle.id}>
