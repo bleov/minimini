@@ -3,19 +3,23 @@ import type { CustomPuzzle, CustomPuzzleData } from "@/lib/types";
 import { pb } from "@/main";
 import {
   ArrowLeftIcon,
+  ArrowUpDownIcon,
   ExternalLinkIcon,
+  FilterIcon,
   LogInIcon,
   PencilIcon,
   PlayIcon,
   PlusIcon,
   ShareIcon,
+  SortAscIcon,
   StarIcon,
   TrashIcon,
   TrophyIcon
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import {
+  Box,
   Button,
   ButtonGroup,
   ButtonToolbar,
@@ -26,6 +30,7 @@ import {
   Image,
   List,
   Placeholder,
+  SelectPicker,
   Stack,
   Text,
   useDialog,
@@ -36,8 +41,14 @@ function UserPuzzles({ userPuzzles }: { userPuzzles: CustomPuzzleData[] }) {
   const navigate = useNavigate();
   const dialog = useDialog();
 
+  const puzzles = useMemo(() => {
+    return userPuzzles.sort((a, b) => {
+      return new Date(b.updated).getTime() - new Date(a.updated).getTime();
+    });
+  }, [userPuzzles]);
+
   return (
-    <VStack width={400}>
+    <VStack width={400} spacing={10}>
       <Heading level={3}>My Puzzles</Heading>
       {userPuzzles.length > 0 ? (
         <List bordered width={400} maxHeight={56 * 4 + 5}>
@@ -98,35 +109,80 @@ function UserPuzzles({ userPuzzles }: { userPuzzles: CustomPuzzleData[] }) {
   );
 }
 
-function PublicPuzzles({ puzzles }: { puzzles: CustomPuzzleData[] }) {
+function PublicPuzzles({ puzzles, sort, setSort }: { puzzles: CustomPuzzleData[]; sort: string; setSort: (sort: string) => void }) {
+  const [sortValue, setSortValue] = useState<string>("completions");
+  const [sortOrder, setSortOrder] = useState<string>("-");
+
+  const sortValues = {
+    Completions: "completions",
+    Difficulty: "avg_rating",
+    "Date Created": "created",
+    "Date Updated": "updated",
+    Title: "title"
+  };
+
+  const sortOrders = {
+    Descending: "-",
+    Ascending: "+"
+  };
+
+  useEffect(() => {
+    setSort(`${sortOrder}${sortValue}`);
+  }, [sortValue, sortOrder]);
+
   return (
-    <VStack width={400}>
+    <VStack width={400} spacing={10}>
       <Heading level={3}>Public Puzzles</Heading>
-      <List bordered width={400} maxHeight={56 * 4 + 5}>
-        {puzzles.map((puzzle) => (
-          <List.Item key={puzzle.id}>
-            <HStack justifyContent="space-between" spacing={15}>
-              <VStack spacing={0}>
-                <Text>{puzzle.title}</Text>
-                <Text muted>
-                  <TrophyIcon /> {puzzle.completions} <StarIcon /> {puzzle.avg_rating.toFixed(1)} {puzzle.author_name}
-                </Text>
-              </VStack>
-              <ButtonGroup width={"fit-content"}>
-                <Link to={`/custom/${puzzle.id}`}>
-                  <IconButton icon={<PlayIcon />} />
-                </Link>
-              </ButtonGroup>
-            </HStack>
-          </List.Item>
-        ))}
-        {puzzles.length === 0 &&
-          new Array(4).fill(0).map((_, i) => (
-            <List.Item key={i}>
-              <Placeholder.Paragraph rows={2} active />
+      <VStack spacing={5}>
+        <HStack spacing={5}>
+          <SelectPicker
+            searchable={false}
+            data={Object.entries(sortValues).map(([label, value]) => ({ label, value }))}
+            value={sortValue}
+            onChange={(value) => {
+              setSortValue(value!);
+            }}
+            cleanable={false}
+            label={<ArrowUpDownIcon />}
+          />
+          <SelectPicker
+            searchable={false}
+            data={Object.entries(sortOrders).map(([label, value]) => ({ label, value }))}
+            value={sortOrder}
+            onChange={(value) => {
+              setSortOrder(value!);
+            }}
+            cleanable={false}
+            label={<FilterIcon />}
+          />
+        </HStack>
+
+        <List bordered width={400} maxHeight={56 * 4 + 5}>
+          {puzzles.map((puzzle) => (
+            <List.Item key={puzzle.id}>
+              <HStack justifyContent="space-between" spacing={15}>
+                <VStack spacing={0}>
+                  <Text>{puzzle.title}</Text>
+                  <Text muted>
+                    <TrophyIcon /> {puzzle.completions} <StarIcon /> {puzzle.avg_rating.toFixed(1)} {puzzle.author_name}
+                  </Text>
+                </VStack>
+                <ButtonGroup width={"fit-content"}>
+                  <Link to={`/custom/${puzzle.id}`}>
+                    <IconButton icon={<PlayIcon />} />
+                  </Link>
+                </ButtonGroup>
+              </HStack>
             </List.Item>
           ))}
-      </List>
+          {puzzles.length === 0 &&
+            new Array(4).fill(0).map((_, i) => (
+              <List.Item key={i}>
+                <Placeholder.Paragraph rows={2} active />
+              </List.Item>
+            ))}
+        </List>
+      </VStack>
     </VStack>
   );
 }
@@ -139,6 +195,7 @@ export default function CustomPage({ type }: CustomPageProps) {
   const [userPuzzles, setUserPuzzles] = useState<CustomPuzzleData[]>([]);
   const [puzzles, setPuzzles] = useState<CustomPuzzleData[]>([]);
   const [createLoading, setCreateLoading] = useState(false);
+  const [sort, setSort] = useState("-completions");
 
   const navigate = useNavigate();
   let typeFilter = "";
@@ -156,7 +213,7 @@ export default function CustomPage({ type }: CustomPageProps) {
     pb.collection("custom_puzzle_data")
       .getFullList({
         fields: "id, author, author_name, title, public, type, created, updated, avg_rating, completions",
-        sort: "-completions",
+        sort,
         filter: typeFilter
       })
       .then((puzzles) => {
@@ -167,7 +224,7 @@ export default function CustomPage({ type }: CustomPageProps) {
         }
         setPuzzles(puzzles as CustomPuzzleData[]);
       });
-  }, []);
+  }, [sort]);
 
   useEffect(() => {
     document.title = "Custom Puzzles - Glyph";
@@ -264,7 +321,7 @@ export default function CustomPage({ type }: CustomPageProps) {
       <Center width={"100%"}>
         <Stack direction={{ xs: "column", lg: "row" }} spacing={15}>
           {pb.authStore.isValid && <UserPuzzles userPuzzles={userPuzzles} />}
-          <PublicPuzzles puzzles={puzzles} />
+          <PublicPuzzles puzzles={puzzles} sort={sort} setSort={setSort} />
         </Stack>
       </Center>
     </VStack>
