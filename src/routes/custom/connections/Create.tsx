@@ -6,6 +6,7 @@ import { useContext, useEffect, useState, type SetStateAction } from "react";
 import { useBeforeUnload, useParams } from "react-router";
 import { Button, Center, Text, VStack, ButtonToolbar, Modal, Form, CheckboxGroup, Checkbox, Box } from "rsuite";
 import CategoryEditor from "./Components/CategoryEditor";
+import posthog from "posthog-js";
 
 export default function ConnectionsCreator() {
   const [record, setRecord] = useState<CustomPuzzle | null>(null);
@@ -99,6 +100,7 @@ export default function ConnectionsCreator() {
       shape: null
     };
     setSaveStatus("saving");
+    posthog.capture("save_custom_puzzle", { puzzleId: record.id, public: newRecord.public, type: "connections" });
     customPuzzles
       .update(record.id, newRecord)
       .then(() => {

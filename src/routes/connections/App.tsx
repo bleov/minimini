@@ -4,6 +4,7 @@ import type { ConnectionsGame } from "@/lib/types";
 import { Center, Content, Loader, Text } from "rsuite";
 import { pb } from "@/main";
 import { useParams } from "react-router";
+import posthog from "posthog-js";
 
 export default function App({ custom = false }: { custom?: boolean }) {
   const [data, setData] = useState<ConnectionsGame | null>(null);
@@ -28,6 +29,7 @@ export default function App({ custom = false }: { custom?: boolean }) {
             const newData = record.puzzle as ConnectionsGame;
             newData.id = record.id as unknown as number;
             setData(newData);
+            posthog.capture("load_custom_connections");
           })
           .catch((err) => {
             console.error(err);
@@ -40,6 +42,7 @@ export default function App({ custom = false }: { custom?: boolean }) {
           method: "GET"
         });
         setData(todayData);
+        posthog.capture("load_connections");
       } catch (err) {
         console.error(err);
         setError("Failed to load today's puzzle.");

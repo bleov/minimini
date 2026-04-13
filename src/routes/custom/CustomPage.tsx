@@ -17,6 +17,7 @@ import {
   TrashIcon,
   TrophyIcon
 } from "lucide-react";
+import posthog from "posthog-js";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import {
@@ -153,6 +154,7 @@ function UserPuzzles({ userPuzzles }: { userPuzzles: CustomPuzzleData[] }) {
                       icon={<TrashIcon />}
                       onClick={async () => {
                         if (await dialog.confirm(`"${puzzle.title}" will be permanently deleted.`, { title: "Are you sure?" })) {
+                          posthog.capture("delete_custom_puzzle", { puzzleId: puzzle.id });
                           pb.collection("custom_puzzles")
                             .delete(puzzle.id)
                             .then(() => {
@@ -287,6 +289,7 @@ export default function CustomPage({ type }: CustomPageProps) {
               onClick={() => {
                 if (createLoading) return;
                 setCreateLoading(true);
+                posthog.capture("create_custom_puzzle", { type });
                 let idDigits = new Array(15)
                   .fill(0)
                   .map(() => Math.floor(Math.random() * 9))

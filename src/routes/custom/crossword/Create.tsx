@@ -26,6 +26,7 @@ import {
 import ShapePreview from "./Components/ShapePreview";
 import { useBeforeUnload, useParams } from "react-router";
 import AnswerInput from "./Components/AnswerInput";
+import posthog from "posthog-js";
 
 function getTodayDateString() {
   const today = new Date();
@@ -174,6 +175,7 @@ export default function Create() {
       shape: shapeRef.current
     };
     setSaveStatus("saving");
+    posthog.capture("save_custom_puzzle", { puzzleId: record.id, public: newRecord.public, type: "crossword" });
     customPuzzles
       .update(record.id, newRecord)
       .then(() => {

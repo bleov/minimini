@@ -3,6 +3,7 @@ import localforage from "localforage";
 import throttle from "throttleit";
 import type { ConnectionsContextType } from "../Components/Connections";
 import { pb } from "@/main";
+import posthog from "posthog-js";
 
 export default function usePersistence(context: ConnectionsContextType): () => void {
   const {
@@ -111,6 +112,7 @@ export default function usePersistence(context: ConnectionsContextType): () => v
       guesses: saveRef.current.guesses
     };
     leaderboard.create(record);
+    posthog.capture("connections_leaderboard_submit");
   }, [data.id, data.print_date]);
 
   const throttledCloudSave = useMemo(() => throttle(cloudSave, 1000), [cloudSave]);
@@ -153,6 +155,7 @@ export default function usePersistence(context: ConnectionsContextType): () => v
   useEffect(() => {
     if (complete) {
       submitScore();
+      posthog.capture("connections_complete", { puzzleId: data.id });
     }
   }, [complete]);
 

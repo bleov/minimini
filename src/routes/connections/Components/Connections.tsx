@@ -7,6 +7,7 @@ import { ConnectionsCategory } from "./ConnectionsCategory";
 import usePersistence from "../hooks/usePersistence";
 import ConnectionsResults from "./ConnectionsResults";
 import ConnectionsLeaderboard from "./ConnectionsLeaderboard";
+import posthog from "posthog-js";
 
 export interface ConnectionsContextType {
   selectedCards: number[];
@@ -218,6 +219,7 @@ export default function Connections({ data }: ConnectionsProps) {
           return;
         }
         revealCategory(matchedCategory);
+        posthog.capture("connections_correct");
       } else {
         setShaking(true);
         setTimeout(() => {
@@ -232,6 +234,7 @@ export default function Connections({ data }: ConnectionsProps) {
             revealedCategoriesRef.current = revealedCategories;
             return [...prevCorrectCategories, ...revealedCategories];
           });
+          posthog.capture("connections_fail");
         }
         // one away detection
         const categoryMistakes = data.categories.map((category) => {
@@ -246,7 +249,9 @@ export default function Connections({ data }: ConnectionsProps) {
         const oneAway = categoryMistakes.some((mistakes) => mistakes === 3);
         if (oneAway) {
           toast("One away...");
+          posthog.capture("connections_one_away");
         }
+        posthog.capture("connections_mistake");
         setChecking(false);
       }
     }, 150 * 8);
@@ -365,6 +370,7 @@ export default function Connections({ data }: ConnectionsProps) {
                   const shuffledCards = [...cards].sort(() => Math.random() - 0.5);
                   setCards(shuffledCards);
                   setRows(splitRows(shuffledCards));
+                  posthog.capture("connections_shuffle");
                 }}
               >
                 Shuffle
@@ -390,6 +396,7 @@ export default function Connections({ data }: ConnectionsProps) {
                   appearance="ghost"
                   className={modalState === null ? "breathe" : ""}
                   onClick={() => {
+                    posthog.capture("connections_view_results");
                     setModalState("results");
                   }}
                 >

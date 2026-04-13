@@ -58,12 +58,7 @@ export function usePersistence() {
       }
 
       if (stateDocId.current) {
-        puzzleState
-          .update(stateDocId.current, record)
-          .then(() => {
-            posthog.capture("cloud_save_update", { puzzle: data.id, puzzleDate: data.publicationDate, stateDocId: stateDocId.current });
-          })
-          .catch(onSaveError);
+        puzzleState.update(stateDocId.current, record).catch(onSaveError);
       } else {
         puzzleState
           .create(record)

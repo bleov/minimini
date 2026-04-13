@@ -9,6 +9,7 @@ import { GlobalState } from "../lib/GlobalState";
 import type { LeaderboardRecord, MiniCrossword, StateRecord } from "../lib/types";
 import { pb } from "../main";
 import Nudge from "./Nudge";
+import posthog from "posthog-js";
 
 export function FriendsNudge() {
   const navigate = useNavigate();
@@ -68,8 +69,6 @@ export default function Leaderboard({
   const [data, setData] = useState<StateRecord[]>([]);
 
   const { user } = useContext(GlobalState);
-  const { setModalState, setComplete } = useContext(CrosswordAppState);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) return;
@@ -90,6 +89,7 @@ export default function Leaderboard({
 
         if (!cancelled) {
           setData(rankedData as LeaderboardRecord[]);
+          posthog.capture("view_leaderboard", { puzzleId: puzzleData.id });
         }
       } catch (err) {
         if (!cancelled) {

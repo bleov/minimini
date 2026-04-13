@@ -11,6 +11,7 @@ import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
 import { Stats } from "@/routes/crossword/Components/Stats";
 import Nudge from "./Nudge";
 import ProfileCard from "./ProfileCard";
+import posthog from "posthog-js";
 
 const pages = ["main", "list", "code", "mutual"] as const;
 
@@ -168,6 +169,7 @@ function FriendCode() {
             await pb.collection("users").update(pb.authStore.record.id, {
               "friends+": [response.id]
             });
+            posthog.capture("add_by_friend_code");
             setResult(`Added ${response.username} as a friend`);
           } else {
             setResult("Invalid friend code");
@@ -262,6 +264,8 @@ function MutualPage() {
               icon={<UserPlusIcon />}
               loading={adding.includes(friend.id)}
               onClick={() => {
+                posthog.capture("add_mutual_friend");
+                posthog.capture("add_friend");
                 setAdding((prev) => [...prev, friend.id]);
                 pb.collection("users")
                   .update(pb.authStore.record?.id || "", {
@@ -304,15 +308,33 @@ function MainPage({ setPage }: { setPage: (page: (typeof pages)[number]) => void
         className="icon-bg friends-nudge"
       />
       <ButtonGroup vertical block>
-        <Button startIcon={<UsersIcon />} onClick={() => setPage("list")}>
+        <Button
+          startIcon={<UsersIcon />}
+          onClick={() => {
+            posthog.capture("open_friends_list");
+            setPage("list");
+          }}
+        >
           Friends List
         </Button>
       </ButtonGroup>
       <ButtonGroup vertical block>
-        <Button startIcon={<UserSearchIcon />} onClick={() => setPage("mutual")}>
+        <Button
+          startIcon={<UserSearchIcon />}
+          onClick={() => {
+            posthog.capture("open_friends_of_friends");
+            setPage("mutual");
+          }}
+        >
           Friends of Friends
         </Button>
-        <Button startIcon={<HashIcon />} onClick={() => setPage("code")}>
+        <Button
+          startIcon={<HashIcon />}
+          onClick={() => {
+            posthog.capture("open_friend_code");
+            setPage("code");
+          }}
+        >
           Add by Friend Code
         </Button>
       </ButtonGroup>

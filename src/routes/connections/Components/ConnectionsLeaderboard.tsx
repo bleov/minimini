@@ -8,6 +8,7 @@ import type { ConnectionsGame, ConnectionsLeaderboardRecord, LeaderboardRecord, 
 import { pb } from "@/main";
 import Nudge from "@/Components/Nudge";
 import { FriendsNudge, LeaderboardNudge } from "@/Components/Leaderboard";
+import posthog from "posthog-js";
 
 const categoryEmojis = ["🟨", "🟩", "🟦", "🟪"];
 
@@ -76,6 +77,7 @@ export default function ConnectionsLeaderboard({
           .map((item, index) => ({ ...item, rank: index + 1 }));
 
         if (!cancelled) {
+          posthog.capture("view_connections_leaderboard", { puzzleId: puzzleData.id });
           setData(sortedData);
         }
       } catch (err) {
