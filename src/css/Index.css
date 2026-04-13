@@ -14,7 +14,7 @@
   }
 
   .title-container {
-    margin-bottom: 20px;
+    margin-block-end: 15px;
   }
 
   .rs-card .rs-image {
@@ -22,7 +22,7 @@
   }
 
   .rs-card-group {
-    max-width: 540px;
+    max-width: 600px;
     margin-inline: auto;
   }
 
@@ -35,7 +35,7 @@
   }
 
   .rs-center:has(.account-buttons) {
-    margin-top: 10px;
+    margin-block-start: 10px;
   }
 
   a {
@@ -49,22 +49,31 @@
   }
 
   .rs-card[data-direction="row"] {
-    padding-block: 16px;
+    padding-block: 10px;
+    height: 100%;
+    text-align: left;
 
     .rs-image {
       margin-block: 0;
-      margin-inline-start: 16px;
-      width: fit-content;
+      margin-inline-start: 10px;
+      width: 48px;
     }
 
-    .rs-card-header {
-      padding-block: 0;
-    }
-
+    .rs-card-header,
     .rs-card-body {
+      padding-inline-start: 10px;
       padding-block: 0;
+    }
+
+    .rs-stack:has(.rs-card-body) {
+      flex-grow: 2;
+      justify-content: center;
     }
   }
+}
+
+#root:has(.index) {
+  width: 95vw;
 }
 
 @media (max-width: 680px) {
@@ -73,7 +82,7 @@
       grid-template-columns: 1fr;
 
       .rs-card {
-        width: 230px;
+        width: min(290px, 90%);
         margin-inline: auto;
       }
     }
