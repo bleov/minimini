@@ -11,7 +11,7 @@ export default function AnswerInput({ value, onChange }: AnswerInputProps) {
   const [active, setActive] = useState(0);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const ALLOWED_KEYS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+  const ALLOWED_KEYS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890".split("");
 
   useEffect(() => {
     inputRefs.current[active]?.focus();
