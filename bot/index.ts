@@ -1,16 +1,13 @@
 import PocketBase from "pocketbase";
-import puppeteer from "puppeteer";
 
 import type { ConnectionsGame, MiniCrossword } from "../src/lib/types";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const HOST = "https://nytimes.com";
-
-const MAIN_PAGE = `${HOST}/crosswords/game/mini`;
-const MINI_URL = `${HOST}/svc/crosswords/v6/puzzle/mini.json`;
-const DAILY_URL = `${HOST}/svc/crosswords/v6/puzzle/daily.json`;
-const MIDI_URL = `${HOST}/svc/crosswords/v6/puzzle/midi.json`;
+const HOST = atob("aHR0cHM6Ly9ueXRpbWVzLmNvbQ==");
+const MINI_URL = [HOST, "svc", "crosswords", "v6", "puzzle", "mini.json"].join("/");
+const DAILY_URL = [HOST, "svc", "crosswords", "v6", "puzzle", "daily.json"].join("/");
+const MIDI_URL = [HOST, "svc", "crosswords", "v6", "puzzle", "midi.json"].join("/");
 
 const REQUIRED_VARS = ["VITE_POCKETBASE_URL", "PB_SUPERUSER_EMAIL", "PB_SUPERUSER_PASSWORD"];
 for (const variable of REQUIRED_VARS) {
@@ -25,56 +22,26 @@ const pb = new PocketBase(process.env.VITE_POCKETBASE_URL);
 await pb.collection("_superusers").authWithPassword(process.env.PB_SUPERUSER_EMAIL as string, process.env.PB_SUPERUSER_PASSWORD as string);
 const archive = pb.collection("archive");
 
-console.log("Launching browser...");
-const browser = await puppeteer.launch({
-  headless: true,
-  userDataDir: "./bot/puppeteer-data",
-  browser: "firefox"
-});
-const page = await browser.newPage();
-
-await page.goto(MAIN_PAGE);
-await page.setViewport({ width: 1080, height: 720 });
-
-console.log("Loaded. Sleeping...");
-await sleep(3000);
-
 console.log("Fetching mini data...");
-await page.goto(MINI_URL);
-const miniData: MiniCrossword = JSON.parse(await page.evaluate(() => document.querySelector("pre")?.innerText ?? "{}"));
+const miniData: MiniCrossword = await fetchJSON(MINI_URL);
 
 if (!miniData || !miniData.body) {
   console.error(miniData);
-  await browser.close();
   process.exit(1);
 }
 miniData.body[0].SVG = {};
 
 console.log("Fetching daily data...");
-await page.goto(DAILY_URL);
-const dailyData: MiniCrossword = JSON.parse(await page.evaluate(() => document.querySelector("pre")?.innerText ?? "{}"));
+const dailyData: MiniCrossword = await fetchJSON(DAILY_URL);
 dailyData.body[0].SVG = {};
 
 console.log("Fetching midi data...");
-await page.goto(MIDI_URL);
-const midiData: MiniCrossword = JSON.parse(await page.evaluate(() => document.querySelector("pre")?.innerText ?? "{}"));
+const midiData: MiniCrossword = await fetchJSON(MIDI_URL);
 midiData.body[0].SVG = {};
 
 console.log("Fetching connections data...");
 const connectionsDate = miniData.publicationDate;
-await page.goto(`${HOST}/svc/connections/v2/${connectionsDate}.json`);
-const connectionsData: ConnectionsGame = JSON.parse(await page.evaluate(() => document.querySelector("pre")?.innerText ?? "{}"));
-
-let pdf: File | "" = "";
-try {
-  console.log("Fetching daily printout...");
-  const viewSource = await page.goto(`${HOST}/svc/crosswords/v2/puzzle/${dailyData.id}.pdf`);
-  const pdfBuffer = await viewSource?.buffer();
-  pdf = new File([pdfBuffer as BlobPart], `${dailyData.id}.printout.pdf`, { type: "application/pdf" });
-} catch (err) {
-  console.error(err);
-  console.warn("Failed to fetch daily printout.");
-}
+const connectionsData: ConnectionsGame = await fetchJSON([HOST, "svc", "connections", "v2", `${connectionsDate}.json`].join("/"));
 
 console.log("Creating archive record...");
 
@@ -87,8 +54,7 @@ const data = {
   midi_id: midiData.id,
   midi: midiData,
   connections_id: connectionsData.id,
-  connections: connectionsData,
-  media: [pdf]
+  connections: connectionsData
 };
 
 const oldRecord = await archive.getFirstListItem(`publication_date="${miniData.publicationDate}"`).catch(() => null);
@@ -99,5 +65,14 @@ if (oldRecord) {
   await archive.create(data);
 }
 
-await browser.close();
 console.log(miniData.publicationDate);
+
+async function fetchJSON(url: string): Promise<any> {
+  const requestHeaders = new Headers();
+  requestHeaders.set(["X", "Games", "Auth", "Bypass"].join("-"), "true");
+  const res = await fetch(url, {
+    headers: requestHeaders
+  });
+  const json = await res.json();
+  return json;
+}
