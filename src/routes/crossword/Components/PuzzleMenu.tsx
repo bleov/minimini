@@ -90,29 +90,6 @@ export default function PuzzleMenu({
         More Games
       </MenuItem>
       <MenuDivider />
-      {type === "daily" && (
-        <MenuItem
-          onClick={async () => {
-            const archive = pb.collection("archive");
-            const item = await archive.getFirstListItem(`daily_id="${data.id}"`, {
-              fields: "id,media"
-            });
-            if (item.media && item.media.length > 0) {
-              const printout = item.media.find((m: string) => m.endsWith("printout.pdf"));
-              if (!printout) {
-                dialog.alert("This puzzle can't be printed at this time.");
-              }
-              window.open(`${pb.baseURL}/api/files/archive/${item.id}/${printout}`, "_blank");
-            } else {
-              dialog.alert("This puzzle can't be printed at this time.");
-            }
-          }}
-          disabled={hardcore && !complete}
-        >
-          <PrinterIcon />
-          Print
-        </MenuItem>
-      )}
       <MenuItem
         onClick={async () => {
           if (user) {
