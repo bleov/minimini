@@ -23,6 +23,7 @@ import "./css/Connections.css";
 import CreateRouter from "./routes/custom/CreateRouter.tsx";
 import CustomPage from "./routes/custom/CustomPage.tsx";
 import GameRouter from "./routes/custom/GameRouter.tsx";
+import NotFound from "./routes/404/NotFound.tsx";
 
 const Index = lazy(() => import("./Index.tsx"));
 const CrosswordApp = lazy(() => import("./routes/crossword/App.tsx"));
@@ -76,6 +77,8 @@ function Main() {
             <Route path="/custom/:id" element={<GameRouter />}></Route>
 
             <Route path="/connections" element={<ConnectionsApp />} />
+
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </BrowserRouter>
