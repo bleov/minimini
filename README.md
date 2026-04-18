@@ -4,14 +4,11 @@ A collection of daily word games for the web.
 
 ## Features
 
-- Daily mini & full size crosswords using the New York Times format
+- Daily mini, midi & full size crosswords using the New York Times format
+- Custom box crossword puzzles
+- Daily & custom connections
 - Online social features including a leaderboard and friend system
 - Archive of previous puzzles
-
-## Upcoming Features
-
-- Custom crossword puzzles
-- Orignal word game "Cascades"
 
 > [!NOTE]  
 > This project does not include any content by default. Content must be imported after setup.

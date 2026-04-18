@@ -13,16 +13,16 @@ export PATH="$HOME/.bun/bin:$PATH"
 
 bun --version
 
-git clone https://github.com/pikapower9080/minimini
+git clone https://github.com/bleov/minimini
 cd minimini
 bun install
 cp .env.template .env
 chmod +x ./scripts/pb_init.sh
 ./scripts/pb_init.sh
 
-cat << EOF > /etc/systemd/system/minimini.service
+cat << EOF > /etc/systemd/system/glyph.service
 [Unit]
-Description=Minimini PocketBase Service
+Description=Glyph PocketBase Service
 After=network.target
 
 [Service]
@@ -39,5 +39,5 @@ WantedBy=multi-user.target
 EOF
 
 systemctl daemon-reload
-systemctl enable minimini.service
-systemctl start minimini.service
+systemctl enable glyph.service
+systemctl start glyph.service
