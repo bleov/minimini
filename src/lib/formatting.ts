@@ -31,6 +31,7 @@ export function decodeFormatted(input: string): string {
 }
 
 export function renderClue(clue: MiniCrosswordClue): string {
+  if (!clue) return "";
   return clue.text
     .map((part) => {
       if (part.formatted) {
