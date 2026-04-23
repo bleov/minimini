@@ -102,6 +102,7 @@
       user-select: none;
       white-space: nowrap;
       line-height: 1;
+      text-transform: uppercase;
     }
 
     &.selected {
@@ -167,6 +168,7 @@
 
     .rs-text {
       animation: fade-in 500ms var(--ease-in-out-sine);
+      text-transform: uppercase;
     }
   }
 

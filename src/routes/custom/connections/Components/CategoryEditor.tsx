@@ -29,7 +29,7 @@ export default function CategoryEditor({ category, categoryIndex, onChange }: Ca
         </Text>
         <Input
           value={title}
-          onChange={(value) => setTitle(value.toUpperCase())}
+          onChange={(value) => setTitle(value)}
           maxLength={50}
           placeholder="Description"
           backgroundColor={"rgba(255, 255, 255, 0.6)"}
@@ -43,7 +43,7 @@ export default function CategoryEditor({ category, categoryIndex, onChange }: Ca
               value={cardContents[cardIndex]}
               onChange={(value) => {
                 const newCardContents = [...cardContents];
-                newCardContents[cardIndex] = value.toUpperCase();
+                newCardContents[cardIndex] = value;
                 setCardContents(newCardContents);
               }}
               maxLength={25}
