@@ -168,3 +168,11 @@ export interface ConnectionsLeaderboardRecord extends BaseRecord {
     user: UserRecord;
   };
 }
+
+export interface WordleGame {
+  id: number;
+  solution: string;
+  print_date: string;
+  days_since_launch: number;
+  editor: string;
+}
