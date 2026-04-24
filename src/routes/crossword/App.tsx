@@ -349,7 +349,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
                 </Button>
               )}
             </ButtonGroup>
-            {difficultDays.includes(today.getDay()) && (
+            {difficultDays.includes(today.getDay()) && type === "daily" && (
               <Center width={"100%"}>
                 <Nudge
                   title="Ready for a challenge?"
