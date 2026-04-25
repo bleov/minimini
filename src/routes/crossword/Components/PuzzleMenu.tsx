@@ -1,24 +1,13 @@
 import { useContext, type RefObject } from "react";
 import posthog from "posthog-js";
-import {
-  ArchiveIcon,
-  ExpandIcon,
-  LayoutGridIcon,
-  MenuIcon,
-  PrinterIcon,
-  RotateCcwIcon,
-  StarIcon,
-  StarOffIcon,
-  TrophyIcon,
-  XIcon
-} from "lucide-react";
+import { ArchiveIcon, ExpandIcon, LayoutGridIcon, MenuIcon, RotateCcwIcon, StarIcon, StarOffIcon, TrophyIcon, XIcon } from "lucide-react";
 
 import type { MiniCrossword } from "@/lib/types";
 import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
 import { CrosswordAppState } from "@/routes/crossword/state";
 import { pb } from "@/main";
 import { GlobalState } from "@/lib/GlobalState";
-import { useDialog } from "rsuite";
+import { Button, useDialog } from "rsuite";
 import { useNavigate } from "react-router";
 
 export default function PuzzleMenu({
@@ -42,7 +31,16 @@ export default function PuzzleMenu({
   const hardcore = options.includes("hardcore");
 
   return (
-    <Menu portal transition align="end" menuButton={<MenuIcon />}>
+    <Menu
+      portal
+      transition
+      align="end"
+      menuButton={
+        <Button appearance="subtle" startIcon={<MenuIcon />}>
+          Menu
+        </Button>
+      }
+    >
       <MenuItem
         onClick={() => {
           setPuzzleModalState("leaderboard");
