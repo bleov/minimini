@@ -32,6 +32,11 @@ const emptyStats: StatsRecord = {
   collectionName: ""
 };
 
+function formatPublicationDate(dateStr: string) {
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return new Date(Date.UTC(year, month - 1, day)).toLocaleDateString(undefined, { timeZone: "UTC" });
+}
+
 function CrosswordStats({
   type,
   user,
@@ -91,8 +96,8 @@ function CrosswordStats({
           const fastestTimeDoc = await pb
             .collection("archive")
             .getFirstListItem(`${type}_id=${response.lowest_time_id}`, { fields: "publication_date" });
-          setFastestTimeDate(new Date(fastestTimeDoc.publication_date).toLocaleDateString());
-          setSlowestTimeDate(new Date(slowestTimeDoc.publication_date).toLocaleDateString());
+          setFastestTimeDate(formatPublicationDate(fastestTimeDoc.publication_date));
+          setSlowestTimeDate(formatPublicationDate(slowestTimeDoc.publication_date));
         } catch (err) {
           console.error("Error fetching puzzle dates:", err);
         }
