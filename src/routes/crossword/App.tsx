@@ -391,6 +391,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
         onClose={() => {
           setPaused(false);
         }}
+        keyboard={false}
         centered
         size="fit-content"
         overflow={false}
@@ -451,6 +452,8 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
           onPause={() => {
             pause();
           }}
+          isPaused={paused}
+          setPaused={setPaused}
           running={!paused && !complete}
           setTime={(time) => {
             timeRef.current = time;

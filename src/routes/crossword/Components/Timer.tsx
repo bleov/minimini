@@ -1,6 +1,6 @@
 import localforage from "localforage";
 import posthog from "posthog-js";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { useStopwatch } from "react-timer-hook";
 import { HStack, Text } from "rsuite";
 import { PauseIcon } from "lucide-react";
@@ -14,9 +14,11 @@ interface TimerProps {
   setTime: (time: [number, number]) => void;
   puzzle: MiniCrossword;
   restoredTime?: number;
+  isPaused: boolean;
+  setPaused: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function Timer({ onPause, running, setTime, puzzle, restoredTime }: TimerProps) {
+export default function Timer({ onPause, running, setTime, puzzle, restoredTime, isPaused, setPaused }: TimerProps) {
   const restoredTimeDate = new Date();
   restoredTimeDate.setSeconds(restoredTimeDate.getSeconds() + (restoredTime || 0));
   const { seconds, minutes, start, pause, totalSeconds } = useStopwatch({
@@ -25,7 +27,6 @@ export default function Timer({ onPause, running, setTime, puzzle, restoredTime 
     offsetTimestamp: restoredTimeDate
   });
 
-  const [justPaused, setJustPaused] = useState(false);
   const { type, options } = useContext(CrosswordAppState);
 
   useEffect(() => {
@@ -44,15 +45,14 @@ export default function Timer({ onPause, running, setTime, puzzle, restoredTime 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        if (type === "daily") return;
-        if (justPaused) {
-          setJustPaused(false);
-          return;
-        }
+        if (type === "daily") return; // overlaps with rebus shortcut
         if (e.repeat) return;
         e.preventDefault();
+        if (isPaused) {
+          setPaused(false);
+          return;
+        }
         onPause();
-        setJustPaused(true);
       }
     };
 
@@ -60,7 +60,7 @@ export default function Timer({ onPause, running, setTime, puzzle, restoredTime 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onPause, justPaused]);
+  }, [onPause, isPaused, setPaused, type]);
 
   return (
     <HStack className="timer" justifyContent={"center"} spacing={0}>
