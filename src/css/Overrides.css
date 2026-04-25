@@ -99,6 +99,10 @@
   flex-direction: column;
 }
 
+.rs-nav-item {
+  color: var(--rs-navs-text) !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rs-modal,
   .rs-modal-backdrop {

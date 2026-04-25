@@ -7,8 +7,8 @@ import type { UserRecord } from "../lib/types";
 import "../css/Friends.css";
 import { getDefaultAvatar } from "../lib/avatars";
 import { ArrowLeftIcon, ChartNoAxesColumnIcon, HashIcon, MenuIcon, UserPlusIcon, UserSearchIcon, UsersIcon, UserXIcon } from "lucide-react";
-import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
-import { Stats } from "@/routes/crossword/Components/Stats";
+import { Menu, MenuItem } from "@szhsin/react-menu";
+import { Stats } from "@/Components/Stats";
 import Nudge from "./Nudge";
 import ProfileCard from "./ProfileCard";
 import posthog from "posthog-js";
@@ -27,9 +27,7 @@ function FriendListEntry({
   const defaultAvatar = useMemo(() => getDefaultAvatar(friend.username), []);
   const dialog = useDialog();
 
-  const [miniStatsOpen, setMiniStatsOpen] = useState(false);
-  const [midiStatsOpen, setMidiStatsOpen] = useState(false);
-  const [dailyStatsOpen, setDailyStatsOpen] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false);
 
   async function remove() {
     if (!pb.authStore.isValid || !pb.authStore.record) return;
@@ -69,34 +67,17 @@ function FriendListEntry({
             <MenuItem onClick={remove}>
               <UserXIcon /> Remove Friend
             </MenuItem>
-            <MenuDivider />
             <MenuItem
               onClick={() => {
-                setMiniStatsOpen(true);
+                setStatsOpen(true);
               }}
             >
-              <ChartNoAxesColumnIcon /> Mini Stats
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                setMidiStatsOpen(true);
-              }}
-            >
-              <ChartNoAxesColumnIcon /> Midi Stats
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                setDailyStatsOpen(true);
-              }}
-            >
-              <ChartNoAxesColumnIcon /> Daily Stats
+              <ChartNoAxesColumnIcon /> Stats
             </MenuItem>
           </Menu>
         </HStack>
       </List.Item>
-      <Stats open={miniStatsOpen} setOpen={setMiniStatsOpen} type="mini" user={friend} />
-      <Stats open={midiStatsOpen} setOpen={setMidiStatsOpen} type="midi" user={friend} />
-      <Stats open={dailyStatsOpen} setOpen={setDailyStatsOpen} type="daily" user={friend} />
+      <Stats open={statsOpen} setOpen={setStatsOpen} type="mini" user={friend} />
     </>
   );
 }

@@ -4,7 +4,7 @@ import { pb } from "@/main";
 import { ChartNoAxesColumnIcon, ClockIcon, HashIcon, RabbitIcon, TurtleIcon } from "lucide-react";
 import type { RecordModel } from "pocketbase";
 import { useEffect, useState } from "react";
-import { HStack, Loader, Modal, ProgressCircle, Stat, StatGroup, useBreakpointValue, VStack } from "rsuite";
+import { HStack, Image, Loader, Modal, ProgressCircle, Stat, StatGroup, Tabs, useBreakpointValue, VStack } from "rsuite";
 
 interface StatsRecord extends RecordModel {
   id: string;
@@ -32,16 +32,16 @@ const emptyStats: StatsRecord = {
   collectionName: ""
 };
 
-export function Stats({
-  open,
-  setOpen,
+function CrosswordStats({
   type,
-  user
+  user,
+  open,
+  setOpen
 }: {
-  open: boolean;
-  setOpen: (open: boolean) => void;
   type: "mini" | "daily" | "midi";
   user?: UserRecord;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }) {
   const [data, setData] = useState<StatsRecord>(emptyStats);
   const [loaded, setLoaded] = useState(false);
@@ -104,6 +104,70 @@ export function Stats({
   }, [open, loaded]);
 
   return (
+    <>
+      <StatGroup columns={columns}>
+        <Stat bordered>
+          <Stat.Label>
+            <HashIcon /> Completed
+          </Stat.Label>
+          <Stat.Value>{data.num_completed}</Stat.Value>
+        </Stat>
+        <Stat bordered>
+          <Stat.Label>
+            <ClockIcon /> Average Time
+          </Stat.Label>
+          <Stat.Value>{formatDuration(Math.round(data.average_time))}</Stat.Value>
+        </Stat>
+        <Stat bordered>
+          <Stat.Label>
+            <RabbitIcon /> Fastest Time
+          </Stat.Label>
+          <Stat.Value>{formatDuration(Math.round(data.lowest_time))}</Stat.Value>
+          {fastestTimeDate && <Stat.HelpText>{fastestTimeDate}</Stat.HelpText>}
+        </Stat>
+        <Stat bordered>
+          <Stat.Label>
+            <TurtleIcon /> Slowest Time
+          </Stat.Label>
+          <Stat.Value>{formatDuration(Math.round(data.highest_time))}</Stat.Value>
+          {slowestTimeDate && <Stat.HelpText>{slowestTimeDate}</Stat.HelpText>}
+        </Stat>
+        <Stat bordered>
+          <HStack spacing={16}>
+            <ProgressCircle percent={cheatedPercent} w={50} strokeWidth={10} trailWidth={10} />
+            <VStack>
+              <Stat.Label>Cheated Puzzles</Stat.Label>
+              <Stat.Value>{data.num_cheated}</Stat.Value>
+            </VStack>
+          </HStack>
+        </Stat>
+        <Stat bordered>
+          <HStack spacing={16}>
+            <ProgressCircle percent={platformPercent} w={50} strokeWidth={10} trailWidth={10} />
+            <VStack>
+              <Stat.Label>Most Used Platform</Stat.Label>
+              <Stat.Value>{totalDesktop == totalMobile ? "Equal" : totalDesktop > totalMobile ? `Desktop` : `Mobile`}</Stat.Value>
+            </VStack>
+          </HStack>
+        </Stat>
+      </StatGroup>
+      {!loaded && <Loader center backdrop />}
+    </>
+  );
+}
+
+export function Stats({
+  open,
+  setOpen,
+  type,
+  user
+}: {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  type: "mini" | "daily" | "midi";
+  user?: UserRecord;
+}) {
+  return (
     <Modal open={open} onClose={() => setOpen(false)} centered size={"sm"}>
       <Modal.Header closeButton>
         <Modal.Title>
@@ -111,54 +175,18 @@ export function Stats({
         </Modal.Title>
       </Modal.Header>
       <Modal.Body style={{ maxHeight: "400px" }}>
-        <StatGroup columns={columns}>
-          <Stat bordered>
-            <Stat.Label>
-              <HashIcon /> Completed
-            </Stat.Label>
-            <Stat.Value>{data.num_completed}</Stat.Value>
-          </Stat>
-          <Stat bordered>
-            <Stat.Label>
-              <ClockIcon /> Average Time
-            </Stat.Label>
-            <Stat.Value>{formatDuration(Math.round(data.average_time))}</Stat.Value>
-          </Stat>
-          <Stat bordered>
-            <Stat.Label>
-              <RabbitIcon /> Fastest Time
-            </Stat.Label>
-            <Stat.Value>{formatDuration(Math.round(data.lowest_time))}</Stat.Value>
-            {fastestTimeDate && <Stat.HelpText>{fastestTimeDate}</Stat.HelpText>}
-          </Stat>
-          <Stat bordered>
-            <Stat.Label>
-              <TurtleIcon /> Slowest Time
-            </Stat.Label>
-            <Stat.Value>{formatDuration(Math.round(data.highest_time))}</Stat.Value>
-            {slowestTimeDate && <Stat.HelpText>{slowestTimeDate}</Stat.HelpText>}
-          </Stat>
-          <Stat bordered>
-            <HStack spacing={16}>
-              <ProgressCircle percent={cheatedPercent} w={50} strokeWidth={10} trailWidth={10} />
-              <VStack>
-                <Stat.Label>Cheated Puzzles</Stat.Label>
-                <Stat.Value>{data.num_cheated}</Stat.Value>
-              </VStack>
-            </HStack>
-          </Stat>
-          <Stat bordered>
-            <HStack spacing={16}>
-              <ProgressCircle percent={platformPercent} w={50} strokeWidth={10} trailWidth={10} />
-              <VStack>
-                <Stat.Label>Most Used Platform</Stat.Label>
-                <Stat.Value>{totalDesktop == totalMobile ? "Equal" : totalDesktop > totalMobile ? `Desktop` : `Mobile`}</Stat.Value>
-              </VStack>
-            </HStack>
-          </Stat>
-        </StatGroup>
+        <Tabs defaultActiveKey={type}>
+          <Tabs.Tab eventKey="mini" title="Mini" icon={<Image src="/icons/mini/favicon.svg" width={16} height={16} />}>
+            <CrosswordStats type="mini" user={user} open={open} setOpen={setOpen} />
+          </Tabs.Tab>
+          <Tabs.Tab eventKey="midi" title="Midi" icon={<Image src="/icons/midi/favicon.svg" width={16} height={16} />}>
+            <CrosswordStats type="midi" user={user} open={open} setOpen={setOpen} />
+          </Tabs.Tab>
+          <Tabs.Tab eventKey="daily" title="Daily" icon={<Image src="/icons/daily/favicon.svg" width={16} height={16} />}>
+            <CrosswordStats type="daily" user={user} open={open} setOpen={setOpen} />
+          </Tabs.Tab>
+        </Tabs>
       </Modal.Body>
-      {!loaded && <Loader center backdrop />}
     </Modal>
   );
 }

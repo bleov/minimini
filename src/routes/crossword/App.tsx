@@ -29,7 +29,7 @@ import Crossword from "./Components/Crossword";
 import Timer from "./Components/Timer";
 import { CrosswordAppState } from "./state";
 import { useNavigate, useParams } from "react-router";
-import { Stats } from "./Components/Stats";
+import { Stats } from "../../Components/Stats";
 import Nudge from "@/Components/Nudge";
 
 function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
