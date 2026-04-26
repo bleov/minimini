@@ -4,7 +4,7 @@ import { PostHogProvider, PostHogErrorBoundary } from "posthog-js/react";
 import PocketBase, { type AuthRecord } from "pocketbase";
 import { CustomProvider } from "rsuite";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
-import { Suspense, lazy, useState } from "react";
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
 
 import { configureStorage } from "@/lib/storage.ts";
 import { GlobalState } from "@/lib/GlobalState.ts";
@@ -50,11 +50,34 @@ configureStorage();
 
 function Main() {
   const [user, setUser] = useState<AuthRecord | null>(pb.authStore.isValid ? pb.authStore.record : null);
+  const userRefreshedRef = useRef(false);
 
   const globalState = {
     user,
     setUser
   };
+
+  useEffect(() => {
+    if (user && !userRefreshedRef.current) {
+      pb.collection("users")
+        .authRefresh()
+        .then((newUser) => {
+          console.log("Refreshed auth store");
+          setUser(newUser.record);
+          userRefreshedRef.current = true;
+        })
+        .catch((err) => {
+          if (err.status === 401) {
+            console.log("Auth refresh failed, logging out");
+            pb.authStore.clear();
+            setUser(null);
+          } else {
+            console.log("Auth refresh temporarily failed");
+            console.log(err);
+          }
+        });
+    }
+  }, [user]);
 
   return (
     <GlobalState.Provider value={globalState}>
