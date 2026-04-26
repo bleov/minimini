@@ -5,7 +5,7 @@ import { Button, ButtonGroup, useDialog, VStack } from "rsuite";
 import { GlobalState } from "../lib/GlobalState";
 import type { RecordAuthResponse } from "pocketbase";
 import posthog from "posthog-js";
-import { CircleUserRoundIcon, LogOutIcon, PencilIcon, TrashIcon } from "lucide-react";
+import { CircleUserRoundIcon, LogOutIcon, MailIcon, PencilIcon, TrashIcon } from "lucide-react";
 import localforage from "localforage";
 import ProfileCard from "./ProfileCard";
 
@@ -103,10 +103,88 @@ const EditUsernameDialog = ({ payload, onClose }: { payload: string; onClose: (n
   );
 };
 
+const ChangeEmailDialog = ({ onClose }: { onClose: (result: any) => void }) => {
+  const [isOpen, setIsOpen] = useState(true);
+  const [newEmail, setNewEmail] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  function handleClose() {
+    setIsOpen(false);
+    setTimeout(() => {
+      onClose(null);
+    }, 300);
+  }
+
+  return (
+    <Modal
+      open={isOpen}
+      onClose={() => {
+        handleClose();
+      }}
+      size="xs"
+    >
+      <Modal.Title>Change Email</Modal.Title>
+      <Form
+        onSubmit={(input) => {
+          if (loading) return;
+          if (!pb.authStore.record) return;
+          setLoading(true);
+          setError(null);
+          pb.collection("users")
+            .requestEmailChange(newEmail)
+            .then(() => {
+              setLoading(false);
+              setError("Verification email sent. Please check your inbox and spam folder for a confirmation email.");
+            })
+            .catch((err) => {
+              setLoading(false);
+              if (err.message.includes("Failed to update record.")) {
+                setError("Email already in use.");
+              } else {
+                setError(err.message);
+              }
+            });
+        }}
+      >
+        <Modal.Body>
+          <Form.Group controlId="email">
+            <Form.Label>New Email</Form.Label>
+            <Form.Control
+              name="email"
+              value={newEmail}
+              onChange={(value) => {
+                setNewEmail(value);
+              }}
+              placeholder="Enter email"
+              maxLength={255}
+              required
+            />
+            {error && <Form.Text>{error}</Form.Text>}
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            onClick={() => {
+              handleClose();
+            }}
+          >
+            Cancel
+          </Button>
+          <Button appearance="primary" type="submit" loading={loading}>
+            Submit
+          </Button>
+        </Modal.Footer>
+      </Form>
+    </Modal>
+  );
+};
+
 export default function Account({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
   const dialog = useDialog();
 
   const { user, setUser } = useContext(GlobalState);
+  const hasEmail = user?.email ? true : false;
 
   if (user) {
     return (
@@ -128,6 +206,14 @@ export default function Account({ open, setOpen }: { open: boolean; setOpen: (op
           <VStack spacing={10}>
             <ProfileCard username={user.username} secondaryText={`Solving since ${new Date(user.created).toLocaleDateString("en-US")}`} />
             <ButtonGroup vertical block>
+              <Button
+                startIcon={<MailIcon />}
+                onClick={async () => {
+                  await dialog.open(ChangeEmailDialog);
+                }}
+              >
+                {hasEmail ? "Change" : "Add"} Email
+              </Button>
               <Button
                 startIcon={<PencilIcon />}
                 onClick={async () => {
