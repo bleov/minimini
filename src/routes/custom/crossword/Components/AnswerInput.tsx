@@ -17,24 +17,29 @@ export default function AnswerInput({ value, onChange }: AnswerInputProps) {
     inputRefs.current[active]?.focus();
   }, [active]);
 
-  useEffect(() => {
-    function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "ArrowLeft") {
-        if (active > 0) {
-          setActive(active - 1);
-        }
-      } else if (e.key === "ArrowRight") {
-        if (active < letters.length - 1) {
-          setActive(active + 1);
-        }
+  function handleKeyDown(e: KeyboardEvent, i: number) {
+    if (e.key === "ArrowLeft") {
+      if (active > 0) {
+        setActive(active - 1);
+      }
+    } else if (e.key === "ArrowRight") {
+      if (active < letters.length - 1) {
+        setActive(active + 1);
       }
     }
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [active]);
+    if (!ALLOWED_KEYS.includes(e.key)) {
+      e.preventDefault();
+      if (e.key === "Backspace") {
+        onChange(value.slice(0, i) + " " + value.slice(i + 1));
+        if (i > 0) {
+          setActive(i - 1);
+        }
+      }
+      return;
+    }
+    onChange(value.slice(0, i) + (e.key.length === 1 ? e.key.toUpperCase() : " ") + value.slice(i + 1));
+  }
 
   return (
     <HStack width={"100%"}>
@@ -53,17 +58,7 @@ export default function AnswerInput({ value, onChange }: AnswerInputProps) {
             }
           }}
           onKeyDown={(e) => {
-            if (!ALLOWED_KEYS.includes(e.key)) {
-              e.preventDefault();
-              if (e.key === "Backspace") {
-                onChange(value.slice(0, i) + " " + value.slice(i + 1));
-                if (i > 0) {
-                  setActive(i - 1);
-                }
-              }
-              return;
-            }
-            onChange(value.slice(0, i) + (e.key.length === 1 ? e.key.toUpperCase() : " ") + value.slice(i + 1));
+            handleKeyDown(e as unknown as KeyboardEvent, i);
           }}
           onFocus={(e) => {
             if (active !== i) {
