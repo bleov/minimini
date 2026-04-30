@@ -81,8 +81,7 @@ export default function SignIn({ open, setOpen }: SignInProps) {
         setIsLoading(false);
         if (pb.authStore.isValid) {
           setError("");
-          setUser(pb.authStore.record);
-          setOpen(false);
+          location.reload();
         }
       })
       .catch((err) => {
