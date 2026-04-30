@@ -1,8 +1,8 @@
 import { useContext, useRef, useState } from "react";
-import { Loader, Modal } from "rsuite";
+import { Loader, Modal, useDialog } from "rsuite";
 import { pb } from "../main";
 import { GlobalState } from "../lib/GlobalState";
-import { Button, ButtonGroup, Form, Heading, VStack, PasswordInput, Text } from "rsuite";
+import { Button, ButtonGroup, Form, VStack, PasswordInput, Text } from "rsuite";
 import { EyeClosedIcon, EyeIcon, LogInIcon, UserPlusIcon } from "lucide-react";
 
 interface SignInProps {
@@ -20,6 +20,7 @@ export default function SignIn({ open, setOpen }: SignInProps) {
   const [error, setError] = useState("");
 
   const { setUser } = useContext(GlobalState);
+  const dialog = useDialog();
 
   function handleError(err: any) {
     setIsLoading(false);
@@ -144,6 +145,38 @@ export default function SignIn({ open, setOpen }: SignInProps) {
             </Form.Group>
             <Text style={{ color: "red", fontSize: "0.8em" }}>{passwordValidation}</Text>
             <Text style={{ color: "red", fontSize: "0.8em" }}>{error}</Text>
+            <Text
+              color={"var(--rs-blue-500)"}
+              textDecoration={"underline"}
+              cursor={"pointer"}
+              onClick={async () => {
+                const email = await dialog.prompt("Enter the email associated with your account:", {
+                  title: "Reset password",
+                  okText: "Send",
+                  validate(value) {
+                    const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+                    return [isValid, "Please enter a valid email address"];
+                  }
+                });
+                if (email && typeof email === "string") {
+                  pb.collection("users")
+                    .requestPasswordReset(email)
+                    .then(() => {
+                      dialog.alert(
+                        "Password change request sent to " +
+                          email +
+                          ". Check your inbox and spam folders. Upon resetting your password, you will be signed out of all devices.",
+                        { title: "Success" }
+                      );
+                    })
+                    .catch(() => {
+                      dialog.alert("Something went wrong, check the email and try again, or try again tomorrow.");
+                    });
+                }
+              }}
+            >
+              Reset password
+            </Text>
             <ButtonGroup justified style={{ marginTop: 10 }}>
               <Button appearance="default" type="submit" disabled={loading} startIcon={<LogInIcon />}>
                 Sign In
