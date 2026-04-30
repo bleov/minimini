@@ -333,6 +333,7 @@ export default function Create() {
           open={editingClue !== null}
           onClose={() => {
             setEditingClue(null);
+            setClueSuggestions([]);
           }}
         >
           <Modal.Header>
@@ -362,6 +363,7 @@ export default function Create() {
                     <AnswerInput value={clueAnswerText} onChange={(value) => setClueAnswerText(value)} />
                   </div>
                   <Button
+                    margin={1}
                     startIcon={<Wand2Icon />}
                     onClick={() => {
                       if (helpLoading) return;
