@@ -1,12 +1,13 @@
 import { GlobalState } from "@/lib/GlobalState";
 import type { ConnectionsGame, CustomPuzzle } from "@/lib/types";
 import { pb } from "@/main";
-import { PencilIcon, SaveIcon, SaveOffIcon } from "lucide-react";
+import { LinkIcon, PencilIcon, SaveIcon, SaveOffIcon } from "lucide-react";
 import { useContext, useEffect, useState, type SetStateAction } from "react";
 import { useBeforeUnload, useParams } from "react-router";
 import { Button, Center, Text, VStack, ButtonToolbar, Modal, Form, CheckboxGroup, Checkbox, Box } from "rsuite";
 import CategoryEditor from "./Components/CategoryEditor";
 import posthog from "posthog-js";
+import DetailsEditor from "../Components/DetailsEditor";
 
 export default function ConnectionsCreator() {
   const [record, setRecord] = useState<CustomPuzzle | null>(null);
@@ -172,61 +173,7 @@ export default function ConnectionsCreator() {
             )}
           </Text>
         </VStack>
-
-        <Modal
-          open={editingDetails}
-          onClose={() => {
-            setEditingDetails(false);
-          }}
-        >
-          <Modal.Header>
-            <Modal.Title>
-              <PencilIcon /> Edit Details
-            </Modal.Title>
-          </Modal.Header>
-
-          <Modal.Body>
-            <Form
-              fluid
-              onChange={(formValue) => {
-                setDetails(formValue as SetStateAction<{ title: string; options: string[] }>);
-              }}
-              formValue={details}
-              onSubmit={() => {
-                setEditingDetails(false);
-              }}
-            >
-              <VStack spacing={15}>
-                <Form.Group width={"100%"}>
-                  <Form.Label>Puzzle Title</Form.Label>
-                  <Form.Control name="title" maxLength={35}></Form.Control>
-                </Form.Group>
-                <Form.Group width={"100%"}>
-                  <Form.Control name="options" accepter={CheckboxGroup}>
-                    <Checkbox value={"public"}>Publish Publicly</Checkbox>
-                    <Form.Text>
-                      <Text muted align="left">
-                        Your puzzle will be visible publicly on the custom puzzles page. When your puzzle is private, you can still share
-                        the preview link with others.
-                      </Text>
-                    </Form.Text>
-                  </Form.Control>
-                </Form.Group>
-              </VStack>
-            </Form>
-          </Modal.Body>
-
-          <Modal.Footer>
-            <Button
-              appearance="primary"
-              onClick={() => {
-                setEditingDetails(false);
-              }}
-            >
-              Save
-            </Button>
-          </Modal.Footer>
-        </Modal>
+        <DetailsEditor open={editingDetails} setOpen={setEditingDetails} details={details} setDetails={setDetails} />
       </Box>
     );
   }
