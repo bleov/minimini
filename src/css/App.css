@@ -227,3 +227,15 @@ canvas {
   flex-grow: 1;
   text-align: center;
 }
+
+.custom-puzzle-list {
+  width: min(95vw, 400px);
+
+  & > .rs-stack-column {
+    width: 100%;
+
+    & > .rs-list {
+      width: 100%;
+    }
+  }
+}

@@ -109,7 +109,7 @@ function UserPuzzles({ userPuzzles }: { userPuzzles: CustomPuzzleData[] }) {
   }, [userPuzzles, userSort]);
 
   return (
-    <VStack width={400} spacing={10}>
+    <VStack spacing={10} className="custom-puzzle-list">
       <Heading level={3}>My Puzzles</Heading>
       {puzzles.length > 0 ? (
         <VStack spacing={5}>
@@ -121,7 +121,7 @@ function UserPuzzles({ userPuzzles }: { userPuzzles: CustomPuzzleData[] }) {
               Title: "title"
             }}
           />
-          <List bordered width={400} maxHeight={56 * 4 + 5}>
+          <List bordered maxHeight={56 * 5 + 6}>
             {puzzles.map((puzzle) => (
               <List.Item key={puzzle.id}>
                 <HStack justifyContent="space-between" spacing={15}>
@@ -183,11 +183,11 @@ function UserPuzzles({ userPuzzles }: { userPuzzles: CustomPuzzleData[] }) {
 
 function PublicPuzzles({ puzzles, sort, setSort }: { puzzles: CustomPuzzleData[]; sort: string; setSort: (sort: string) => void }) {
   return (
-    <VStack width={400} spacing={10}>
+    <VStack spacing={10} className="custom-puzzle-list">
       <Heading level={3}>Public Puzzles</Heading>
       <VStack spacing={5}>
         <SortOptions setSort={setSort} />
-        <List bordered width={400} maxHeight={56 * 4 + 5}>
+        <List bordered maxHeight={56 * 5 + 6}>
           {puzzles.map((puzzle) => (
             <List.Item key={puzzle.id}>
               <HStack justifyContent="space-between" spacing={15}>
