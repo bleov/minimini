@@ -20,7 +20,7 @@ export function ConnectionsCategory({ index }: { index: number }) {
             {category.title}
           </Text>
           <Text align="center" size={20}>
-            {category.cards.map((card) => card.content).join(", ")}
+            {category.cards.map((card) => card.content || card.image_alt_text).join(", ")}
           </Text>
         </VStack>
       </Box>

@@ -1,6 +1,6 @@
 import type { ConnectionsCard } from "@/lib/types";
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { Center } from "rsuite";
+import { Center, Image } from "rsuite";
 import { ConnectionsContext } from "./Connections";
 
 interface ConnectionsCardProps extends ConnectionsCard {
@@ -19,7 +19,7 @@ function getGridOffset(from: HTMLDivElement, toX: number, toY: number): string {
   return `translate(${toOffsetX - offsetX}px, ${toOffsetY - offsetY}px)`;
 }
 
-export function ConnectionsCard({ content, position, row, column, slideTo }: ConnectionsCardProps) {
+export function ConnectionsCard({ content, position, row, column, slideTo, image_url, image_alt_text }: ConnectionsCardProps) {
   const { selectedCards, setSelectedCards, checking, cards, complete, shaking } = useContext(ConnectionsContext)!;
 
   const [animationOffset, setAnimationOffset] = useState(0);
@@ -129,6 +129,7 @@ export function ConnectionsCard({ content, position, row, column, slideTo }: Con
         animationDelay: `${Math.max(0, animationOffset - 1)}ms`
       }}
     >
+      {image_url && <Image src={image_url} alt={image_alt_text} height={"100%"} width={"100%"} fit="contain" />}
       <span ref={textRef} className="card-label" style={{ fontSize: `${fontSize}px` }}>
         {content}
       </span>

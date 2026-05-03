@@ -144,6 +144,8 @@ export interface CustomPuzzleData extends CustomPuzzle {
 export interface ConnectionsCard {
   content: string;
   position: number;
+  image_url?: string;
+  image_alt_text?: string;
 }
 
 export interface ConnectionsCategory {

@@ -348,6 +348,8 @@ export default function Connections({ data }: ConnectionsProps) {
                     key={card.position}
                     content={card.content}
                     position={card.position}
+                    image_url={card.image_url}
+                    image_alt_text={card.image_alt_text}
                     row={rowIndex}
                     column={columnIndex}
                     slideTo={slideTo}
