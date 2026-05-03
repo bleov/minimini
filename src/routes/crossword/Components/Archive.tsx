@@ -6,14 +6,8 @@ import { ArchiveIcon, CircleCheckIcon, HourglassIcon } from "lucide-react";
 
 import { pb } from "@/main";
 import type { ArchiveRecord, ArchiveStateRecord, BasicArchiveRecord, MiniCrossword } from "@/lib/types";
-import { formatDuration } from "@/lib/formatting";
+import { formatDuration, getButtonText, getMonthFilter } from "@/lib/formatting";
 import { CrosswordAppState } from "@/routes/crossword/state";
-
-function getMonthFilter(date: Date) {
-  const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, "0");
-  return `publication_date ~ "${year}-${month}"`;
-}
 
 export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
   const [data, setData] = useState<BasicArchiveRecord[] | null>(null);
@@ -99,16 +93,6 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
 
   useEffect(onSelectionChange, [selectedDate]);
   useEffect(onSelectionChange, [data, puzzleStates]);
-
-  function getButtonText(state: string) {
-    if (state === "completed") {
-      return "Admire Puzzle";
-    }
-    if (state === "incomplete") {
-      return "Continue Solving";
-    }
-    return "Start Solving";
-  }
 
   function onMonthChange(newMonth: Date) {
     if (dataCache.current[getMonthFilter(newMonth)] === undefined) {

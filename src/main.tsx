@@ -99,7 +99,8 @@ function Main() {
             <Route path="/custom/:id/edit" element={<CreateRouter />}></Route>
             <Route path="/custom/:id" element={<GameRouter />}></Route>
 
-            <Route path="/connections" element={<ConnectionsApp />} />
+            <Route path="/connections" element={<Navigate to="/connections/today" replace />} />
+            <Route path="/connections/:date" element={<ConnectionsApp />} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

@@ -42,3 +42,19 @@ export function renderClue(clue: MiniCrosswordClue): string {
     })
     .join("");
 }
+
+export function getMonthFilter(date: Date) {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  return `publication_date ~ "${year}-${month}"`;
+}
+
+export function getButtonText(state: string) {
+  if (state === "completed") {
+    return "Admire Puzzle";
+  }
+  if (state === "incomplete") {
+    return "Continue Solving";
+  }
+  return "Start Solving";
+}

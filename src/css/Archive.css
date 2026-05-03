@@ -22,3 +22,7 @@
 .archive-action-button {
   margin-inline: auto;
 }
+
+.rs-calendar-header-title.rs-calendar-header-title-date {
+  pointer-events: none;
+}

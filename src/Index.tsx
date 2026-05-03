@@ -1,4 +1,19 @@
-import { ButtonGroup, Card, CardGroup, Heading, HStack, Image, Text, Center, Badge, VStack, useMediaQuery } from "rsuite";
+import {
+  ButtonGroup,
+  Card,
+  CardGroup,
+  Heading,
+  HStack,
+  Image,
+  Text,
+  Center,
+  Badge,
+  VStack,
+  useMediaQuery,
+  IconButton,
+  Whisper,
+  Tooltip
+} from "rsuite";
 import { Link, useLocation } from "react-router";
 import { useEffect, useState } from "react";
 
@@ -7,6 +22,8 @@ import Friends from "@/Components/Friends";
 import SignIn from "@/Components/SignIn";
 import AccountButtons from "@/Components/AccountButtons";
 import { pb } from "./main";
+import { ArchiveIcon } from "lucide-react";
+import { useNavigate } from "react-router";
 
 interface LinkCardProps {
   title: string;
@@ -15,9 +32,10 @@ interface LinkCardProps {
   link: string;
   disabled?: boolean;
   badgeContent?: string;
+  children?: React.ReactNode;
 }
 
-function LinkCard({ title, description, imageSrc, link, disabled, badgeContent }: LinkCardProps) {
+function LinkCard({ title, description, imageSrc, link, disabled, badgeContent, children }: LinkCardProps) {
   return (
     <Link to={link} aria-disabled={disabled} className={disabled ? "link-card-disabled" : "link-card"}>
       <Card shaded direction="row">
@@ -33,6 +51,7 @@ function LinkCard({ title, description, imageSrc, link, disabled, badgeContent }
           </Card.Header>
           <Card.Body>{description} </Card.Body>
         </VStack>
+        {children}
       </Card>
     </Link>
   );
@@ -41,6 +60,7 @@ function LinkCard({ title, description, imageSrc, link, disabled, badgeContent }
 export default function Index() {
   const [modalState, setModalState] = useState<"account" | "friends" | "sign-in" | null>(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     document.title = "Glyph – Daily word games";
@@ -98,9 +118,17 @@ export default function Index() {
         <LinkCard
           title="Connections"
           description="Create groups of four"
-          link="/connections"
+          link="/connections/today"
           imageSrc="/icons/connections/pwa-192x192.png"
-        />
+        >
+          <Center paddingRight={17}>
+            <Whisper placement="top" speaker={<Tooltip>Archive</Tooltip>}>
+              <Link to={"/connections/archive"}>
+                <IconButton icon={<ArchiveIcon />} />
+              </Link>
+            </Whisper>
+          </Center>
+        </LinkCard>
         <LinkCard
           title="Custom Crosswords"
           description="Create your own crossword"

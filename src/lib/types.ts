@@ -80,6 +80,7 @@ export interface BasicArchiveRecord {
   mini_id: number;
   daily_id: number;
   midi_id: number;
+  connections_id: number;
   id: string;
 }
 
