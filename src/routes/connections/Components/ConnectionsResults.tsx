@@ -4,6 +4,7 @@ import { Button, ButtonGroup, Center, Heading, Image, Modal, VStack } from "rsui
 import { ConnectionsContext } from "./Connections";
 import { ArrowLeftIcon, TrophyIcon } from "lucide-react";
 import { useNavigate } from "react-router";
+import { useParams } from "react-router";
 
 interface ConnectionsResultsProps {
   open: boolean;
@@ -14,6 +15,8 @@ interface ConnectionsResultsProps {
 export default function ConnectionsResults({ open, onClose, onOpenLeaderboard }: ConnectionsResultsProps) {
   const { data, resultText } = useContext(ConnectionsContext)!;
   const navigate = useNavigate();
+
+  const params = useParams();
 
   return (
     <Modal open={open} onClose={onClose} dialogClassName="complete-dialog" centered size="fit-content" overflow={false}>
@@ -43,6 +46,10 @@ export default function ConnectionsResults({ open, onClose, onOpenLeaderboard }:
             appearance="default"
             startIcon={<ArrowLeftIcon />}
             onClick={() => {
+              if (params.date && params.date !== "today") {
+                navigate(`/connections/archive`);
+                return;
+              }
               navigate("/");
             }}
           >
