@@ -1,4 +1,4 @@
-import { CircleUserRoundIcon, LogInIcon, UsersIcon } from "lucide-react";
+import { BellIcon, CircleUserRoundIcon, LogInIcon, UsersIcon } from "lucide-react";
 import { useContext } from "react";
 import { Button, ButtonGroup } from "rsuite";
 import { GlobalState } from "../lib/GlobalState";
@@ -17,7 +17,6 @@ export default function AccountButtons({
     <>
       {user ? (
         <>
-          {" "}
           <Button
             appearance={appearance}
             onClick={() => {
@@ -41,6 +40,15 @@ export default function AccountButtons({
             startIcon={<UsersIcon />}
           >
             Friends
+          </Button>
+          <Button
+            appearance={appearance}
+            startIcon={<BellIcon />}
+            onClick={() => {
+              setModalState("notifications");
+            }}
+          >
+            Notifications
           </Button>
         </>
       ) : (

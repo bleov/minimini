@@ -1,19 +1,4 @@
-import {
-  ButtonGroup,
-  Card,
-  CardGroup,
-  Heading,
-  HStack,
-  Image,
-  Text,
-  Center,
-  Badge,
-  VStack,
-  useMediaQuery,
-  IconButton,
-  Whisper,
-  Tooltip
-} from "rsuite";
+import { ButtonGroup, Card, CardGroup, Heading, HStack, Image, Text, Center, Badge, VStack, IconButton, Whisper, Tooltip } from "rsuite";
 import { Link, useLocation } from "react-router";
 import { useEffect, useState } from "react";
 
@@ -24,6 +9,7 @@ import AccountButtons from "@/Components/AccountButtons";
 import { pb } from "./main";
 import { ArchiveIcon } from "lucide-react";
 import { useNavigate } from "react-router";
+import Notifications from "./Components/Notifications";
 
 interface LinkCardProps {
   title: string;
@@ -58,7 +44,7 @@ function LinkCard({ title, description, imageSrc, link, disabled, badgeContent, 
 }
 
 export default function Index() {
-  const [modalState, setModalState] = useState<"account" | "friends" | "sign-in" | null>(null);
+  const [modalState, setModalState] = useState<"account" | "friends" | "sign-in" | "notifications" | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -97,6 +83,7 @@ export default function Index() {
       <Account open={modalState === "account"} setOpen={() => setModalState(null)} />
       <Friends open={modalState === "friends"} setOpen={() => setModalState(null)} />
       <SignIn open={modalState === "sign-in"} setOpen={() => setModalState(null)} />
+      <Notifications open={modalState === "notifications"} setOpen={() => setModalState(null)} />
 
       <div className="title-container">
         <Heading level={1} className="merriweather-display">
@@ -106,7 +93,7 @@ export default function Index() {
           Daily word games
         </Heading>
         <Center>
-          <ButtonGroup className="account-buttons" justified>
+          <ButtonGroup className="account-buttons">
             <AccountButtons setModalState={setModalState} appearance="default" />
           </ButtonGroup>
         </Center>
