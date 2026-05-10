@@ -51,8 +51,10 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
   const params = useParams();
   const { user } = useContext(GlobalState);
 
-  const today = new Date();
-  const difficultDays = [0, 3, 4, 5, 6];
+  const today = data?.publicationDate ? new Date(data.publicationDate) : new Date();
+  const difficultDays = [2, 3, 4, 5, 6];
+
+  console.log(today.getDay());
 
   const appState = useMemo(
     () => ({
