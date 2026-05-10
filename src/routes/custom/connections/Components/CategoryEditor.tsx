@@ -1,15 +1,16 @@
 import type { ConnectionsCategory } from "@/lib/types";
 import { categoryColorNames, categoryColors, categoryDifficulties } from "@/routes/connections/Components/ConnectionsCategory";
 import { useEffect, useState } from "react";
-import { Box, Card, HStack, Input, Stack, Text, VStack } from "rsuite";
+import { Box, Card, Dropdown, HStack, Input, Stack, Text, VStack } from "rsuite";
 
 interface CategoryEditorProps {
   category: ConnectionsCategory;
   categoryIndex: number;
   onChange: (updatedCategory: ConnectionsCategory) => void;
+  onSwap: (oldCategory: number, newCategory: number) => void;
 }
 
-export default function CategoryEditor({ category, categoryIndex, onChange }: CategoryEditorProps) {
+export default function CategoryEditor({ category, categoryIndex, onChange, onSwap }: CategoryEditorProps) {
   const [cardContents, setCardContents] = useState(category.cards.map((card) => card.content));
   const [title, setTitle] = useState(category.title);
 
@@ -20,13 +21,23 @@ export default function CategoryEditor({ category, categoryIndex, onChange }: Ca
     });
   }, [cardContents, title]);
 
+  const dropdownData = categoryColorNames.map((color, i) => `${color}${categoryDifficulties[i]}`);
+
   return (
     <Box backgroundColor={categoryColors[categoryIndex]} padding={16} borderRadius={"md"} width={"100%"}>
       <VStack spacing={5}>
-        <Text weight="bold">
-          {categoryColorNames[categoryIndex]}
-          {categoryDifficulties[categoryIndex]}
-        </Text>
+        <Dropdown title={`${categoryColorNames[categoryIndex]}${categoryDifficulties[categoryIndex]}`} className="category-dropdown">
+          {dropdownData.map((text, newIndex) => (
+            <Dropdown.Item
+              onClick={() => {
+                onSwap(categoryIndex, newIndex);
+              }}
+              key={newIndex}
+            >
+              {text}
+            </Dropdown.Item>
+          ))}
+        </Dropdown>
         <Input
           value={title}
           onChange={(value) => setTitle(value)}

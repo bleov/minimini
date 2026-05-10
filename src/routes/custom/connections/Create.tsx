@@ -131,7 +131,7 @@ export default function ConnectionsCreator() {
           <VStack spacing={8} className="categories" width={"100%"}>
             {data.categories.map((category, categoryIndex) => (
               <CategoryEditor
-                key={categoryIndex}
+                key={category.cards[0].position}
                 category={category}
                 categoryIndex={categoryIndex}
                 onChange={(category) => {
@@ -140,6 +140,18 @@ export default function ConnectionsCreator() {
                     const newCategories = [...prevData.categories];
                     newCategories[categoryIndex] = category;
                     return { ...prevData, categories: newCategories };
+                  });
+                }}
+                onSwap={(oldIndex, newIndex) => {
+                  setData((oldData) => {
+                    if (!oldData) return oldData;
+                    const newData = { ...oldData };
+                    const newCategories = [...newData.categories];
+                    newCategories[newIndex] = oldData.categories[oldIndex];
+                    newCategories[oldIndex] = oldData.categories[newIndex];
+                    newData.categories = newCategories;
+                    console.log(newData);
+                    return newData;
                   });
                 }}
               />
