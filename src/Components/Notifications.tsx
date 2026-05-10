@@ -1,7 +1,8 @@
 import { pb } from "@/main";
-import { BellIcon } from "lucide-react";
+import { BellIcon, XIcon } from "lucide-react";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
-import { Box, List, Modal, Placeholder, Text } from "rsuite";
+import { HStack, IconButton, List, Modal, Text } from "rsuite";
+import Nudge from "./Nudge";
 
 interface NotificationsProps {
   open: boolean;
@@ -38,12 +39,41 @@ function getAgeString(then: Date) {
   }
 }
 
-function Notification({ notification }: { notification: NotificationRecord }) {
+function Notification({
+  notification,
+  setData
+}: {
+  notification: NotificationRecord;
+  setData: Dispatch<SetStateAction<NotificationRecord[]>>;
+}) {
   const created = new Date(notification.created);
+  const [loading, setLoading] = useState(false);
 
   return (
     <List.Item>
-      <Text weight="bold">{notification.title}</Text>
+      <HStack>
+        <Text weight="bold" width="100%">
+          {notification.title}
+        </Text>
+        <IconButton
+          size="xs"
+          appearance="subtle"
+          icon={<XIcon />}
+          loading={loading}
+          onClick={() => {
+            setLoading(true);
+            pb.send(`/api/notifications/${notification.id}/read`, { method: "POST" })
+              .then(() => {
+                setData((data) => {
+                  return [...data].filter((n) => n.id !== notification.id);
+                });
+              })
+              .finally(() => {
+                setLoading(false);
+              });
+          }}
+        />
+      </HStack>
       <Text>{notification.body}</Text>
       <Text muted>{getAgeString(created)}</Text>
     </List.Item>
@@ -75,11 +105,22 @@ export default function Notifications({ open, setOpen }: NotificationsProps) {
         </Modal.Title>
       </Modal.Header>
       <Modal.Body style={{ maxHeight: "400px" }}>
-        <List bordered>
-          {data.map((notification) => (
-            <Notification key={notification.id} notification={notification} />
-          ))}
-        </List>
+        {data.length > 0 && (
+          <List bordered>
+            {data.map((notification) => (
+              <Notification key={notification.id} notification={notification} setData={setData} />
+            ))}
+          </List>
+        )}
+        {data.length === 0 && !loading && (
+          <Nudge
+            title="No notifications"
+            body="You'll receive a notification when friends complete daily puzzles, or when your custom puzzles are solved."
+            color="var(--rs-orange-500)"
+            width={"100%"}
+            className="icon-bg notifications-nudge"
+          />
+        )}
       </Modal.Body>
     </Modal>
   );

@@ -223,6 +223,10 @@ canvas {
   background-image: url("/icons/star-bg.svg");
 }
 
+.notifications-nudge {
+  background-image: url("/icons/bell-bg.svg");
+}
+
 .answer-input-box {
   flex-grow: 1;
   text-align: center;
