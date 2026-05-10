@@ -46,3 +46,12 @@ routerAdd("POST", "/api/notifications/{id}/read", (e) => {
 
   return e.json(200, { success: true });
 })
+
+cronAdd("clean_notifications", "0 * * * *", () => {
+  // remove non-global notifications seen by all recipients
+
+  var notifications = $app.findRecordsByFilter("notifications", "global = false && seen != null && recipients != null && seen:length >= recipients:length");
+  notifications.forEach((notification) => {
+    $app.delete(notification);
+  });
+});
