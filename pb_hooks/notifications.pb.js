@@ -55,3 +55,31 @@ cronAdd("clean_notifications", "0 * * * *", () => {
     $app.delete(notification);
   });
 });
+
+onRecordAfterCreateSuccess((e) => {
+  const record = e.record;
+  if (!record) return;
+
+  const util = require(`${__hooks}/util.js`);
+  const notifications = $app.findCollectionByNameOrId("notifications");
+
+  const userId = record.get("user");
+  const type = record.get("type");
+  const user = $app.findRecordById("users", userId);
+
+  if (type === "custom") {
+    // Custom puzzle completed, notify author if completing using is the author's friend
+    const puzzleId = record.get("puzzle_id");
+    const puzzleData = $app.findRecordById("custom_puzzles", puzzleId);
+    const author = $app.findRecordById("users", puzzleData.get("author"));
+    const authorFriends = author.get("friends") ?? [];
+
+    if (userId !== author.id && authorFriends.includes(userId)) {
+      const notification = new Record(notifications);
+      notification.set("title", `${user.get("username")} completed ${puzzleData.get("title")}`);
+      notification.set("body", `in ${util.formatDuration(record.get("time"))}${record.get("hardcore") ? " (Hardcore)" : ""}${record.get("cheated") ? " (Autocheck)" : ""}`);
+      notification.set("recipients", [author.id]);
+      $app.save(notification);
+    }
+  }
+}, "leaderboard");
