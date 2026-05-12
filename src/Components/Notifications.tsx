@@ -52,7 +52,7 @@ function Notification({
   return (
     <List.Item>
       <HStack>
-        <Text weight="bold" width="100%">
+        <Text weight="bold" width="100%" className="notification-title">
           {notification.title}
         </Text>
         <IconButton
