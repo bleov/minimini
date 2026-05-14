@@ -18,6 +18,18 @@ routerAdd("GET", "/api/notifications/list", (e) => {
   return e.json(200, response);
 });
 
+routerAdd("GET", "/api/notifications/unread", (e) => {
+  let user = e.auth;
+  if (!user) {
+    return e.json(401, { error: "Unauthorized" });
+  }
+
+  var notifications = $app.findRecordsByFilter("notifications", "(recipients ?~ \"" + user.id + "\" || global = true) && seen ?!~ \"" + user.id + "\"", "-created", 20);
+  var response = notifications.length
+  return e.json(200, response);
+});
+
+
 routerAdd("POST", "/api/notifications/{id}/read", (e) => {
   let user = e.auth;
   if (!user) {

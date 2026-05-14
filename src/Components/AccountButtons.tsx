@@ -1,8 +1,9 @@
 import { BellIcon, CircleUserRoundIcon, LogInIcon, UsersIcon } from "lucide-react";
-import { useContext } from "react";
-import { Button, ButtonGroup } from "rsuite";
+import { useContext, useEffect, useState } from "react";
+import { Badge, Button, ButtonGroup } from "rsuite";
 import { GlobalState } from "../lib/GlobalState";
 import posthog from "posthog-js";
+import { pb } from "@/main";
 
 export default function AccountButtons({
   setModalState,
@@ -12,6 +13,21 @@ export default function AccountButtons({
   appearance: "default" | "primary" | "subtle" | "ghost" | "link";
 }) {
   const { user } = useContext(GlobalState);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (user) {
+      pb.send("/api/notifications/unread", { method: "GET" })
+        .then((count) => {
+          setUnreadCount(count);
+        })
+        .catch(() => {
+          setUnreadCount(0);
+        });
+    } else {
+      setUnreadCount(0);
+    }
+  }, [user]);
 
   return (
     <>
@@ -41,15 +57,18 @@ export default function AccountButtons({
           >
             Friends
           </Button>
-          <Button
-            appearance={appearance}
-            startIcon={<BellIcon />}
-            onClick={() => {
-              setModalState("notifications");
-            }}
-          >
-            Notifications
-          </Button>
+          <Badge invisible={unreadCount < 1} content={unreadCount <= 9 ? unreadCount : "9+"}>
+            <Button
+              appearance={appearance}
+              startIcon={<BellIcon />}
+              onClick={() => {
+                setModalState("notifications");
+              }}
+              className="btn-right-end"
+            >
+              Notifications
+            </Button>
+          </Badge>
         </>
       ) : (
         <Button
