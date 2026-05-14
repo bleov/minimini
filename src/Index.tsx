@@ -94,7 +94,7 @@ export default function Index() {
         </Heading>
         <Center>
           <ButtonGroup className="account-buttons">
-            <AccountButtons setModalState={setModalState} appearance="default" />
+            <AccountButtons modalState={modalState} setModalState={setModalState} appearance="default" />
           </ButtonGroup>
         </Center>
       </div>
