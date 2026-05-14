@@ -379,7 +379,7 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
                     Stats
                   </Button>
                 ) : (
-                  <AccountButtons setModalState={setModalState} appearance="subtle" />
+                  <AccountButtons modalState={modalState} setModalState={setModalState} appearance="subtle" />
                 ))}
             </ButtonGroup>
           </VStack>
