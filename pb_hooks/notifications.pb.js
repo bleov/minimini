@@ -1,0 +1,123 @@
+/// <reference path="../pb_data/types.d.ts" />
+
+routerAdd("GET", "/api/notifications/list", (e) => {
+  let user = e.auth;
+  if (!user) {
+    return e.json(401, { error: "Unauthorized" });
+  }
+
+  var notifications = $app.findRecordsByFilter("notifications", "(recipients ?~ \"{:uid}\" || global = true) && seen ?!~ \"{:uid}\"", "-created", 20, { uid: user.id });
+  var response = notifications.map((notification) => {
+    return {
+      id: notification.get("id"),
+      title: notification.get("title"),
+      body: notification.get("body"),
+      created: notification.get("created")
+    }
+  })
+  return e.json(200, response);
+});
+
+routerAdd("GET", "/api/notifications/unread", (e) => {
+  let user = e.auth;
+  if (!user) {
+    return e.json(401, { error: "Unauthorized" });
+  }
+
+  var notifications = $app.findRecordsByFilter("notifications", "(recipients ?~ \"{:uid}\" || global = true) && seen ?!~ \"{:uid}\"", "-created", 10, { uid: user.id });
+  var response = notifications.length
+  return e.json(200, response);
+});
+
+
+routerAdd("POST", "/api/notifications/{id}/read", (e) => {
+  let user = e.auth;
+  if (!user) {
+    return e.json(401, { error: "Unauthorized" });
+  }
+
+  const id = e.request.pathValue("id");
+  var notification = $app.findRecordById("notifications", id);
+  if (!notification) {
+    return e.json(404, { error: "Notification not found" });
+  }
+
+  if (!notification.get("global")) {
+    var recipients = notification.get("recipients") || [];
+    if (!recipients.includes(user.id)) {
+      return e.json(403, { error: "Forbidden" });
+    }
+  }
+
+  var seen = notification.get("seen") || [];
+  if (!seen.includes(user.id)) {
+    seen.push(user.id);
+    notification.set("seen", seen);
+    $app.save(notification);
+  }
+
+  return e.json(200, { success: true });
+})
+
+cronAdd("clean_notifications", "0 * * * *", () => {
+  // remove non-global notifications seen by all recipients
+
+  var notifications = $app.findRecordsByFilter("notifications", "global = false && seen != null && recipients != null && seen:length >= recipients:length");
+  notifications.forEach((notification) => {
+    $app.delete(notification);
+  });
+});
+
+onRecordAfterCreateSuccess((e) => {
+  const record = e.record;
+  if (!record) return;
+
+  const util = require(`${__hooks}/util.js`);
+  const notifications = $app.findCollectionByNameOrId("notifications");
+
+  const userId = record.get("user");
+  const type = record.get("type");
+  const user = $app.findRecordById("users", userId);
+
+  if (type === "custom") {
+    // Custom crossword completed, notify author if completing user is the author's friend
+    const puzzleId = record.get("puzzle_id");
+    const puzzleData = $app.findRecordById("custom_puzzles", puzzleId);
+    const author = $app.findRecordById("users", puzzleData.get("author"));
+    const authorFriends = author.get("friends") ?? [];
+
+    if (userId !== author.id && authorFriends.includes(userId)) {
+      const notification = new Record(notifications);
+      notification.set("title", `${user.get("username")} completed ${puzzleData.get("title")}`);
+      notification.set("body", `in ${util.formatDuration(record.get("time"))}${record.get("hardcore") ? " (Hardcore)" : ""}${record.get("cheated") ? " (Autocheck)" : ""}`);
+      notification.set("recipients", [author.id]);
+      $app.save(notification);
+    }
+  }
+}, "leaderboard");
+
+onRecordAfterCreateSuccess((e) => {
+  const record = e.record;
+  if (!record) return;
+
+  const util = require(`${__hooks}/util.js`);
+  const notifications = $app.findCollectionByNameOrId("notifications");
+
+  const userId = record.get("user");
+  const user = $app.findRecordById("users", userId);
+  const puzzleId = record.get("puzzle_id");
+
+  if (puzzleId >= 100000000000000) { // custom puzzle IDs are 15 digits
+    // Custom connections completed, notify author if completing user is the author's friend
+    const puzzleData = $app.findRecordById("custom_puzzles", puzzleId);
+    const author = $app.findRecordById("users", puzzleData.get("author"));
+    const authorFriends = author.get("friends") ?? [];
+
+    if (userId !== author.id && authorFriends.includes(userId)) {
+      const notification = new Record(notifications);
+      notification.set("title", `${user.get("username")} completed ${puzzleData.get("title")}`);
+      notification.set("recipients", [author.id]);
+      $app.save(notification);
+    }
+  }
+}, "connections_leaderboard");

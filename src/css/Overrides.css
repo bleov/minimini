@@ -103,6 +103,20 @@
   color: var(--rs-navs-text) !important;
 }
 
+.btn-right-end {
+  border-end-start-radius: 0;
+  border-start-start-radius: 0;
+}
+
+.rs-badge-content {
+  user-select: none;
+  pointer-events: none;
+}
+
+.rs-badge:has(.rs-btn) .rs-badge-content {
+  translate: 7px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rs-modal,
   .rs-modal-backdrop {
