@@ -115,7 +115,7 @@ export default function Notifications({ open, setOpen }: NotificationsProps) {
         {data.length === 0 && !loading && (
           <Nudge
             title="No notifications"
-            body="You'll receive a notification when friends complete daily puzzles, or when your custom puzzles are solved."
+            body="You'll receive a notification when friends complete your custom puzzles."
             color="var(--rs-orange-500)"
             width={"100%"}
             className="icon-bg notifications-nudge"
