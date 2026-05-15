@@ -42,7 +42,7 @@ export default function AccountButtons({
       fetchUnreadCount();
     }
     lastModalState.current = modalState;
-  });
+  }, [modalState]);
 
   return (
     <>
