@@ -24,7 +24,7 @@ routerAdd("GET", "/api/notifications/unread", (e) => {
     return e.json(401, { error: "Unauthorized" });
   }
 
-  var notifications = $app.findRecordsByFilter("notifications", "(recipients ?~ \"{:uid}\" || global = true) && seen ?!~ \"{:uid}\"", "-created", 20, { uid: user.id });
+  var notifications = $app.findRecordsByFilter("notifications", "(recipients ?~ \"{:uid}\" || global = true) && seen ?!~ \"{:uid}\"", "-created", 10, { uid: user.id });
   var response = notifications.length
   return e.json(200, response);
 });
