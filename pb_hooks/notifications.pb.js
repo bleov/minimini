@@ -6,14 +6,19 @@ routerAdd("GET", "/api/notifications/list", (e) => {
     return e.json(401, { error: "Unauthorized" });
   }
 
-  var notifications = $app.findRecordsByFilter("notifications", "(recipients ?~ \"{:uid}\" || global = true) && seen ?!~ \"{:uid}\"", "-created", 20, { uid: user.id });
+  var notifications = $app.findRecordsByFilter("notifications", `(recipients ?~ "${user.id}" || global = true) && seen ?!~ "${user.id}"`, "-created", 20);
   var response = notifications.map((notification) => {
     return {
+      global: notification.get("global"),
       id: notification.get("id"),
       title: notification.get("title"),
       body: notification.get("body"),
       created: notification.get("created")
     }
+  })
+  response = response.filter(n => {
+    if (!n.global) return true;
+    return new Date(n.created).getTime() > new Date(user.get("created")).getTime()
   })
   return e.json(200, response);
 });
@@ -24,7 +29,8 @@ routerAdd("GET", "/api/notifications/unread", (e) => {
     return e.json(401, { error: "Unauthorized" });
   }
 
-  var notifications = $app.findRecordsByFilter("notifications", "(recipients ?~ \"{:uid}\" || global = true) && seen ?!~ \"{:uid}\"", "-created", 10, { uid: user.id });
+  var notifications = $app.findRecordsByFilter("notifications", `(recipients ?~ "${user.id}" || global = true) && seen ?!~ "${user.id}"`, "-created", 10);
+  notifications = notifications.filter(n => !(n.get("global") && new Date(n.get("created")).getTime() < new Date(user.get("created")).getTime()))
   var response = notifications.length
   return e.json(200, response);
 });
