@@ -1,5 +1,5 @@
 import { pb } from "@/main";
-import { BellIcon, XIcon } from "lucide-react";
+import { BellIcon, MegaphoneIcon, XIcon } from "lucide-react";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { HStack, IconButton, List, Modal, Text } from "rsuite";
 import Nudge from "./Nudge";
@@ -14,6 +14,7 @@ interface NotificationRecord {
   title: string;
   body: string;
   created: Date;
+  global: boolean;
 }
 
 function getAgeString(then: Date) {
@@ -52,6 +53,7 @@ function Notification({
   return (
     <List.Item>
       <HStack>
+        {notification.global && <MegaphoneIcon />}
         <Text weight="bold" width="100%" className="notification-title">
           {notification.title}
         </Text>
