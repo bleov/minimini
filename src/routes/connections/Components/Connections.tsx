@@ -188,6 +188,25 @@ export default function Connections({ data }: ConnectionsProps) {
     }, 600);
   }
 
+  useEffect(() => {
+    const handleKeydown = (e: KeyboardEvent) => {
+      if (e.repeat) return;
+      if (e.key === "Enter" && !complete) {
+        check();
+      }
+      if (e.key === "Escape") {
+        if (!complete && !checking && modalState === null) {
+          setSelectedCards([]);
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleKeydown);
+    };
+  });
+
   function check() {
     if (checking) return;
     setChecking(true);
