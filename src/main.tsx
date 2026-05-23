@@ -29,6 +29,7 @@ const Index = lazy(() => import("./Index.tsx"));
 const CrosswordApp = lazy(() => import("./routes/crossword/App.tsx"));
 const Cascades = lazy(() => import("./routes/cascades/App.tsx"));
 const ConnectionsApp = lazy(() => import("./routes/connections/App.tsx"));
+const WordleApp = lazy(() => import("./routes/wordle/App.tsx"));
 
 export const pb_url = import.meta.env.VITE_POCKETBASE_URL || location.origin;
 
@@ -101,6 +102,9 @@ function Main() {
 
             <Route path="/connections" element={<Navigate to="/connections/today" replace />} />
             <Route path="/connections/:date" element={<ConnectionsApp />} />
+
+            <Route path="/wordle" element={<Navigate to="/wordle/today" replace />} />
+            <Route path="/wordle/:date" element={<WordleApp />} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
