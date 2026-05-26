@@ -10,19 +10,26 @@ import "@/css/Wordle.css";
 export default function Wordle({ data }: { data: WordleGame }) {
   const [letters, setLetters] = useState(new Array(6).fill(0).map(() => new Array(5).fill("")));
   const [completeRows, setCompleteRows] = useState<number[]>([]);
+  const [complete, setComplete] = useState(false);
 
   const toaster = useToaster();
 
   const ALLOWED_LETTERS = "abcdefghijklmnopqrstuvwxyz".split("");
+  const END_MESSAGES = ["Genius", "Magnificent", "Impressive", "Splendid", "Great", "Phew"];
 
   const answer = data.solution.toLowerCase();
   const states = new Array(6).fill(0).map(() => new Array(5).fill(""));
   const currentRow = completeRows.length;
-  const currentSpace = letters[currentRow].findIndex((x) => x === "") ?? -1;
+  const currentSpace = letters[currentRow]?.findIndex((x) => x === "") ?? -1;
+
+  if (currentRow === 6 && currentSpace === -1 && !complete) {
+    setComplete(true);
+  }
 
   for (let i = 0; i < currentRow; i++) {
     let checkValue = answer;
     const row = letters[i];
+    let allCorrect = true;
     for (let j = 0; j < row.length; j++) {
       const letter = letters[i][j].toLowerCase();
       if (letter === "") {
@@ -30,6 +37,7 @@ export default function Wordle({ data }: { data: WordleGame }) {
       }
       if (checkValue.indexOf(letter) === -1) {
         states[i][j] = "absent";
+        allCorrect = false;
         continue;
       }
       if (letter === answer[j]) {
@@ -40,20 +48,25 @@ export default function Wordle({ data }: { data: WordleGame }) {
       if (answer.includes(letter)) {
         states[i][j] = "present";
         checkValue = checkValue.replace(letter, "*");
+        allCorrect = false;
         continue;
       }
     }
+    if (allCorrect && !complete) {
+      setComplete(true);
+    }
   }
 
-  function toast(message: string) {
+  function toast(message: string, duration: number = 1500) {
     toaster.push(<Message>{message}</Message>, {
       placement: "topCenter",
-      duration: 1500,
+      duration,
       container: document.documentElement
     });
   }
 
   function enter() {
+    if (complete) return;
     const word = letters[currentRow].join("").toLowerCase();
     if (word.length < 5) {
       toast("Not enough letters");
@@ -70,6 +83,7 @@ export default function Wordle({ data }: { data: WordleGame }) {
     if (event.altKey || event.metaKey || event.ctrlKey) return;
     const key = event.key.toLowerCase();
 
+    if (complete) return;
     if (key === "enter" && !event.repeat) {
       enter();
     }
@@ -98,6 +112,16 @@ export default function Wordle({ data }: { data: WordleGame }) {
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [letters, completeRows]);
+
+  useEffect(() => {
+    if (complete) {
+      if (completeRows.length === 6 && letters[letters.length - 1].join("").toLowerCase() !== answer) {
+        toast(answer.toUpperCase(), 5000);
+      } else {
+        toast(END_MESSAGES[completeRows.length - 1], 5000);
+      }
+    }
+  }, [complete]);
 
   useEffect(() => {
     if (import.meta.env.DEV) {

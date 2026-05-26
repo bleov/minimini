@@ -46,8 +46,6 @@ export default function WordleKeyboard({ handleKeyDown, states, letters }: Wordl
     });
   }
 
-  console.log(buttonTheme);
-
   return (
     <Box className="wordle-keyboard">
       <KeyboardReact
