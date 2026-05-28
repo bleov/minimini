@@ -1,5 +1,5 @@
 import type { WordleGame } from "@/lib/types";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Center, HStack, Message, useToaster, VStack } from "rsuite";
 import WordleTile from "./WordleTile";
 import WordleKeyboard from "./WordleKeyboard";
@@ -11,6 +11,7 @@ export default function Wordle({ data }: { data: WordleGame }) {
   const [letters, setLetters] = useState(new Array(6).fill(0).map(() => new Array(5).fill("")));
   const [completeRows, setCompleteRows] = useState<number[]>([]);
   const [complete, setComplete] = useState(false);
+  const [checking, setChecking] = useState(false);
 
   const toaster = useToaster();
 
@@ -22,7 +23,7 @@ export default function Wordle({ data }: { data: WordleGame }) {
   const currentRow = completeRows.length;
   const currentSpace = letters[currentRow]?.findIndex((x) => x === "") ?? -1;
 
-  if (currentRow === 6 && currentSpace === -1 && !complete) {
+  if (currentRow === 6 && currentSpace === -1 && !complete && !checking) {
     setComplete(true);
   }
 
@@ -67,6 +68,7 @@ export default function Wordle({ data }: { data: WordleGame }) {
 
   function enter() {
     if (complete) return;
+    if (checking) return;
     const word = letters[currentRow].join("").toLowerCase();
     if (word.length < 5) {
       toast("Not enough letters");
@@ -76,7 +78,11 @@ export default function Wordle({ data }: { data: WordleGame }) {
       toast("Not in word list");
       return;
     }
+    setChecking(true);
     setCompleteRows([...completeRows, currentRow]);
+    setTimeout(() => {
+      setChecking(false);
+    }, 350 * 5);
   }
 
   function handleKeyDown(event: KeyboardEvent) {
@@ -84,6 +90,7 @@ export default function Wordle({ data }: { data: WordleGame }) {
     const key = event.key.toLowerCase();
 
     if (complete) return;
+    if (checking) return;
     if (key === "enter" && !event.repeat) {
       enter();
     }
@@ -111,17 +118,17 @@ export default function Wordle({ data }: { data: WordleGame }) {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [letters, completeRows]);
+  }, [letters, completeRows, complete, checking]);
 
   useEffect(() => {
-    if (complete) {
+    if (complete && !checking) {
       if (completeRows.length === 6 && letters[letters.length - 1].join("").toLowerCase() !== answer) {
         toast(answer.toUpperCase(), 5000);
       } else {
         toast(END_MESSAGES[completeRows.length - 1], 5000);
       }
     }
-  }, [complete]);
+  }, [complete, checking]);
 
   useEffect(() => {
     if (import.meta.env.DEV) {
@@ -142,7 +149,7 @@ export default function Wordle({ data }: { data: WordleGame }) {
           {letters.map((word, row) => (
             <HStack spacing={5}>
               {word.map((letter, col) => (
-                <WordleTile letter={letter} state={states[row][col]} />
+                <WordleTile letter={letter} state={states[row][col]} checking={checking && row === currentRow - 1} col={col} />
               ))}
             </HStack>
           ))}
