@@ -108,6 +108,17 @@
       &.correct {
         color: white;
       }
+
+      &.hg-button-bksp {
+        background-image: url("/icons/delete.svg");
+        background-repeat: no-repeat;
+        background-position: 50% 50%;
+      }
+      &.hg-button-enter {
+        background-image: url("/icons/enter.svg");
+        background-repeat: no-repeat;
+        background-position: 50% 50%;
+      }
     }
 
     .hg-functionBtn {

@@ -62,8 +62,8 @@ export default function WordleKeyboard({ handleKeyDown, states, letters }: Wordl
           default: ["Q W E R T Y U I O P", "A S D F G H J K L", "{enter} Z X C V B N M {bksp}"]
         }}
         display={{
-          "{enter}": "⏎",
-          "{bksp}": "⌫"
+          "{enter}": " ",
+          "{bksp}": " "
         }}
         layoutName={"default"}
         disableButtonHold={true}
