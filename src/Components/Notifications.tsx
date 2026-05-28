@@ -54,7 +54,7 @@ function Notification({
     <List.Item>
       <HStack>
         {notification.global && <MegaphoneIcon />}
-        <Text weight="bold" width="100%" className="notification-title">
+        <Text weight="bold" width="100%" className="notification-title" title={notification.title}>
           {notification.title}
         </Text>
         <IconButton
