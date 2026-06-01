@@ -14,7 +14,7 @@ export default function WordleTile({ letter, state, checking, col }: WordleTileP
   const classList = ["wordle-tile"];
   let animationDelay = 0;
 
-  if (revealed) {
+  if (revealed || !checking) {
     classList.push(state);
   }
 

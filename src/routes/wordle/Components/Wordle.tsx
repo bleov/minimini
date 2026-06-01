@@ -6,6 +6,7 @@ import WordleKeyboard from "./WordleKeyboard";
 import words from "../data/words.json";
 
 import "@/css/Wordle.css";
+import usePersistence from "../hooks/usePersistence";
 
 export default function Wordle({ data }: { data: WordleGame }) {
   const [letters, setLetters] = useState(new Array(6).fill(0).map(() => new Array(5).fill("")));
@@ -141,6 +142,8 @@ export default function Wordle({ data }: { data: WordleGame }) {
       };
     }
   });
+
+  usePersistence(letters, setLetters, completeRows, setCompleteRows, complete, data);
 
   return (
     <VStack height={"100%"} justifyContent={"center"} spacing={15}>
