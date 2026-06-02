@@ -101,18 +101,20 @@ export default function usePersistence(
   }
 
   useEffect(() => {
-    localforage.setItem(`wordle-${data.id}`, save);
+    localforage.setItem(`wordle-${data.id}`, save).catch(console.error);
   }, Object.values(save));
 
   useEffect(() => {
-    cloudLoad().then(() => {
-      localforage.getItem(`wordle-${data.id}`).then((saved: any) => {
-        if (saved) {
-          applySave(saved);
-        }
-      });
-    });
-  }, []);
+    cloudLoad()
+      .then(() => {
+        localforage.getItem(`wordle-${data.id}`).then((saved: any) => {
+          if (saved) {
+            applySave(saved);
+          }
+        });
+      })
+      .catch(console.error);
+  }, [data.id]);
 
   useEffect(() => {
     if (!saveReadyRef.current) return;
