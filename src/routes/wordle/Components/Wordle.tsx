@@ -107,7 +107,7 @@ export default function Wordle({ data }: { data: WordleGame }) {
     }
 
     if (key === "backspace") {
-      const newLetters = [...letters];
+      const newLetters = letters.map((row) => [...row]);
       if (currentSpace > 0) {
         newLetters[currentRow][currentSpace - 1] = "";
       } else if (currentSpace === -1) {
