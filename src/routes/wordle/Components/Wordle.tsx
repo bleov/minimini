@@ -157,9 +157,15 @@ export default function Wordle({ data }: { data: WordleGame }) {
         <Center width={"100%"}>
           <VStack spacing={5}>
             {letters.map((word, row) => (
-              <HStack spacing={5}>
+              <HStack key={row} spacing={5}>
                 {word.map((letter, col) => (
-                  <WordleTile letter={letter} state={states[row][col]} checking={checking && row === currentRow - 1} col={col} />
+                  <WordleTile
+                    key={`${row}-${col}`}
+                    letter={letter}
+                    state={states[row][col]}
+                    checking={checking && row === currentRow - 1}
+                    col={col}
+                  />
                 ))}
               </HStack>
             ))}
