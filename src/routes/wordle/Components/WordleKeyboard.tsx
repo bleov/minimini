@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { KeyboardReact } from "react-simple-keyboard";
-import { Box } from "rsuite";
+import { Box, Button, Center } from "rsuite";
 
 interface WordleKeyboardProps {
   handleKeyDown: (event: KeyboardEvent, virtual: boolean) => void;
   states: string[][];
   letters: string[][];
+  complete: boolean;
+  setModalState: any;
 }
 
-export default function WordleKeyboard({ handleKeyDown, states, letters }: WordleKeyboardProps) {
+export default function WordleKeyboard({ handleKeyDown, states, letters, complete, setModalState }: WordleKeyboardProps) {
   function getThemedButtons(state: string) {
     const result: string[] = [];
     states.forEach((row, rowI) => {
@@ -69,6 +71,18 @@ export default function WordleKeyboard({ handleKeyDown, states, letters }: Wordl
         disableButtonHold={true}
         buttonTheme={buttonTheme}
       />
+      {complete && (
+        <Center className="wordle-keyboard-results">
+          <Button
+            appearance="default"
+            onClick={() => {
+              setModalState("results");
+            }}
+          >
+            View Results
+          </Button>
+        </Center>
+      )}
     </Box>
   );
 }

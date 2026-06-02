@@ -11,7 +11,7 @@ export default function usePersistence(
   setCompleteRows: (x: number[]) => void,
   complete: boolean,
   data: WordleGame
-): () => void {
+): void {
   const save = {
     letters,
     completeRows,

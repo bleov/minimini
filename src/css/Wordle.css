@@ -81,6 +81,25 @@
 
   .wordle-keyboard {
     min-width: clamp(280px, 100vw, 560px);
+    position: relative;
+
+    .wordle-keyboard-results {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.8);
+      z-index: 2;
+
+      & .rs-btn {
+        font-weight: bold;
+        font-size: 1.1em;
+        padding-inline: 20px;
+        padding-block: 23px;
+        border: 2px solid black;
+      }
+    }
 
     .hg-theme-default {
       background-color: transparent;

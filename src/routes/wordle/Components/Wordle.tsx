@@ -7,12 +7,14 @@ import words from "../data/words.json";
 
 import "@/css/Wordle.css";
 import usePersistence from "../hooks/usePersistence";
+import WordleResults from "./WordleResults";
 
 export default function Wordle({ data }: { data: WordleGame }) {
   const [letters, setLetters] = useState(new Array(6).fill(0).map(() => new Array(5).fill("")));
   const [completeRows, setCompleteRows] = useState<number[]>([]);
   const [complete, setComplete] = useState(false);
   const [checking, setChecking] = useState(false);
+  const [modalState, setModalState] = useState<"results" | "leaderboard" | null>(null);
 
   const toaster = useToaster();
 
@@ -23,6 +25,14 @@ export default function Wordle({ data }: { data: WordleGame }) {
   const states = new Array(6).fill(0).map(() => new Array(5).fill(""));
   const currentRow = completeRows.length;
   const currentSpace = letters[currentRow]?.findIndex((x) => x === "") ?? -1;
+  let resultText = "???";
+  if (complete && !checking) {
+    if (completeRows.length === 6 && letters[letters.length - 1].join("").toLowerCase() !== answer) {
+      resultText = answer.toUpperCase();
+    } else {
+      resultText = END_MESSAGES[completeRows.length - 1];
+    }
+  }
 
   if (currentRow === 6 && currentSpace === -1 && !complete && !checking) {
     setComplete(true);
@@ -122,12 +132,9 @@ export default function Wordle({ data }: { data: WordleGame }) {
   }, [letters, completeRows, complete, checking]);
 
   useEffect(() => {
-    if (complete && !checking) {
-      if (completeRows.length === 6 && letters[letters.length - 1].join("").toLowerCase() !== answer) {
-        toast(answer.toUpperCase(), 5000);
-      } else {
-        toast(END_MESSAGES[completeRows.length - 1], 5000);
-      }
+    if (resultText !== "???") {
+      toast(resultText, 5000);
+      setModalState("results");
     }
   }, [complete, checking]);
 
@@ -146,21 +153,40 @@ export default function Wordle({ data }: { data: WordleGame }) {
   usePersistence(letters, setLetters, completeRows, setCompleteRows, complete, data);
 
   return (
-    <VStack height={"100%"} justifyContent={"center"} spacing={15}>
-      <Center width={"100%"}>
-        <VStack spacing={5}>
-          {letters.map((word, row) => (
-            <HStack spacing={5}>
-              {word.map((letter, col) => (
-                <WordleTile letter={letter} state={states[row][col]} checking={checking && row === currentRow - 1} col={col} />
-              ))}
-            </HStack>
-          ))}
-        </VStack>
-      </Center>
-      <Center width={"100%"}>
-        <WordleKeyboard handleKeyDown={handleKeyDown} states={states} letters={letters} />
-      </Center>
-    </VStack>
+    <>
+      <VStack height={"100%"} justifyContent={"center"} spacing={15}>
+        <Center width={"100%"}>
+          <VStack spacing={5}>
+            {letters.map((word, row) => (
+              <HStack spacing={5}>
+                {word.map((letter, col) => (
+                  <WordleTile letter={letter} state={states[row][col]} checking={checking && row === currentRow - 1} col={col} />
+                ))}
+              </HStack>
+            ))}
+          </VStack>
+        </Center>
+        <Center width={"100%"}>
+          <WordleKeyboard
+            handleKeyDown={handleKeyDown}
+            states={states}
+            letters={letters}
+            complete={complete && !checking}
+            setModalState={setModalState}
+          />
+        </Center>
+      </VStack>
+      <WordleResults
+        open={modalState === "results"}
+        onClose={() => {
+          setModalState(null);
+        }}
+        onOpenLeaderboard={() => {
+          setModalState("leaderboard");
+        }}
+        data={data}
+        resultText={resultText}
+      />
+    </>
   );
 }
