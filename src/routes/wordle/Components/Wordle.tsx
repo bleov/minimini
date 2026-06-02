@@ -134,7 +134,6 @@ export default function Wordle({ data }: { data: WordleGame }) {
   useEffect(() => {
     if (resultText !== "???") {
       toast(resultText, 5000);
-      setModalState("results");
     }
   }, [complete, checking]);
 
