@@ -61,8 +61,8 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
 
         setData(list);
         setPuzzleStates(completed ?? []);
-        dataCache.current[getMonthFilter(new Date(selectedDate))] = list;
-        puzzleStateCache.current[getMonthFilter(new Date(selectedDate))] = completed ?? [];
+        dataCache.current[getMonthFilter(selectedDateObj)] = list;
+        puzzleStateCache.current[getMonthFilter(selectedDateObj)] = completed ?? [];
       }
       fetchData();
     }
@@ -100,8 +100,8 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
       setPuzzleStates(null);
     } else {
       const monthKey = getMonthFilter(newMonth);
-      setData(dataCache.current[monthKey] || null);
-      setPuzzleStates(puzzleStateCache.current[monthKey] || null);
+      setData(dataCache.current[monthKey] ?? null);
+      setPuzzleStates(puzzleStateCache.current[monthKey] ?? null);
     }
   }
 
