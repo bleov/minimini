@@ -1,0 +1,152 @@
+@keyframes scale-in {
+  0% {
+    scale: 1;
+  }
+  100% {
+    scale: 1.08;
+  }
+}
+
+@keyframes flip {
+  0%,
+  100% {
+    transform: scaleY(100%);
+  }
+  50% {
+    transform: scaleY(0);
+  }
+}
+
+#root:has(.wordle) {
+  margin-inline: 0;
+}
+
+.wordle {
+  --absent: #787c7e;
+  --present: #c9b458;
+  --correct: #6aaa64;
+
+  --border-inactive: #d3d6da;
+  --border-active: #878a8c;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+
+  .wordle-tile {
+    width: 52px;
+    height: 52px;
+    user-select: none;
+
+    .rs-text {
+      font-size: 32px;
+      font-weight: bold;
+    }
+
+    &:not(.active) {
+      border: 2px solid var(--border-inactive);
+    }
+    &.active {
+      border: 2px solid var(--border-active);
+    }
+
+    &.absent {
+      background-color: var(--absent);
+    }
+    &.present {
+      background-color: var(--present);
+    }
+    &.correct {
+      background-color: var(--correct);
+    }
+    &.absent,
+    &.present,
+    &.correct {
+      border: none;
+      .rs-text {
+        color: white;
+      }
+    }
+
+    &.scale-in {
+      animation: scale-in 50ms cubic-bezier(0.39, 0.575, 0.565, 1) 2 alternate both;
+    }
+
+    &.flip {
+      animation: flip 350ms cubic-bezier(0.455, 0.03, 0.515, 0.955) both;
+    }
+  }
+
+  .wordle-keyboard {
+    min-width: clamp(280px, 100vw, 560px);
+    position: relative;
+
+    .wordle-keyboard-results {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(255, 255, 255, 0.9);
+      z-index: 2;
+
+      & .rs-btn {
+        font-weight: bold;
+        font-size: 1.1em;
+        padding-inline: 20px;
+        padding-block: 23px;
+        border: 2px solid black;
+      }
+    }
+
+    .hg-theme-default {
+      background-color: transparent;
+    }
+
+    .hg-button {
+      width: 33px;
+      height: 60px;
+      font-weight: bold;
+      font-size: 1.3em;
+      box-shadow: none;
+      background-color: var(--border-inactive);
+
+      &.absent {
+        background-color: var(--absent);
+      }
+      &.present {
+        background-color: var(--present);
+      }
+      &.correct {
+        background-color: var(--correct);
+      }
+      &.absent,
+      &.present,
+      &.correct {
+        color: white;
+      }
+
+      &.hg-button-bksp {
+        background-image: url("/icons/delete.svg");
+        background-repeat: no-repeat;
+        background-position: 50% 50%;
+      }
+      &.hg-button-enter {
+        background-image: url("/icons/enter.svg");
+        background-repeat: no-repeat;
+        background-position: 50% 50%;
+      }
+    }
+
+    .hg-functionBtn {
+      /* deviates from the vanilla wordle styles */
+      background-color: var(--border-active);
+    }
+
+    .hg-row:nth-child(2) {
+      margin-inline: 5%;
+    }
+  }
+}

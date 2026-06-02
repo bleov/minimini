@@ -1,16 +1,10 @@
 /// <reference path="../pb_data/types.d.ts" />
 
 routerAdd("GET", "/api/today/mini", (e) => {
-  function getTodayDateString() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  }
+  const util = require(`${__hooks}/util.js`);
 
   try {
-    const record = $app.findFirstRecordByData("archive", "publication_date", getTodayDateString());
+    const record = $app.findFirstRecordByData("archive", "publication_date", util.getTodayDateString());
     return e.json(200, record.get("mini"));
   } catch (err) {
     return e.json(404, { error: "Not Found" });
@@ -18,16 +12,10 @@ routerAdd("GET", "/api/today/mini", (e) => {
 });
 
 routerAdd("GET", "/api/today/daily", (e) => {
-  function getTodayDateString() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  }
+  const util = require(`${__hooks}/util.js`);
 
   try {
-    const record = $app.findFirstRecordByData("archive", "publication_date", getTodayDateString());
+    const record = $app.findFirstRecordByData("archive", "publication_date", util.getTodayDateString());
     return e.json(200, record.get("daily"));
   } catch (err) {
     return e.json(404, { error: "Not Found" });
@@ -35,16 +23,10 @@ routerAdd("GET", "/api/today/daily", (e) => {
 });
 
 routerAdd("GET", "/api/today/midi", (e) => {
-  function getTodayDateString() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  }
+  const util = require(`${__hooks}/util.js`);
 
   try {
-    const record = $app.findFirstRecordByData("archive", "publication_date", getTodayDateString());
+    const record = $app.findFirstRecordByData("archive", "publication_date", util.getTodayDateString());
     return e.json(200, record.get("midi"));
   } catch (err) {
     return e.json(404, { error: "Not Found" });
@@ -52,17 +34,22 @@ routerAdd("GET", "/api/today/midi", (e) => {
 });
 
 routerAdd("GET", "/api/today/connections", (e) => {
-  function getTodayDateString() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  }
+  const util = require(`${__hooks}/util.js`);
 
   try {
-    const record = $app.findFirstRecordByData("archive", "publication_date", getTodayDateString());
+    const record = $app.findFirstRecordByData("archive", "publication_date", util.getTodayDateString());
     return e.json(200, record.get("connections"));
+  } catch (err) {
+    return e.json(404, { error: "Not Found" });
+  }
+});
+
+routerAdd("GET", "/api/today/wordle", (e) => {
+  const util = require(`${__hooks}/util.js`);
+
+  try {
+    const record = $app.findFirstRecordByData("archive", "publication_date", util.getTodayDateString());
+    return e.json(200, record.get("wordle"));
   } catch (err) {
     return e.json(404, { error: "Not Found" });
   }
