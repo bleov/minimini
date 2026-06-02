@@ -49,8 +49,8 @@ export default function ConnectionsArchive() {
 
         setData(list);
         setPuzzleStates(completed ?? []);
-        dataCache.current[getMonthFilter(new Date(selectedDate))] = list;
-        puzzleStateCache.current[getMonthFilter(new Date(selectedDate))] = completed ?? [];
+        dataCache.current[getMonthFilter(selectedDateObj)] = list;
+        puzzleStateCache.current[getMonthFilter(selectedDateObj)] = completed ?? [];
       }
       fetchData();
     }
