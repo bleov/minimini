@@ -88,7 +88,7 @@ export default function usePersistence(
       guesses: saveRef.current.completeRows.length,
       state: saveRef.current
     };
-    leaderboard.create(record);
+    void leaderboard.create(record).catch(() => {});
     posthog.capture("wordle_leaderboard_submit");
   }, [data.id, data.print_date]);
 
