@@ -29,15 +29,21 @@ export default function WordleTile({ letter, state, checking, col }: WordleTileP
   }
 
   useEffect(() => {
+    let timeout: any = null;
     if (checking && !revealed) {
-      setTimeout(
+      timeout = setTimeout(
         () => {
           setRevealed(true);
         },
         350 / 2 + animationDelay
       );
     }
-  }, [checking]);
+    return () => {
+      if (timeout !== null) {
+        clearTimeout(timeout);
+      }
+    };
+  }, [checking, revealed, animationDelay]);
 
   return (
     <Center className={classList.join(" ")} style={{ animationDelay: `${animationDelay}ms` }}>
