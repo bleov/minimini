@@ -48,7 +48,6 @@ export default function usePersistence(
     if (!user) return;
     if (saveRef.current.completeRows.length === 0) return;
     const states = pb.collection("wordle_state");
-    console.log("running cloud save");
 
     const record = {
       user: user.id,
@@ -60,9 +59,7 @@ export default function usePersistence(
     if (recordIdRef.current) {
       states
         .update(recordIdRef.current, record)
-        .then((res) => {
-          console.log("Cloud save successful", res);
-        })
+        .then((res) => {})
         .catch((err) => {
           console.error("Cloud save failed", err);
         });
@@ -70,7 +67,6 @@ export default function usePersistence(
       states
         .create(record)
         .then((res) => {
-          console.log("Cloud save successful", res);
           recordIdRef.current = res.id;
         })
         .catch((err) => {
