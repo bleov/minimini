@@ -5,6 +5,9 @@
 
 * {
   font-family: "Noto Sans", sans-serif !important;
+
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 :root {
@@ -236,6 +239,11 @@ canvas {
   background-color: rgba(255, 255, 255, 0.6);
 }
 
+.notification .rs-text:not(.rs-text-muted) {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
 .notification-title {
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -251,5 +259,10 @@ canvas {
     & > .rs-list {
       width: 100%;
     }
+  }
+
+  .puzzle-title {
+    user-select: text;
+    -webkit-user-select: text;
   }
 }

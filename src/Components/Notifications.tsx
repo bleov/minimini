@@ -51,7 +51,7 @@ function Notification({
   const [loading, setLoading] = useState(false);
 
   return (
-    <List.Item>
+    <List.Item className="notification">
       <HStack>
         {notification.global && <MegaphoneIcon />}
         <Text weight="bold" width="100%" className="notification-title" title={notification.title}>

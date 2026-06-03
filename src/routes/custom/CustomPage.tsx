@@ -126,7 +126,7 @@ function UserPuzzles({ userPuzzles }: { userPuzzles: CustomPuzzleData[] }) {
               <List.Item key={puzzle.id}>
                 <HStack justifyContent="space-between" spacing={15}>
                   <VStack spacing={0}>
-                    <Text>{puzzle.title}</Text>
+                    <Text className="puzzle-title">{puzzle.title}</Text>
                     <Text muted>{puzzle.public ? "Public" : "Private"}</Text>
                   </VStack>
                   <ButtonGroup width={"fit-content"}>
@@ -192,7 +192,7 @@ function PublicPuzzles({ puzzles, sort, setSort }: { puzzles: CustomPuzzleData[]
             <List.Item key={puzzle.id}>
               <HStack justifyContent="space-between" spacing={15}>
                 <VStack spacing={0}>
-                  <Text>{puzzle.title}</Text>
+                  <Text className="puzzle-title">{puzzle.title}</Text>
                   <Text muted>
                     <TrophyIcon /> {puzzle.completions} <StarIcon /> {puzzle.avg_rating.toFixed(1)} {puzzle.author_name}
                   </Text>
