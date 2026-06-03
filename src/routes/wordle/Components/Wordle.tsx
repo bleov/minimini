@@ -8,6 +8,7 @@ import words from "../data/words.json";
 import "@/css/Wordle.css";
 import usePersistence from "../hooks/usePersistence";
 import WordleResults from "./WordleResults";
+import WordleLeaderboard from "./WordleLeaderboard";
 
 export const ROWS = 6;
 export const COLUMNS = 5;
@@ -193,6 +194,13 @@ export default function Wordle({ data }: { data: WordleGame }) {
         }}
         data={data}
         resultText={resultText}
+      />
+      <WordleLeaderboard
+        open={modalState === "leaderboard"}
+        setOpen={() => {
+          setModalState("results");
+        }}
+        puzzleData={data}
       />
     </>
   );

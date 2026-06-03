@@ -179,3 +179,9 @@ export interface WordleGame {
   days_since_launch: number;
   editor: string;
 }
+
+export interface WordleState {
+  complete: boolean;
+  completeRows: number[];
+  letters: string[][];
+}

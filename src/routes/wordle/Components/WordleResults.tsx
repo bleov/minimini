@@ -38,9 +38,9 @@ export default function WordleResults({ open, onClose, onOpenLeaderboard, data, 
           >
             Admire Puzzle
           </Button>
-          {/*<Button onClick={onOpenLeaderboard} startIcon={<TrophyIcon />}>
+          <Button onClick={onOpenLeaderboard} startIcon={<TrophyIcon />}>
             Leaderboard
-          </Button>*/}
+          </Button>
           <Button
             appearance="default"
             startIcon={<ArrowLeftIcon />}
