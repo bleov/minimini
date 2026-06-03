@@ -248,6 +248,10 @@ ol li {
   min-width: 350px;
 }
 
+.xwd-keyboard {
+  padding-bottom: calc(5px + env(safe-area-inset-bottom));
+}
+
 @media (max-width: 900px) {
   #root {
     padding: 15px !important;

@@ -33,6 +33,7 @@ export default function VirtualKeyboard({ handleKeyDown }: VirtualKeyboardProps)
       }}
       layoutName={keyboardLayout}
       autoUseTouchEvents={true}
+      theme="hg-theme-default xwd-keyboard"
     />
   );
 }
