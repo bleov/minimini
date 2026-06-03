@@ -42,6 +42,11 @@
   --rs-btn-primary-active-bg: black !important;
 }
 
+:root:has(.mini-container):has(.react-simple-keyboard:not(.hidden)) {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 .merriweather-bold {
   font-family: "Merriweather", serif !important;
   font-optical-sizing: auto;
