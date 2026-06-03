@@ -27,9 +27,9 @@ export default function VirtualKeyboard({ handleKeyDown }: VirtualKeyboardProps)
         numeric: ["1 2 3", "4 5 6", "7 8 9", "{abc} 0 {bksp}"]
       }}
       display={{
-        "{numbers}": "123",
-        "{abc}": "ABC",
-        "{bksp}": "⌫"
+        "{numbers}": "*",
+        "{abc}": "*",
+        "{bksp}": "*"
       }}
       layoutName={keyboardLayout}
       autoUseTouchEvents={true}

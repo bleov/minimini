@@ -138,6 +138,25 @@ ol li {
   width: 100vw;
   bottom: 0;
   left: 0;
+
+  .hg-functionBtn {
+    background-repeat: no-repeat !important;
+    background-position: 50% 50% !important;
+    background-size: 17px !important;
+    color: transparent;
+  }
+
+  .hg-button-bksp {
+    background-image: url("/icons/delete.svg") !important;
+  }
+
+  .hg-button-numbers {
+    background-image: url("/icons/hash.svg");
+  }
+
+  .hg-button-abc {
+    background-image: url("/icons/case-sensitive.svg");
+  }
 }
 
 .hg-functionBtn {
