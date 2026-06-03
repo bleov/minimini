@@ -9,32 +9,34 @@ import "@/css/Wordle.css";
 import usePersistence from "../hooks/usePersistence";
 import WordleResults from "./WordleResults";
 
+export const ROWS = 6;
+export const COLUMNS = 5;
+
 export default function Wordle({ data }: { data: WordleGame }) {
-  const [letters, setLetters] = useState(new Array(6).fill(0).map(() => new Array(5).fill("")));
+  const ALLOWED_LETTERS = "abcdefghijklmnopqrstuvwxyz".split("");
+  const END_MESSAGES = ["Genius", "Magnificent", "Impressive", "Splendid", "Great", "Phew"];
+
+  const [letters, setLetters] = useState(new Array(ROWS).fill(0).map(() => new Array(COLUMNS).fill("")));
   const [completeRows, setCompleteRows] = useState<number[]>([]);
   const [complete, setComplete] = useState(false);
   const [checking, setChecking] = useState(false);
   const [modalState, setModalState] = useState<"results" | "leaderboard" | null>(null);
-
   const toaster = useToaster();
 
-  const ALLOWED_LETTERS = "abcdefghijklmnopqrstuvwxyz".split("");
-  const END_MESSAGES = ["Genius", "Magnificent", "Impressive", "Splendid", "Great", "Phew"];
-
   const answer = data.solution.toLowerCase();
-  const states = new Array(6).fill(0).map(() => new Array(5).fill(""));
+  const states = new Array(ROWS).fill(0).map(() => new Array(COLUMNS).fill(""));
   const currentRow = completeRows.length;
   const currentSpace = letters[currentRow]?.findIndex((x) => x === "") ?? -1;
   let resultText = "???";
   if (complete && !checking) {
-    if (completeRows.length === 6 && letters[letters.length - 1].join("").toLowerCase() !== answer) {
+    if (completeRows.length === ROWS && letters[letters.length - 1].join("").toLowerCase() !== answer) {
       resultText = answer.toUpperCase();
     } else {
       resultText = END_MESSAGES[completeRows.length - 1];
     }
   }
 
-  if (currentRow === 6 && currentSpace === -1 && !complete && !checking) {
+  if (currentRow === ROWS && currentSpace === -1 && !complete && !checking) {
     setComplete(true);
   }
 
@@ -81,7 +83,7 @@ export default function Wordle({ data }: { data: WordleGame }) {
     if (complete) return;
     if (checking) return;
     const word = letters[currentRow].join("").toLowerCase();
-    if (word.length < 5) {
+    if (word.length < COLUMNS) {
       toast("Not enough letters");
       return;
     }
@@ -93,7 +95,7 @@ export default function Wordle({ data }: { data: WordleGame }) {
     setCompleteRows([...completeRows, currentRow]);
     setTimeout(() => {
       setChecking(false);
-    }, 350 * 5);
+    }, 350 * COLUMNS);
   }
 
   function handleKeyDown(event: KeyboardEvent) {
@@ -111,7 +113,7 @@ export default function Wordle({ data }: { data: WordleGame }) {
       if (currentSpace > 0) {
         newLetters[currentRow][currentSpace - 1] = "";
       } else if (currentSpace === -1) {
-        newLetters[currentRow][4] = "";
+        newLetters[currentRow][COLUMNS - 1] = "";
       }
       setLetters(newLetters);
       return;
