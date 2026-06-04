@@ -268,7 +268,9 @@ export default function CustomPage({ type }: CustomPageProps) {
           <Image src={`/icons/custom_${type}/pwa-192x192.png`} width={48} />
         </Center>
         <Heading level={1} className="merriweather-display">
-          Custom Puzzles
+          Custom {type.substring(0, 1).toUpperCase()}
+          {type.substring(1)}
+          {!type.endsWith("s") ? "s" : ""}
         </Heading>
       </VStack>
       <Center width={"100%"}>

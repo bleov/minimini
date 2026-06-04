@@ -1,4 +1,19 @@
-import { ButtonGroup, Card, CardGroup, Heading, HStack, Image, Text, Center, Badge, VStack, IconButton, Whisper, Tooltip } from "rsuite";
+import {
+  ButtonGroup,
+  Card,
+  CardGroup,
+  Heading,
+  HStack,
+  Image,
+  Text,
+  Center,
+  Badge,
+  VStack,
+  IconButton,
+  Whisper,
+  Tooltip,
+  useBreakpointValue
+} from "rsuite";
 import { Link, useLocation } from "react-router";
 import { useEffect, useState } from "react";
 
@@ -18,13 +33,23 @@ interface LinkCardProps {
   link: string;
   disabled?: boolean;
   badgeContent?: string;
+  small?: boolean;
   children?: React.ReactNode;
 }
 
-function LinkCard({ title, description, imageSrc, link, disabled, badgeContent, children }: LinkCardProps) {
+function LinkCard({ title, description, imageSrc, link, disabled, badgeContent, small, children }: LinkCardProps) {
+  const classList = ["link-card"];
+
+  if (disabled) {
+    classList.push("link-card-disabled");
+  }
+  if (small) {
+    classList.push("link-card-small");
+  }
+
   return (
-    <Link to={link} aria-disabled={disabled} className={disabled ? "link-card-disabled" : "link-card"}>
-      <Card shaded direction="row">
+    <Link to={link} aria-disabled={disabled} className={classList.join(" ")}>
+      <Card shaded direction={"row"} alignItems={small ? "center" : "unset"}>
         <Image src={imageSrc} width={"100%"} height={50} fit="contain" draggable={false} alignSelf={"center"}></Image>
         <VStack spacing={0}>
           <Card.Header>
@@ -35,7 +60,7 @@ function LinkCard({ title, description, imageSrc, link, disabled, badgeContent, 
               {badgeContent && <Badge content={badgeContent} />}
             </HStack>
           </Card.Header>
-          <Card.Body>{description} </Card.Body>
+          {!small && <Card.Body>{description}</Card.Body>}
         </VStack>
         {children}
       </Card>
@@ -46,7 +71,7 @@ function LinkCard({ title, description, imageSrc, link, disabled, badgeContent, 
 export default function Index() {
   const [modalState, setModalState] = useState<"account" | "friends" | "sign-in" | "notifications" | null>(null);
   const location = useLocation();
-  const navigate = useNavigate();
+  const columns = useBreakpointValue({ xs: 1, sm: 1, md: 2 });
 
   useEffect(() => {
     document.title = "Glyph – Daily word games";
@@ -98,7 +123,7 @@ export default function Index() {
           </ButtonGroup>
         </Center>
       </div>
-      <CardGroup columns={2} className="game-cards" spacing={10}>
+      <CardGroup columns={columns} className={`game-cards${columns === 1 ? " vertical" : ""}`} spacing={10}>
         <LinkCard title="The Mini" description="Tiny crossword puzzles" link="/mini" imageSrc="/icons/mini/pwa-192x192.png" />
         <LinkCard title="The Midi" description="Medium crossword puzzles" link="/midi" imageSrc="/icons/midi/pwa-192x192.png" />
         <LinkCard title="The Daily" description="Large crossword puzzles" link="/daily" imageSrc="/icons/daily/pwa-192x192.png" />
@@ -117,17 +142,46 @@ export default function Index() {
           </Center>
         </LinkCard>
         <LinkCard
-          title="Custom Crosswords"
-          description="Create your own crossword"
-          link="/custom/crosswords"
-          imageSrc="/icons/custom_crossword/pwa-192x192.png"
+          title="Wordle"
+          description="Guess the 5-letter word"
+          link="/wordle/today"
+          imageSrc="/icons/wordle/pwa-192x192.png"
+          badgeContent="New"
         />
-        <LinkCard
-          title="Custom Connections"
-          description="Create your own connections"
-          link="/custom/connections"
-          imageSrc="/icons/custom_connections/pwa-192x192.png"
-        />
+
+        {columns === 1 ? (
+          <>
+            <LinkCard
+              title="Custom Crosswords"
+              description="Create your own crosswords"
+              link="/custom/crosswords"
+              imageSrc="/icons/custom_crossword/pwa-192x192.png"
+            />
+            <LinkCard
+              title="Custom Connections"
+              description="Create your own connections"
+              link="/custom/connections"
+              imageSrc="/icons/custom_connections/pwa-192x192.png"
+            />
+          </>
+        ) : (
+          <CardGroup columns={columns} spacing={5} className="game-cards">
+            <LinkCard
+              title="Custom Crosswords"
+              description=""
+              link="/custom/crosswords"
+              imageSrc="/icons/custom_crossword/pwa-192x192.png"
+              small
+            />
+            <LinkCard
+              title="Custom Connections"
+              description=""
+              link="/custom/connections"
+              imageSrc="/icons/custom_connections/pwa-192x192.png"
+              small
+            />
+          </CardGroup>
+        )}
       </CardGroup>
     </main>
   );

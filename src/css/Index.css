@@ -42,10 +42,35 @@
     color: unset !important;
   }
 
+  .link-card:not(.link-card-small) {
+    width: 305px;
+  }
+
   .link-card-disabled {
     opacity: 70%;
     user-select: none;
     pointer-events: none;
+  }
+
+  .link-card-small {
+    .rs-image {
+      width: 43px;
+      height: 43px;
+      margin-inline-start: 5px !important;
+    }
+    .rs-text-bold {
+      font-size: 14px;
+    }
+    .rs-card-header {
+      padding-inline-start: 5px !important;
+    }
+  }
+
+  .game-cards.vertical {
+    .link-card {
+      width: min(290px, 90%);
+      margin-inline: auto;
+    }
   }
 
   .rs-card[data-direction="row"] {
@@ -74,17 +99,4 @@
 
 #root:has(.index) {
   width: 95vw;
-}
-
-@media (max-width: 680px) {
-  .index {
-    .game-cards {
-      grid-template-columns: 1fr;
-
-      .rs-card {
-        width: min(290px, 90%);
-        margin-inline: auto;
-      }
-    }
-  }
 }
