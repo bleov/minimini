@@ -121,7 +121,7 @@ export default function WordleLeaderboard({
       }}
     >
       <ModalHeader />
-      <Modal.Body height={300} overflowY={"auto"}>
+      <Modal.Body height={300} overflowY={"auto"} overflowX={"hidden"}>
         <div className="leaderboard-container" style={{ minWidth: "320px" }}>
           {data && !loading && (
             <>
