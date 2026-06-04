@@ -223,6 +223,8 @@ ol li {
 
 .overlay {
   pointer-events: none;
+  position: absolute;
+  z-index: 2;
 }
 
 .rebus {

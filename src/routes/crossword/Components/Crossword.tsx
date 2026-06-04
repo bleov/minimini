@@ -43,6 +43,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
   const [boardHeight, setBoardHeight] = useState(0);
   const [rebusMode, setRebusMode] = useState<boolean>(false);
   const [rebusText, setRebusText] = useState<string>("");
+  const [overlayURL, setOverlayURL] = useState<string>("");
 
   const rebusRef = useRef<HTMLInputElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
@@ -409,7 +410,9 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
       next,
       nextEditableClue,
       arrowKey,
-      checkBoard
+      checkBoard,
+      overlayURL,
+      setOverlayURL
     }),
     [
       alreadyCompleted,
@@ -438,7 +441,8 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
       stateDocId,
       timeRef,
       type,
-      user
+      user,
+      overlayURL
     ]
   );
 
@@ -476,7 +480,8 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
     setAutoCheck,
     setRebusText,
     nextEditableClue,
-    exit
+    exit,
+    overlayURL
   } = contextValue;
 
   const { activateRebusMode, handleKeyDown } = useInput();
@@ -570,7 +575,10 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
         className={`mini-container${!(keyboardOpen && selected !== null) ? "" : " keyboard-open"}`}
       >
         <VStack className="board-container">
-          <div ref={boardRef} className={`board board-${type}`} dangerouslySetInnerHTML={{ __html: body.board }}></div>
+          <div className={`board board-${type}`}>
+            {overlayURL !== "" && <img src={overlayURL} className="overlay" style={{ height: boardHeight - 5 }}></img>}
+            <div className="board-content" ref={boardRef} dangerouslySetInnerHTML={{ __html: body.board }}></div>
+          </div>
           <HStack justifyContent={"center"} className="toggle-container">
             {!options.includes("hardcore") ? (
               <>

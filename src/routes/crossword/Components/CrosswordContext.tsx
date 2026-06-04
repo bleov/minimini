@@ -40,6 +40,7 @@ export interface CrosswordContextValue {
   alreadyCompleted: boolean;
   letters: string[];
   exit: (destination?: string) => void;
+  overlayURL: string;
 
   setSelected: Dispatch<SetStateAction<number | null>>;
   setDirection: Dispatch<SetStateAction<"across" | "down">>;
@@ -49,6 +50,7 @@ export interface CrosswordContextValue {
   setAutoCheck: Dispatch<SetStateAction<boolean>>;
   setRebusMode: Dispatch<SetStateAction<boolean>>;
   setRebusText: Dispatch<SetStateAction<string>>;
+  setOverlayURL: Dispatch<SetStateAction<string>>;
 
   getCellsInDirection: (start: number, dir: "across" | "down") => number[];
   checkCell: (cellIndex: number) => boolean;

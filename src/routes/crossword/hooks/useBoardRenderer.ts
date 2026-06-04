@@ -16,7 +16,8 @@ export function useBoardRenderer() {
     setDirection,
     setSelected,
     getCellsInDirection,
-    checkCell
+    checkCell,
+    setOverlayURL
   } = useCrosswordContext();
 
   useLayoutEffect(() => {
@@ -113,12 +114,15 @@ export function useBoardRenderer() {
       if ((startOverlay && solveOverlay && !complete) || (startOverlay && !solveOverlay)) {
         const overlay = document.createElement("image");
         boardRef.current.querySelector("svg")?.appendChild(overlay);
-        overlay.outerHTML = `<image href="${startOverlay}" width="100%" height="100%" class="overlay"></image>`;
+        setOverlayURL(startOverlay);
       }
       if (solveOverlay && complete) {
         const overlay = document.createElement("image");
         boardRef.current.querySelector("svg")?.appendChild(overlay);
-        overlay.outerHTML = `<image href="${solveOverlay}" width="100%" height="100%" class="overlay"></image>`;
+        setOverlayURL(solveOverlay);
+      }
+      if (!startOverlay && !solveOverlay) {
+        setOverlayURL("");
       }
     }
   });
