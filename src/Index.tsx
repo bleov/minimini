@@ -141,13 +141,15 @@ export default function Index() {
             </Whisper>
           </Center>
         </LinkCard>
-        <LinkCard
-          title="Wordle"
-          description="Guess the 5-letter word"
-          link="/wordle/today"
-          imageSrc="/icons/wordle/pwa-192x192.png"
-          badgeContent="New"
-        />
+        <LinkCard title="Wordle" description="Guess the 5-letter word" link="/wordle/today" imageSrc="/icons/wordle/pwa-192x192.png">
+          <Center paddingRight={17}>
+            <Whisper placement="top" speaker={<Tooltip>Archive</Tooltip>}>
+              <Link to={"/wordle/archive"}>
+                <IconButton icon={<ArchiveIcon />} />
+              </Link>
+            </Whisper>
+          </Center>
+        </LinkCard>
 
         {columns === 1 ? (
           <>

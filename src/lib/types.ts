@@ -81,6 +81,7 @@ export interface BasicArchiveRecord {
   daily_id: number;
   midi_id: number;
   connections_id: number;
+  wordle_id: number;
   id: string;
 }
 

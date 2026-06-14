@@ -1,7 +1,7 @@
 import { pb } from "@/main";
 import { BellIcon, MegaphoneIcon, XIcon } from "lucide-react";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
-import { Badge, HStack, IconButton, List, Modal, Text } from "rsuite";
+import { HStack, IconButton, List, Modal, Text } from "rsuite";
 import Nudge from "./Nudge";
 
 interface NotificationsProps {

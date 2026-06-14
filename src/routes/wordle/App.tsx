@@ -5,6 +5,7 @@ import { Center, Content, Loader, Text } from "rsuite";
 import { pb } from "@/main";
 import { useParams } from "react-router";
 import posthog from "posthog-js";
+import WordleArchive from "./Components/WordleArchive";
 // import WordleArchive from "./Components/WordleArchive";
 
 export default function App({ custom = false }: { custom?: boolean }) {
@@ -83,7 +84,7 @@ export default function App({ custom = false }: { custom?: boolean }) {
   }
 
   if (isArchive) {
-    return <Content className="wordle">{/*<ConnectionsArchive />*/}</Content>;
+    return <Content className="connections">{<WordleArchive />}</Content>;
   }
 
   return <Content className="wordle">{data ? <Wordle data={data} /> : <Loader center />}</Content>;
