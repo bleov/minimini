@@ -6,13 +6,14 @@ routerAdd("GET", "/api/notifications/list", (e) => {
     return e.json(401, { error: "Unauthorized" });
   }
 
-  var notifications = $app.findRecordsByFilter("notifications", `(recipients ?~ "${user.id}" || global = true) && seen ?!~ "${user.id}"`, "-created", 20);
+  var notifications = $app.findRecordsByFilter("notifications", `(recipients ?~ "${user.id}" || global = true) && cleared ?!~ "${user.id}"`, "-created", 20);
   var response = notifications.map((notification) => {
     return {
       global: notification.get("global"),
       id: notification.get("id"),
       title: notification.get("title"),
       body: notification.get("body"),
+      unread: !(notification.get("viewed") || []).includes(user.id),
       created: notification.get("created")
     }
   })
@@ -20,6 +21,12 @@ routerAdd("GET", "/api/notifications/list", (e) => {
     if (!n.global) return true;
     return new Date(n.created).getTime() > new Date(user.get("created")).getTime()
   })
+
+  notifications.forEach((notification) => {
+    notification.set("viewed", [...(notification.get("viewed") || []), user.id]);
+    $app.save(notification);
+  })
+
   return e.json(200, response);
 });
 
@@ -29,14 +36,13 @@ routerAdd("GET", "/api/notifications/unread", (e) => {
     return e.json(401, { error: "Unauthorized" });
   }
 
-  var notifications = $app.findRecordsByFilter("notifications", `(recipients ?~ "${user.id}" || global = true) && seen ?!~ "${user.id}"`, "-created", 10);
+  var notifications = $app.findRecordsByFilter("notifications", `(recipients ?~ "${user.id}" || global = true) && viewed ?!~ "${user.id}"`, "-created", 10);
   notifications = notifications.filter(n => !(n.get("global") && new Date(n.get("created")).getTime() < new Date(user.get("created")).getTime()))
   var response = notifications.length
   return e.json(200, response);
 });
 
-
-routerAdd("POST", "/api/notifications/{id}/read", (e) => {
+routerAdd("POST", "/api/notifications/{id}/clear", (e) => {
   let user = e.auth;
   if (!user) {
     return e.json(401, { error: "Unauthorized" });
@@ -55,10 +61,10 @@ routerAdd("POST", "/api/notifications/{id}/read", (e) => {
     }
   }
 
-  var seen = notification.get("seen") || [];
-  if (!seen.includes(user.id)) {
-    seen.push(user.id);
-    notification.set("seen", seen);
+  var cleared = notification.get("cleared") || [];
+  if (!cleared.includes(user.id)) {
+    cleared.push(user.id);
+    notification.set("cleared", cleared);
     $app.save(notification);
   }
 
@@ -68,7 +74,7 @@ routerAdd("POST", "/api/notifications/{id}/read", (e) => {
 cronAdd("clean_notifications", "0 * * * *", () => {
   // remove non-global notifications seen by all recipients
 
-  var notifications = $app.findRecordsByFilter("notifications", "global = false && seen != null && recipients != null && seen:length >= recipients:length");
+  var notifications = $app.findRecordsByFilter("notifications", "global = false && cleared != null && recipients != null && cleared:length >= recipients:length");
   notifications.forEach((notification) => {
     $app.delete(notification);
   });

@@ -1,7 +1,7 @@
 import { pb } from "@/main";
 import { BellIcon, MegaphoneIcon, XIcon } from "lucide-react";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
-import { HStack, IconButton, List, Modal, Text } from "rsuite";
+import { Badge, HStack, IconButton, List, Modal, Text } from "rsuite";
 import Nudge from "./Nudge";
 
 interface NotificationsProps {
@@ -15,6 +15,7 @@ interface NotificationRecord {
   body: string;
   created: Date;
   global: boolean;
+  unread: boolean;
 }
 
 function getAgeString(then: Date) {
@@ -64,7 +65,7 @@ function Notification({
           loading={loading}
           onClick={() => {
             setLoading(true);
-            pb.send(`/api/notifications/${notification.id}/read`, { method: "POST" })
+            pb.send(`/api/notifications/${notification.id}/clear`, { method: "POST" })
               .then(() => {
                 setData((data) => {
                   return [...data].filter((n) => n.id !== notification.id);

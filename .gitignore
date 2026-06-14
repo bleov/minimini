@@ -35,3 +35,4 @@ pocketbase.bin
 bot/puppeteer-data
 bot/out.log
 bot/import
+bot/out
