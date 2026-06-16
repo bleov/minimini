@@ -49,7 +49,6 @@ import {
 const defaultSortValues = {
   Completions: "completions",
   Difficulty: "avg_rating",
-  "Date Created": "created",
   "Date Updated": "updated",
   Title: "title"
 };
@@ -273,7 +272,12 @@ function SortOptions({
 
 function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
   const [data, setData] = useState<CustomPuzzleData[]>([]);
-  const [sort, setSort] = useState("-completions");
+  const [sort, setSort] = useState(() => {
+    if (type === "user") {
+      return "-updated";
+    }
+    return "-completions";
+  });
   const [loading, setLoading] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const lastLength = useRef(8);
@@ -337,6 +341,16 @@ function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
     puzzles = results.map((result) => result.item);
   }
 
+  let sortValues: Record<string, string> = defaultSortValues;
+  if (type === "user") {
+    sortValues = {
+      "Dated Updated": "updated",
+      "Date Created": "created",
+      Title: "title",
+      Completions: "completions"
+    };
+  }
+
   return (
     <>
       <Stack
@@ -349,7 +363,7 @@ function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
         className="custom-puzzle-search-container"
       >
         <Input placeholder="Find puzzles" value={searchValue} onChange={setSearchValue}></Input>
-        <SortOptions setSort={setSort} disabled={searchValue.trim() !== ""} />
+        <SortOptions setSort={setSort} sortValues={sortValues} disabled={searchValue.trim() !== ""} />
       </Stack>
       <Grid fluid>
         <Row gutter={10} width={"100%"}>
