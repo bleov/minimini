@@ -152,7 +152,7 @@ export default function Index() {
         </LinkCard>
         <LinkCard
           title="Custom Puzzles"
-          description="Create and share custom games"
+          description="Create and share puzzles"
           link="/custom"
           imageSrc="/icons/custom_crossword/pwa-192x192.png"
         />
