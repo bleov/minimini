@@ -288,6 +288,27 @@ canvas {
   overflow-y: scroll;
 }
 
+@media (max-width: 630px) {
+  #root:has(.custom-puzzles-container) {
+    width: 95vw;
+  }
+  .custom-puzzles-container {
+    overflow-y: auto;
+    .rs-panel-body {
+      padding: 0;
+    }
+    .rs-grid-container-fluid {
+      padding-inline-end: 0px;
+    }
+    .rs-col {
+      padding-inline-end: 1px;
+    }
+  }
+  .custom-puzzle-search-container {
+    padding-inline-end: 5px !important;
+  }
+}
+
 .custom-puzzle-list {
   width: min(95vw, 400px);
 

@@ -244,7 +244,7 @@ function SortOptions({
   }, [sortValue, sortOrder]);
 
   return (
-    <Stack direction={{ xs: "column", sm: "row" }} spacing={5}>
+    <Stack direction="row" spacing={5}>
       <SelectPicker
         searchable={false}
         data={Object.entries(sortValues).map(([label, value]) => ({ label, value }))}
@@ -346,6 +346,7 @@ function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
         paddingRight={15}
         paddingTop={0}
         paddingBottom={10}
+        className="custom-puzzle-search-container"
       >
         <Input placeholder="Find puzzles" value={searchValue} onChange={setSearchValue}></Input>
         <SortOptions setSort={setSort} disabled={searchValue.trim() !== ""} />
