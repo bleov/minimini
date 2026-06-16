@@ -94,9 +94,7 @@ function Main() {
 
             <Route path="/cascades" element={<Cascades />} />
 
-            <Route path="/custom" element={<Navigate to="/custom/crosswords" replace />} />
-            <Route path="/custom/crosswords" element={<CustomPage type="crossword" />} />
-            <Route path="/custom/connections" element={<CustomPage type="connections" />} />
+            <Route path="/custom" element={<CustomPage />} />
             <Route path="/custom/:id/edit" element={<CreateRouter />}></Route>
             <Route path="/custom/:id" element={<GameRouter />}></Route>
 

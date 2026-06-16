@@ -1,38 +1,47 @@
 import Nudge from "@/Components/Nudge";
 import type { CustomPuzzleData } from "@/lib/types";
 import { pb } from "@/main";
+import Fuse from "fuse.js";
 import {
   ArrowLeftIcon,
   ArrowUpDownIcon,
+  CircleXIcon,
   ExternalLinkIcon,
-  FilterIcon,
+  EyeIcon,
+  HistoryIcon,
+  Link2Icon,
   LogInIcon,
   PencilIcon,
-  PlayIcon,
   PlusIcon,
   ShareIcon,
   SortAscIcon,
   SortDescIcon,
   StarIcon,
-  TrashIcon,
-  TrophyIcon
+  Trash2Icon,
+  TrophyIcon,
+  UserIcon
 } from "lucide-react";
 import posthog from "posthog-js";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import {
   Button,
   ButtonGroup,
-  ButtonToolbar,
-  Center,
+  Card,
+  Col,
+  Grid,
   Heading,
   HStack,
   IconButton,
   Image,
-  List,
+  Input,
+  Panel,
   Placeholder,
+  Row,
   SelectPicker,
   Stack,
+  Tab,
+  Tabs,
   Text,
   useDialog,
   VStack
@@ -41,12 +50,183 @@ import {
 const defaultSortValues = {
   Completions: "completions",
   Difficulty: "avg_rating",
-  "Date Created": "created",
   "Date Updated": "updated",
   Title: "title"
 };
 
-function SortOptions({ setSort, sortValues }: { setSort: (sort: string) => void; sortValues?: Record<string, string> }) {
+function CreateCard() {
+  const [createLoading, setCreateLoading] = useState(false);
+  const navigate = useNavigate();
+
+  function createPuzzle(type: string) {
+    if (createLoading) return;
+    setCreateLoading(true);
+    posthog.capture("create_custom_puzzle");
+    let idDigits = new Array(15)
+      .fill(0)
+      .map(() => Math.floor(Math.random() * 9))
+      .join("");
+    if (idDigits.startsWith("0")) {
+      idDigits = "1" + idDigits.slice(1);
+    }
+    pb.collection("custom_puzzles")
+      .create({
+        id: idDigits,
+        title: "Untitled Puzzle",
+        author: pb.authStore.record?.id,
+        puzzle: null,
+        public: false,
+        type,
+        shape: null
+      })
+      .then((record) => {
+        setCreateLoading(false);
+        navigate(`/custom/${record.id}/edit`);
+      })
+      .catch((err) => {
+        setCreateLoading(false);
+        console.error(err);
+      });
+  }
+
+  if (!pb.authStore.isValid) {
+    return (
+      <Nudge
+        body="Sign in to create and share your own puzzles"
+        color="#3C6FD3"
+        className="custom-puzzle-nudge icon-bg"
+        width={"100%"}
+        cta={
+          <Link to="/#sign-in">
+            <Button startIcon={<LogInIcon />} appearance="ghost">
+              Sign In
+            </Button>
+          </Link>
+        }
+      />
+    );
+  }
+
+  return (
+    <Card bordered height={"100%"} className="puzzle-card">
+      <ButtonGroup vertical>
+        <Button startIcon={<PlusIcon />} textAlign={"left"} onClick={() => createPuzzle("mini")} loading={createLoading}>
+          Crossword
+        </Button>
+        <Button startIcon={<PlusIcon />} textAlign={"left"} onClick={() => createPuzzle("connections")} loading={createLoading}>
+          Connections
+        </Button>
+      </ButtonGroup>
+    </Card>
+  );
+}
+
+function PlaceholderCard() {
+  return (
+    <Card bordered height={"100%"} className="puzzle-card">
+      <Card.Header>
+        <Placeholder.Paragraph rows={1} active rowHeight={20} rowSpacing={0} />
+      </Card.Header>
+      <Card.Body>
+        <Placeholder.Paragraph rows={2} active rowHeight={20} rowSpacing={0} />
+      </Card.Body>
+      <Card.Footer>
+        <Placeholder.Paragraph rows={1} active rowHeight={20} rowSpacing={0} />
+      </Card.Footer>
+    </Card>
+  );
+}
+
+function EditToolbar({ data }: { data: CustomPuzzleData }) {
+  const navigate = useNavigate();
+  const dialog = useDialog();
+
+  return (
+    <ButtonGroup justified width={"100%"}>
+      <IconButton
+        icon={<PencilIcon />}
+        onClick={() => {
+          navigate(`/custom/${data.id}/edit`);
+        }}
+      />
+      <IconButton
+        icon={<Trash2Icon />}
+        onClick={async () => {
+          if (await dialog.confirm(`"${data.title}" will be permanently deleted.`, { title: "Are you sure?" })) {
+            posthog.capture("delete_custom_puzzle", { puzzleId: data.id });
+            pb.collection("custom_puzzles")
+              .delete(data.id)
+              .then(() => {
+                location.reload();
+              })
+              .catch((err) => {
+                console.error(err);
+              });
+          }
+        }}
+      />
+      <IconButton
+        icon={"share" in navigator ? <ShareIcon /> : <ExternalLinkIcon />}
+        onClick={() => {
+          const shareData = {
+            title: data.title,
+            url: `${window.location.origin}/custom/${data.id}`
+          };
+          if ("share" in navigator && navigator.canShare(shareData)) {
+            navigator.share(shareData);
+          } else {
+            location.href = `/custom/${data.id}`;
+          }
+        }}
+      />
+    </ButtonGroup>
+  );
+}
+
+function PuzzleCard({ data, containerType }: { data: CustomPuzzleData; containerType: string }) {
+  const content = (
+    <Card bordered height={"100%"} className="puzzle-card">
+      <Card.Header>
+        <Text>{data.title}</Text>
+      </Card.Header>
+      <Card.Body>
+        {containerType === "user" ? (
+          <Text>
+            {data.public ? <EyeIcon /> : <Link2Icon />} {data.public ? "Public" : "Unlisted"}
+          </Text>
+        ) : (
+          <Text>by {data.author_name}</Text>
+        )}
+        <Text>
+          <TrophyIcon /> {data.completions} <StarIcon /> {data.avg_rating.toFixed(1)}
+        </Text>
+      </Card.Body>
+      <Card.Footer>
+        <VStack spacing={10} width={"100%"}>
+          <Text muted>
+            <HistoryIcon /> {new Date(data.updated).toLocaleDateString()}
+          </Text>
+          {containerType === "user" && <EditToolbar data={data} />}
+        </VStack>
+      </Card.Footer>
+    </Card>
+  );
+
+  if (containerType === "user") {
+    return content;
+  }
+  return <Link to={`/custom/${data.id}`}>{content}</Link>;
+}
+
+function SortOptions({
+  setSort,
+  sortValues,
+  disabled = false
+}: {
+  setSort: (sort: string) => void;
+  sortValues?: Record<string, string>;
+  disabled?: boolean;
+}) {
   const [sortValue, setSortValue] = useState<string>(Object.values(sortValues ?? defaultSortValues)[0] || "completions");
   const [sortOrder, setSortOrder] = useState<string>("-");
 
@@ -64,7 +244,7 @@ function SortOptions({ setSort, sortValues }: { setSort: (sort: string) => void;
   }, [sortValue, sortOrder]);
 
   return (
-    <HStack spacing={5}>
+    <Stack direction="row" spacing={5}>
       <SelectPicker
         searchable={false}
         data={Object.entries(sortValues).map(([label, value]) => ({ label, value }))}
@@ -74,6 +254,7 @@ function SortOptions({ setSort, sortValues }: { setSort: (sort: string) => void;
         }}
         cleanable={false}
         label={<ArrowUpDownIcon />}
+        disabled={disabled}
       />
       <SelectPicker
         searchable={false}
@@ -84,279 +265,188 @@ function SortOptions({ setSort, sortValues }: { setSort: (sort: string) => void;
         }}
         cleanable={false}
         label={sortOrder === "-" ? <SortDescIcon /> : <SortAscIcon />}
+        disabled={disabled}
       />
-    </HStack>
+    </Stack>
   );
 }
 
-function UserPuzzles({ userPuzzles }: { userPuzzles: CustomPuzzleData[] }) {
-  const [userSort, setUserSort] = useState<string>("-updated");
-  const navigate = useNavigate();
-  const dialog = useDialog();
-
-  const puzzles = useMemo(() => {
-    return userPuzzles.sort((a, b) => {
-      const sortKey = userSort.replace(/^-|\+/, "");
-      const sortOrder = userSort.startsWith("-") ? -1 : 1;
-      if (sortKey === "title") {
-        return a.title.localeCompare(b.title) * sortOrder;
-      }
-      if (sortKey === "created" || sortKey === "updated") {
-        return (new Date(a[sortKey]).getTime() - new Date(b[sortKey]).getTime()) * sortOrder;
-      }
-      return ((a as any)[sortKey] - (b as any)[sortKey]) * sortOrder;
-    });
-  }, [userPuzzles, userSort]);
-
-  return (
-    <VStack spacing={10} className="custom-puzzle-list">
-      <Heading level={3}>My Puzzles</Heading>
-      {puzzles.length > 0 ? (
-        <VStack spacing={5}>
-          <SortOptions
-            setSort={setUserSort}
-            sortValues={{
-              "Dated Updated": "updated",
-              "Date Created": "created",
-              Title: "title"
-            }}
-          />
-          <List bordered maxHeight={56 * 5 + 6}>
-            {puzzles.map((puzzle) => (
-              <List.Item key={puzzle.id}>
-                <HStack justifyContent="space-between" spacing={15}>
-                  <VStack spacing={0}>
-                    <Text className="puzzle-title">{puzzle.title}</Text>
-                    <Text muted>{puzzle.public ? "Public" : "Private"}</Text>
-                  </VStack>
-                  <ButtonGroup width={"fit-content"}>
-                    <IconButton
-                      icon={"share" in navigator ? <ShareIcon /> : <ExternalLinkIcon />}
-                      onClick={() => {
-                        const shareData = {
-                          title: puzzle.title,
-                          url: `${window.location.origin}/custom/${puzzle.id}`
-                        };
-                        if ("share" in navigator && navigator.canShare(shareData)) {
-                          navigator.share(shareData);
-                        } else {
-                          location.href = `/custom/${puzzle.id}`;
-                        }
-                      }}
-                    />
-                    <IconButton
-                      icon={<PencilIcon />}
-                      onClick={() => {
-                        navigate(`/custom/${puzzle.id}/edit`);
-                      }}
-                    />
-                    <IconButton
-                      icon={<TrashIcon />}
-                      onClick={async () => {
-                        if (await dialog.confirm(`"${puzzle.title}" will be permanently deleted.`, { title: "Are you sure?" })) {
-                          posthog.capture("delete_custom_puzzle", { puzzleId: puzzle.id });
-                          pb.collection("custom_puzzles")
-                            .delete(puzzle.id)
-                            .then(() => {
-                              location.reload();
-                            })
-                            .catch((err) => {
-                              console.error(err);
-                            });
-                        }
-                      }}
-                    />
-                  </ButtonGroup>
-                </HStack>
-              </List.Item>
-            ))}
-          </List>
-        </VStack>
-      ) : (
-        <Text align="center" width={"100%"}>
-          You haven't created any puzzles yet.
-        </Text>
-      )}
-    </VStack>
-  );
-}
-
-function PublicPuzzles({ puzzles, sort, setSort }: { puzzles: CustomPuzzleData[]; sort: string; setSort: (sort: string) => void }) {
-  return (
-    <VStack spacing={10} className="custom-puzzle-list">
-      <Heading level={3}>Public Puzzles</Heading>
-      <VStack spacing={5}>
-        <SortOptions setSort={setSort} />
-        <List bordered maxHeight={56 * 5 + 6}>
-          {puzzles.map((puzzle) => (
-            <List.Item key={puzzle.id}>
-              <HStack justifyContent="space-between" spacing={15}>
-                <VStack spacing={0}>
-                  <Text className="puzzle-title">{puzzle.title}</Text>
-                  <Text muted>
-                    <TrophyIcon /> {puzzle.completions} <StarIcon /> {puzzle.avg_rating.toFixed(1)} {puzzle.author_name}
-                  </Text>
-                </VStack>
-                <ButtonGroup width={"fit-content"}>
-                  <Link to={`/custom/${puzzle.id}`}>
-                    <IconButton icon={<PlayIcon />} />
-                  </Link>
-                </ButtonGroup>
-              </HStack>
-            </List.Item>
-          ))}
-          {puzzles.length === 0 &&
-            new Array(4).fill(0).map((_, i) => (
-              <List.Item key={i}>
-                <Placeholder.Paragraph rows={2} active />
-              </List.Item>
-            ))}
-        </List>
-      </VStack>
-    </VStack>
-  );
-}
-
-interface CustomPageProps {
-  type: "crossword" | "connections";
-}
-
-export default function CustomPage({ type }: CustomPageProps) {
-  const [userPuzzles, setUserPuzzles] = useState<CustomPuzzleData[]>([]);
-  const [puzzles, setPuzzles] = useState<CustomPuzzleData[]>([]);
-  const [createLoading, setCreateLoading] = useState(false);
-  const [sort, setSort] = useState("-completions");
-
-  const navigate = useNavigate();
-  let typeFilter = "";
-  let defaultType = "";
-
-  if (type === "connections") {
-    typeFilter = `type="connections"`;
-    defaultType = "connections";
-  } else {
-    typeFilter = `type!="connections"`;
-    defaultType = "mini";
+function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
+  const [data, setData] = useState<CustomPuzzleData[]>([]);
+  const [sort, setSort] = useState(() => {
+    if (type === "user") {
+      return "-updated";
+    }
+    return "-completions";
+  });
+  const [loading, setLoading] = useState(false);
+  const [loadingFailed, setLoadingFailed] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const lastLength = useRef(8);
+  if (type === "user") {
+    lastLength.current = 7;
   }
 
-  useEffect(() => {
-    pb.collection("custom_puzzle_data")
-      .getFullList({
-        fields: "id, author, author_name, title, public, type, created, updated, avg_rating, completions",
-        sort,
-        filter: typeFilter
-      })
-      .then((puzzles) => {
-        if (pb.authStore.isValid && pb.authStore.record) {
-          const userPuzzles = puzzles.filter((puzzle) => puzzle.author === pb.authStore.record?.id);
-          setUserPuzzles(userPuzzles as CustomPuzzleData[]);
-          puzzles = puzzles.filter((puzzle) => puzzle.public === true);
-        }
-        setPuzzles(puzzles as CustomPuzzleData[]);
-      });
-  }, [sort]);
+  const typeValues: Record<string, string> = {
+    crossword: "mini"
+  };
+  const puzzleData = pb.collection("custom_puzzle_data");
 
   useEffect(() => {
-    document.title = "Custom Puzzles - Glyph";
-    document.getElementById("favicon-svg")?.setAttribute("href", `/icons/custom_${type}/favicon.svg`);
-  }, []);
+    (async () => {
+      if (!pb.authStore.isValid && type === "user") {
+        setLoading(false);
+        setData([]);
+        return;
+      }
+      if (active) {
+        try {
+          setLoading(true);
+          let filter = "";
+          if (type !== "user") {
+            filter += `type="${typeValues[type] ?? type}"`;
+            filter += "&&public=true";
+          } else {
+            filter += `author="${pb.authStore.record?.id}"`;
+          }
+          const puzzles = await puzzleData.getFullList({
+            filter,
+            fields: "id,author_name,title,public,type,created,updated,avg_rating,completions",
+            sort
+          });
+          setData(puzzles as unknown as CustomPuzzleData[]);
+          lastLength.current = puzzles.length;
+        } catch (err) {
+          console.error(err);
+          setLoadingFailed(true);
+        } finally {
+          setLoading(false);
+        }
+      }
+    })();
+  }, [type, active, sort]);
+
+  const fuse = useMemo(() => {
+    const fuse = new Fuse(data, {
+      keys: [
+        { name: "title", weight: 2 },
+        { name: "author_name", weight: 1 }
+      ],
+      threshold: 0.3
+    });
+    return fuse;
+  }, [data]);
+
+  const cardSpan = {
+    xs: 24,
+    sm: 12,
+    md: 8,
+    lg: 6,
+    xl: 6,
+    xxl: 4
+  };
+
+  let puzzles = [...data];
+  if (searchValue) {
+    const results = fuse.search(searchValue);
+    puzzles = results.map((result) => result.item);
+  }
+
+  let sortValues: Record<string, string> = defaultSortValues;
+  if (type === "user") {
+    sortValues = {
+      "Date Updated": "updated",
+      "Date Created": "created",
+      Title: "title",
+      Completions: "completions"
+    };
+  }
+
+  if (loadingFailed) {
+    return (
+      <VStack alignItems={"center"} justifyContent={"center"} marginTop={30}>
+        <CircleXIcon fontSize={35} />
+        <Text size={"md"}>Something went wrong</Text>
+      </VStack>
+    );
+  }
 
   return (
-    <VStack spacing={15}>
-      <VStack spacing={3} width={"100%"}>
-        <Center width={"100%"}>
-          <Image src={`/icons/custom_${type}/pwa-192x192.png`} width={48} />
-        </Center>
-        <Heading level={1} className="merriweather-display">
-          Custom {type.substring(0, 1).toUpperCase()}
-          {type.substring(1)}
-          {!type.endsWith("s") ? "s" : ""}
-        </Heading>
-      </VStack>
-      <Center width={"100%"}>
-        {pb.authStore.isValid ? (
-          <ButtonToolbar>
-            <Button
-              startIcon={<ArrowLeftIcon />}
-              onClick={() => {
-                navigate("/");
-              }}
-            >
-              Back
-            </Button>
-            <Button
-              appearance="default"
-              startIcon={<PlusIcon />}
-              loading={createLoading}
-              onClick={() => {
-                if (createLoading) return;
-                setCreateLoading(true);
-                posthog.capture("create_custom_puzzle", { type });
-                let idDigits = new Array(15)
-                  .fill(0)
-                  .map(() => Math.floor(Math.random() * 9))
-                  .join("");
-                if (idDigits.startsWith("0")) {
-                  idDigits = "1" + idDigits.slice(1);
-                }
-                pb.collection("custom_puzzles")
-                  .create({
-                    id: idDigits,
-                    title: "Untitled Puzzle",
-                    author: pb.authStore.record?.id,
-                    puzzle: null,
-                    public: false,
-                    type: defaultType,
-                    shape: null
-                  })
-                  .then((record) => {
-                    setCreateLoading(false);
-                    navigate(`/custom/${record.id}/edit`);
-                  })
-                  .catch((err) => {
-                    setCreateLoading(false);
-                    console.error(err);
-                  });
-              }}
-            >
-              Create
-            </Button>
-          </ButtonToolbar>
-        ) : (
-          <VStack spacing={15}>
-            <ButtonToolbar width={"100%"} justify={"center"}>
-              <Button
-                startIcon={<ArrowLeftIcon />}
-                onClick={() => {
-                  navigate("/");
-                }}
-              >
-                Back
-              </Button>
-            </ButtonToolbar>
-            <Nudge
-              title="Sign in to create puzzles"
-              body="With an account, you can create and share custom crossword puzzles"
-              color="#3C6FD3"
-              className="custom-puzzle-nudge icon-bg"
-              cta={
-                <Link to="/#sign-in">
-                  <Button startIcon={<LogInIcon />} appearance="ghost">
-                    Sign In
-                  </Button>
-                </Link>
-              }
-            />
-          </VStack>
-        )}
-      </Center>
+    <>
+      <Stack
+        direction={{ xs: "column", sm: "column", md: "row" }}
+        width="100%"
+        paddingLeft={5}
+        paddingRight={15}
+        paddingTop={0}
+        paddingBottom={10}
+        className="custom-puzzle-search-container"
+      >
+        <Input placeholder="Find puzzles" value={searchValue} onChange={setSearchValue}></Input>
+        <SortOptions setSort={setSort} sortValues={sortValues} disabled={searchValue.trim() !== ""} />
+      </Stack>
+      <Grid fluid>
+        <Row gutter={10} width={"100%"}>
+          {type === "user" && searchValue.trim() === "" && (
+            <Col span={cardSpan}>
+              <CreateCard />
+            </Col>
+          )}
+          {loading &&
+            new Array(lastLength.current).fill(0).map((_, i) => (
+              <Col key={i} span={cardSpan}>
+                <PlaceholderCard />
+              </Col>
+            ))}
+          {!loading &&
+            puzzles.map((puzzle) => (
+              <Col key={puzzle.id} span={cardSpan}>
+                <PuzzleCard data={puzzle} containerType={type} />
+              </Col>
+            ))}
+        </Row>
+      </Grid>
+    </>
+  );
+}
 
-      <Center width={"100%"}>
-        <Stack direction={{ xs: "column", lg: "row" }} spacing={15}>
-          {pb.authStore.isValid && <UserPuzzles userPuzzles={userPuzzles} />}
-          <PublicPuzzles puzzles={puzzles} sort={sort} setSort={setSort} />
-        </Stack>
-      </Center>
-    </VStack>
+export default function CustomPage() {
+  const [activeTab, setActiveTab] = useState("crossword");
+
+  return (
+    <>
+      <HStack marginBottom={10}>
+        <Link to="/">
+          <IconButton icon={<ArrowLeftIcon />} appearance="subtle" />
+        </Link>
+        <Heading level={3} textAlign={"left"} fontWeight={"normal"}>
+          Custom Puzzles
+        </Heading>
+      </HStack>
+      <Panel bordered width={"100%"} height={"70vh"} className="custom-puzzles-container">
+        <Tabs activeKey={activeTab} onSelect={(e) => setActiveTab(e as string)}>
+          <Tab title="My Puzzles" eventKey="user" icon={<UserIcon />}>
+            <PuzzleGrid type="user" active={activeTab === "user"} />
+          </Tab>
+          <Tab
+            title="Crosswords"
+            eventKey="crossword"
+            icon={<Image src="/icons/midi/favicon.svg" width={16} height={16} draggable={false} />}
+          >
+            <PuzzleGrid type="crossword" active={activeTab === "crossword"} />
+          </Tab>
+          <Tab
+            title="Connections"
+            eventKey="connections"
+            icon={<Image src="/icons/connections/favicon.svg" width={16} height={16} draggable={false} />}
+          >
+            <PuzzleGrid type="connections" active={activeTab === "connections"} />
+          </Tab>
+          {/*<Tab title="Wordle" eventKey="wordle" icon={<Image src="/icons/wordle/favicon.svg" width={16} height={16} draggable={false} />}>
+            <PuzzleGrid type="wordle" active={activeTab === "wordle"} />
+          </Tab>*/}
+        </Tabs>
+      </Panel>
+    </>
   );
 }

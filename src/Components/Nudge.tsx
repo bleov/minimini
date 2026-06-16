@@ -2,8 +2,8 @@ import { Box, Card, HStack, Text, VStack } from "rsuite";
 import type { ReactElement } from "rsuite/esm/internals/types";
 
 interface NudgeProps {
-  title: string;
-  body: string;
+  title?: string;
+  body?: string;
   color: string;
   icon?: ReactElement;
   cta?: ReactElement;
@@ -20,10 +20,12 @@ export default function Nudge({ title, body, color, icon, cta, className, width 
     >
       <Card.Body>
         <VStack spacing={5}>
-          <Text weight="bold">
-            {icon && icon} {title}
-          </Text>
-          <Text>{body}</Text>
+          {title && (
+            <Text weight="bold">
+              {icon && icon} {title}
+            </Text>
+          )}
+          {body && <Text>{body}</Text>}
           {cta && <Box className="nudge-cta">{cta}</Box>}
         </VStack>
       </Card.Body>
