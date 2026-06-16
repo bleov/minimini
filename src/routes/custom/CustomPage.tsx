@@ -1,16 +1,28 @@
 import Nudge from "@/Components/Nudge";
 import type { CustomPuzzleData } from "@/lib/types";
 import { pb } from "@/main";
-import { ArrowLeftIcon, EyeIcon, EyeOffIcon, HistoryIcon, LogInIcon, PlusIcon, StarIcon, TrophyIcon, UserIcon } from "lucide-react";
+import {
+  ArrowLeftIcon,
+  ExternalLinkIcon,
+  EyeIcon,
+  HistoryIcon,
+  Link2Icon,
+  LogInIcon,
+  PencilIcon,
+  PlusIcon,
+  ShareIcon,
+  StarIcon,
+  Trash2Icon,
+  TrophyIcon,
+  UserIcon
+} from "lucide-react";
 import posthog from "posthog-js";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import {
   Button,
   ButtonGroup,
-  ButtonToolbar,
   Card,
-  Center,
   Col,
   Grid,
   Heading,
@@ -23,6 +35,7 @@ import {
   Tab,
   Tabs,
   Text,
+  useDialog,
   VStack
 } from "rsuite";
 
@@ -109,33 +122,85 @@ function PlaceholderCard() {
   );
 }
 
-function PuzzleCard({ data, containerType }: { data: CustomPuzzleData; containerType: string }) {
+function EditToolbar({ data }: { data: CustomPuzzleData }) {
+  const navigate = useNavigate();
+  const dialog = useDialog();
+
   return (
-    <Link to={`/custom/${data.id}${containerType === "user" ? "/edit" : ""}`}>
-      <Card bordered height={"100%"} className="puzzle-card">
-        <Card.Header>
-          <Text>{data.title}</Text>
-        </Card.Header>
-        <Card.Body>
-          {containerType === "user" ? (
-            <Text>
-              {data.public ? <EyeIcon /> : <EyeOffIcon />} {data.public ? "Public" : "Private"}
-            </Text>
-          ) : (
-            <Text>by {data.author_name}</Text>
-          )}
+    <ButtonGroup justified width={"100%"}>
+      <IconButton
+        icon={<PencilIcon />}
+        onClick={() => {
+          navigate(`/custom/${data.id}/edit`);
+        }}
+      />
+      <IconButton
+        icon={<Trash2Icon />}
+        onClick={async () => {
+          if (await dialog.confirm(`"${data.title}" will be permanently deleted.`, { title: "Are you sure?" })) {
+            posthog.capture("delete_custom_puzzle", { puzzleId: data.id });
+            pb.collection("custom_puzzles")
+              .delete(data.id)
+              .then(() => {
+                location.reload();
+              })
+              .catch((err) => {
+                console.error(err);
+              });
+          }
+        }}
+      />
+      <IconButton
+        icon={"share" in navigator ? <ShareIcon /> : <ExternalLinkIcon />}
+        onClick={() => {
+          const shareData = {
+            title: data.title,
+            url: `${window.location.origin}/custom/${data.id}`
+          };
+          if ("share" in navigator && navigator.canShare(shareData)) {
+            navigator.share(shareData);
+          } else {
+            location.href = `/custom/${data.id}`;
+          }
+        }}
+      />
+    </ButtonGroup>
+  );
+}
+
+function PuzzleCard({ data, containerType }: { data: CustomPuzzleData; containerType: string }) {
+  const content = (
+    <Card bordered height={"100%"} className="puzzle-card">
+      <Card.Header>
+        <Text>{data.title}</Text>
+      </Card.Header>
+      <Card.Body>
+        {containerType === "user" ? (
           <Text>
-            <TrophyIcon /> {data.completions} <StarIcon /> {data.avg_rating.toFixed(1)}
+            {data.public ? <EyeIcon /> : <Link2Icon />} {data.public ? "Public" : "Unlisted"}
           </Text>
-        </Card.Body>
-        <Card.Footer>
+        ) : (
+          <Text>by {data.author_name}</Text>
+        )}
+        <Text>
+          <TrophyIcon /> {data.completions} <StarIcon /> {data.avg_rating.toFixed(1)}
+        </Text>
+      </Card.Body>
+      <Card.Footer>
+        <VStack spacing={10} width={"100%"}>
           <Text muted>
             <HistoryIcon /> {new Date(data.updated).toLocaleDateString()}
           </Text>
-        </Card.Footer>
-      </Card>
-    </Link>
+          {containerType === "user" && <EditToolbar data={data} />}
+        </VStack>
+      </Card.Footer>
+    </Card>
   );
+
+  if (containerType === "user") {
+    return content;
+  }
+  return <Link to={`/custom/${data.id}`}>{content}</Link>;
 }
 
 function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
@@ -149,6 +214,11 @@ function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
 
   useEffect(() => {
     (async () => {
+      if (!pb.authStore.isValid && type === "user") {
+        setLoading(false);
+        setData([]);
+        return;
+      }
       if (data.length == 0 && active) {
         setLoading(true);
         let filter = "";
@@ -177,7 +247,8 @@ function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
     sm: 12,
     md: 8,
     lg: 6,
-    xl: 4
+    xl: 6,
+    xxl: 4
   };
 
   return (
@@ -207,7 +278,6 @@ function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
 
 export default function CustomPage() {
   const [activeTab, setActiveTab] = useState("crossword");
-  const navigate = useNavigate();
 
   return (
     <>
