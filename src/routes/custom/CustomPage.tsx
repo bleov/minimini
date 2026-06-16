@@ -5,6 +5,7 @@ import Fuse from "fuse.js";
 import {
   ArrowLeftIcon,
   ArrowUpDownIcon,
+  CircleXIcon,
   ExternalLinkIcon,
   EyeIcon,
   HistoryIcon,
@@ -279,8 +280,12 @@ function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
     return "-completions";
   });
   const [loading, setLoading] = useState(false);
+  const [loadingFailed, setLoadingFailed] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const lastLength = useRef(8);
+  if (type === "user") {
+    lastLength.current = 7;
+  }
 
   const typeValues: Record<string, string> = {
     crossword: "mini"
@@ -295,22 +300,28 @@ function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
         return;
       }
       if (active) {
-        setLoading(true);
-        let filter = "";
-        if (type !== "user") {
-          filter += `type="${typeValues[type] ?? type}"`;
-          filter += "&&public=true";
-        } else {
-          filter += `author="${pb.authStore.record?.id}"`;
+        try {
+          setLoading(true);
+          let filter = "";
+          if (type !== "user") {
+            filter += `type="${typeValues[type] ?? type}"`;
+            filter += "&&public=true";
+          } else {
+            filter += `author="${pb.authStore.record?.id}"`;
+          }
+          const puzzles = await puzzleData.getFullList({
+            filter,
+            fields: "id,author_name,title,public,type,created,updated,avg_rating,completions",
+            sort
+          });
+          setData(puzzles as unknown as CustomPuzzleData[]);
+          lastLength.current = puzzles.length;
+        } catch (err) {
+          console.error(err);
+          setLoadingFailed(true);
+        } finally {
+          setLoading(false);
         }
-        const puzzles = await puzzleData.getFullList({
-          filter,
-          fields: "id,author_name,title,public,type,created,updated,avg_rating,completions",
-          sort
-        });
-        setData(puzzles as unknown as CustomPuzzleData[]);
-        lastLength.current = puzzles.length;
-        setLoading(false);
       }
     })();
   }, [type, active, sort]);
@@ -349,6 +360,15 @@ function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
       Title: "title",
       Completions: "completions"
     };
+  }
+
+  if (loadingFailed) {
+    return (
+      <VStack alignItems={"center"} justifyContent={"center"} marginTop={30}>
+        <CircleXIcon fontSize={35} />
+        <Text size={"md"}>Something went wrong</Text>
+      </VStack>
+    );
   }
 
   return (
