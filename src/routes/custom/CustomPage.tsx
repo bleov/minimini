@@ -411,7 +411,17 @@ function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
 }
 
 export default function CustomPage() {
-  const [activeTab, setActiveTab] = useState("crossword");
+  const [activeTab, setActiveTab] = useState(() => {
+    const savedTab = sessionStorage.getItem("custom-active-tab");
+    if (savedTab === "user" || savedTab === "crossword" || savedTab === "connections" /*|| savedTab === "wordle"*/) {
+      return savedTab;
+    }
+    return "crossword";
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem("custom-active-tab", activeTab);
+  }, [activeTab]);
 
   return (
     <>
