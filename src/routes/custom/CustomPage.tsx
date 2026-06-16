@@ -14,6 +14,8 @@ import {
   Col,
   Grid,
   Heading,
+  HStack,
+  IconButton,
   Image,
   Panel,
   Placeholder,
@@ -208,58 +210,39 @@ export default function CustomPage() {
   const navigate = useNavigate();
 
   return (
-    <VStack spacing={15}>
-      <VStack spacing={3} width={"100%"}>
-        <Center width={"100%"}>
-          <Image src={`/icons/custom_crossword/pwa-192x192.png`} width={48} />
-        </Center>
-        <Heading level={1} className="merriweather-display">
+    <>
+      <HStack marginBottom={10}>
+        <Link to="/">
+          <IconButton icon={<ArrowLeftIcon />} appearance="subtle" />
+        </Link>
+        <Heading level={3} textAlign={"left"} fontWeight={"normal"}>
           Custom Puzzles
         </Heading>
-      </VStack>
-      <Center width={"100%"}>
-        {pb.authStore.isValid ? (
-          <ButtonToolbar>
-            <Button
-              startIcon={<ArrowLeftIcon />}
-              onClick={() => {
-                navigate("/");
-              }}
-            >
-              Back
-            </Button>
-          </ButtonToolbar>
-        ) : (
-          <VStack spacing={15}>
-            <ButtonToolbar width={"100%"} justify={"center"}>
-              <Button
-                startIcon={<ArrowLeftIcon />}
-                onClick={() => {
-                  navigate("/");
-                }}
-              >
-                Back
-              </Button>
-            </ButtonToolbar>
-          </VStack>
-        )}
-      </Center>
-      <Panel bordered width={"100%"} height={395}>
+      </HStack>
+      <Panel bordered width={"100%"} height={"70vh"} className="custom-puzzles-container">
         <Tabs activeKey={activeTab} onSelect={(e) => setActiveTab(e as string)}>
           <Tab title="My Puzzles" eventKey="user" icon={<UserIcon />}>
             <PuzzleGrid type="user" active={activeTab === "user"} />
           </Tab>
-          <Tab title="Crosswords" eventKey="crossword" icon={<Image src="/icons/midi/favicon.svg" width={16} height={16} />}>
+          <Tab
+            title="Crosswords"
+            eventKey="crossword"
+            icon={<Image src="/icons/midi/favicon.svg" width={16} height={16} draggable={false} />}
+          >
             <PuzzleGrid type="crossword" active={activeTab === "crossword"} />
           </Tab>
-          <Tab title="Connections" eventKey="connections" icon={<Image src="/icons/connections/favicon.svg" width={16} height={16} />}>
+          <Tab
+            title="Connections"
+            eventKey="connections"
+            icon={<Image src="/icons/connections/favicon.svg" width={16} height={16} draggable={false} />}
+          >
             <PuzzleGrid type="connections" active={activeTab === "connections"} />
           </Tab>
-          {/*<Tab title="Wordle" eventKey="wordle" icon={<Image src="/icons/wordle/favicon.svg" width={16} height={16} />}>
+          {/*<Tab title="Wordle" eventKey="wordle" icon={<Image src="/icons/wordle/favicon.svg" width={16} height={16} draggable={false} />}>
             <PuzzleGrid type="wordle" active={activeTab === "wordle"} />
           </Tab>*/}
         </Tabs>
       </Panel>
-    </VStack>
+    </>
   );
 }

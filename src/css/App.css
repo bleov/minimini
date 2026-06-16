@@ -273,6 +273,21 @@ canvas {
   }
 }
 
+.custom-puzzles-container {
+  .rs-panel-body {
+    padding: 15px;
+    padding-block-start: 0 !important;
+  }
+  .rs-nav {
+    position: sticky;
+    top: 0;
+    padding-block-start: 15px;
+    z-index: 2;
+    background-color: white;
+  }
+  overflow-y: auto;
+}
+
 .custom-puzzle-list {
   width: min(95vw, 400px);
 
