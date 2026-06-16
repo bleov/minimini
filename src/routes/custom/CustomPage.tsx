@@ -344,7 +344,7 @@ function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
   let sortValues: Record<string, string> = defaultSortValues;
   if (type === "user") {
     sortValues = {
-      "Dated Updated": "updated",
+      "Date Updated": "updated",
       "Date Created": "created",
       Title: "title",
       Completions: "completions"
