@@ -150,40 +150,12 @@ export default function Index() {
             </Whisper>
           </Center>
         </LinkCard>
-
-        {columns === 1 ? (
-          <>
-            <LinkCard
-              title="Custom Crosswords"
-              description="Create your own crosswords"
-              link="/custom/crosswords"
-              imageSrc="/icons/custom_crossword/pwa-192x192.png"
-            />
-            <LinkCard
-              title="Custom Connections"
-              description="Create your own connections"
-              link="/custom/connections"
-              imageSrc="/icons/custom_connections/pwa-192x192.png"
-            />
-          </>
-        ) : (
-          <CardGroup columns={columns} spacing={5} className="game-cards">
-            <LinkCard
-              title="Custom Crosswords"
-              description=""
-              link="/custom/crosswords"
-              imageSrc="/icons/custom_crossword/pwa-192x192.png"
-              small
-            />
-            <LinkCard
-              title="Custom Connections"
-              description=""
-              link="/custom/connections"
-              imageSrc="/icons/custom_connections/pwa-192x192.png"
-              small
-            />
-          </CardGroup>
-        )}
+        <LinkCard
+          title="Custom Puzzles"
+          description="Create and share custom games"
+          link="/custom"
+          imageSrc="/icons/custom_crossword/pwa-192x192.png"
+        />
       </CardGroup>
     </main>
   );

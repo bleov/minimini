@@ -255,6 +255,24 @@ canvas {
   overflow: hidden;
 }
 
+.puzzle-card {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+
+  .rs-card-header,
+  .rs-card-body,
+  .rs-card-footer {
+    padding: 0;
+  }
+  .rs-card-header {
+    flex-grow: 2;
+  }
+  .rs-card-body {
+    margin-block-start: 5px;
+  }
+}
+
 .custom-puzzle-list {
   width: min(95vw, 400px);
 
