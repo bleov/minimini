@@ -1,8 +1,10 @@
 import Nudge from "@/Components/Nudge";
 import type { CustomPuzzleData } from "@/lib/types";
 import { pb } from "@/main";
+import Fuse from "fuse.js";
 import {
   ArrowLeftIcon,
+  ArrowUpDownIcon,
   ExternalLinkIcon,
   EyeIcon,
   HistoryIcon,
@@ -11,13 +13,15 @@ import {
   PencilIcon,
   PlusIcon,
   ShareIcon,
+  SortAscIcon,
+  SortDescIcon,
   StarIcon,
   Trash2Icon,
   TrophyIcon,
   UserIcon
 } from "lucide-react";
 import posthog from "posthog-js";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import {
   Button,
@@ -29,15 +33,26 @@ import {
   HStack,
   IconButton,
   Image,
+  Input,
   Panel,
   Placeholder,
   Row,
+  SelectPicker,
+  Stack,
   Tab,
   Tabs,
   Text,
   useDialog,
   VStack
 } from "rsuite";
+
+const defaultSortValues = {
+  Completions: "completions",
+  Difficulty: "avg_rating",
+  "Date Created": "created",
+  "Date Updated": "updated",
+  Title: "title"
+};
 
 function CreateCard() {
   const [createLoading, setCreateLoading] = useState(false);
@@ -203,9 +218,65 @@ function PuzzleCard({ data, containerType }: { data: CustomPuzzleData; container
   return <Link to={`/custom/${data.id}`}>{content}</Link>;
 }
 
+function SortOptions({
+  setSort,
+  sortValues,
+  disabled = false
+}: {
+  setSort: (sort: string) => void;
+  sortValues?: Record<string, string>;
+  disabled?: boolean;
+}) {
+  const [sortValue, setSortValue] = useState<string>(Object.values(sortValues ?? defaultSortValues)[0] || "completions");
+  const [sortOrder, setSortOrder] = useState<string>("-");
+
+  if (!sortValues) {
+    sortValues = defaultSortValues;
+  }
+
+  const sortOrders = {
+    Descending: "-",
+    Ascending: "+"
+  };
+
+  useEffect(() => {
+    setSort(`${sortOrder}${sortValue}`);
+  }, [sortValue, sortOrder]);
+
+  return (
+    <Stack direction={{ xs: "column", sm: "row" }} spacing={5}>
+      <SelectPicker
+        searchable={false}
+        data={Object.entries(sortValues).map(([label, value]) => ({ label, value }))}
+        value={sortValue}
+        onChange={(value) => {
+          setSortValue(value!);
+        }}
+        cleanable={false}
+        label={<ArrowUpDownIcon />}
+        disabled={disabled}
+      />
+      <SelectPicker
+        searchable={false}
+        data={Object.entries(sortOrders).map(([label, value]) => ({ label, value }))}
+        value={sortOrder}
+        onChange={(value) => {
+          setSortOrder(value!);
+        }}
+        cleanable={false}
+        label={sortOrder === "-" ? <SortDescIcon /> : <SortAscIcon />}
+        disabled={disabled}
+      />
+    </Stack>
+  );
+}
+
 function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
   const [data, setData] = useState<CustomPuzzleData[]>([]);
+  const [sort, setSort] = useState("-completions");
   const [loading, setLoading] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
+  const lastLength = useRef(8);
 
   const typeValues: Record<string, string> = {
     crossword: "mini"
@@ -219,28 +290,37 @@ function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
         setData([]);
         return;
       }
-      if (data.length == 0 && active) {
+      if (active) {
         setLoading(true);
         let filter = "";
-        let sort = "-completions";
         if (type !== "user") {
           filter += `type="${typeValues[type] ?? type}"`;
           filter += "&&public=true";
         } else {
           filter += `author="${pb.authStore.record?.id}"`;
-          sort = "-updated";
         }
         const puzzles = await puzzleData.getFullList({
           filter,
           fields: "id,author_name,title,public,type,created,updated,avg_rating,completions",
           sort
         });
-        console.log(puzzles);
         setData(puzzles as unknown as CustomPuzzleData[]);
+        lastLength.current = puzzles.length;
         setLoading(false);
       }
     })();
-  }, [type, active]);
+  }, [type, active, sort]);
+
+  const fuse = useMemo(() => {
+    const fuse = new Fuse(data, {
+      keys: [
+        { name: "title", weight: 2 },
+        { name: "author_name", weight: 1 }
+      ],
+      threshold: 0.3
+    });
+    return fuse;
+  }, [data]);
 
   const cardSpan = {
     xs: 24,
@@ -251,28 +331,47 @@ function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
     xxl: 4
   };
 
+  let puzzles = [...data];
+  if (searchValue) {
+    const results = fuse.search(searchValue);
+    puzzles = results.map((result) => result.item);
+  }
+
   return (
-    <Grid fluid>
-      <Row gutter={10} width={"100%"}>
-        {type === "user" && (
-          <Col span={cardSpan}>
-            <CreateCard />
-          </Col>
-        )}
-        {loading &&
-          new Array(8).fill(0).map((_, i) => (
-            <Col key={i} span={cardSpan}>
-              <PlaceholderCard />
+    <>
+      <Stack
+        direction={{ xs: "column", sm: "column", md: "row" }}
+        width="100%"
+        paddingLeft={5}
+        paddingRight={15}
+        paddingTop={0}
+        paddingBottom={10}
+      >
+        <Input placeholder="Find puzzles" value={searchValue} onChange={setSearchValue}></Input>
+        <SortOptions setSort={setSort} disabled={searchValue.trim() !== ""} />
+      </Stack>
+      <Grid fluid>
+        <Row gutter={10} width={"100%"}>
+          {type === "user" && searchValue.trim() === "" && (
+            <Col span={cardSpan}>
+              <CreateCard />
             </Col>
-          ))}
-        {!loading &&
-          data.map((puzzle) => (
-            <Col key={puzzle.id} span={cardSpan}>
-              <PuzzleCard data={puzzle} containerType={type} />
-            </Col>
-          ))}
-      </Row>
-    </Grid>
+          )}
+          {loading &&
+            new Array(lastLength.current).fill(0).map((_, i) => (
+              <Col key={i} span={cardSpan}>
+                <PlaceholderCard />
+              </Col>
+            ))}
+          {!loading &&
+            puzzles.map((puzzle) => (
+              <Col key={puzzle.id} span={cardSpan}>
+                <PuzzleCard data={puzzle} containerType={type} />
+              </Col>
+            ))}
+        </Row>
+      </Grid>
+    </>
   );
 }
 
