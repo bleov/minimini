@@ -283,6 +283,8 @@ function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
   const [loadingFailed, setLoadingFailed] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const lastLength = useRef(8);
+  const loadedSort = useRef(sort);
+
   if (type === "user") {
     lastLength.current = 7;
   }
@@ -299,7 +301,7 @@ function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
         setData([]);
         return;
       }
-      if (active) {
+      if (active && (data.length === 0 || loadedSort.current !== sort)) {
         try {
           setLoading(true);
           let filter = "";
@@ -316,6 +318,7 @@ function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
           });
           setData(puzzles as unknown as CustomPuzzleData[]);
           lastLength.current = puzzles.length;
+          loadedSort.current = sort;
         } catch (err) {
           console.error(err);
           setLoadingFailed(true);
