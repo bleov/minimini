@@ -109,13 +109,23 @@ export default function usePersistence(
   useEffect(() => {
     cloudLoad()
       .then(() => {
-        localforage.getItem(`wordle-${data.id}`).then((saved: any) => {
-          if (saved) {
-            applySave(saved);
-          }
-        });
+        localforage
+          .getItem(`wordle-${data.id}`)
+          .then((saved: any) => {
+            if (saved) {
+              applySave(saved);
+            } else {
+              setLoading(false);
+            }
+          })
+          .catch(() => {
+            setLoading(false);
+          });
       })
-      .catch(console.error);
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+      });
   }, [data.id]);
 
   useEffect(() => {
