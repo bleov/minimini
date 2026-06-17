@@ -1,6 +1,6 @@
 import type { WordleGame } from "@/lib/types";
 import { useEffect, useRef, useState } from "react";
-import { Center, HStack, Message, useToaster, VStack } from "rsuite";
+import { Center, HStack, Loader, Message, useToaster, VStack } from "rsuite";
 import WordleTile from "./WordleTile";
 import WordleKeyboard from "./WordleKeyboard";
 import words from "../data/words.json";
@@ -20,6 +20,7 @@ export default function Wordle({ data }: { data: WordleGame }) {
   const rows = data.guesses ?? DEFAULT_ROWS;
   const columns = data.solution.length;
 
+  const [loading, setLoading] = useState(true);
   const [letters, setLetters] = useState(new Array(rows).fill(0).map(() => new Array(columns).fill("")));
   const [completeRows, setCompleteRows] = useState<number[]>([]);
   const [complete, setComplete] = useState(false);
@@ -185,7 +186,11 @@ export default function Wordle({ data }: { data: WordleGame }) {
     }
   }, [data]);
 
-  usePersistence(letters, setLetters, completeRows, setCompleteRows, complete, data);
+  usePersistence(letters, setLetters, completeRows, setCompleteRows, complete, data, setLoading);
+
+  if (loading) {
+    return <Loader center />;
+  }
 
   return (
     <>
