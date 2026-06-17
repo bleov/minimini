@@ -6,7 +6,12 @@ routerAdd("GET", "/api/notifications/list", (e) => {
     return e.json(401, { error: "Unauthorized" });
   }
 
-  var notifications = $app.findRecordsByFilter("notifications", `(recipients ?~ "${user.id}" || global = true) && cleared ?!~ "${user.id}"`, "-created", 20);
+  var notifications = $app.findRecordsByFilter(
+    "notifications",
+    `(recipients ?~ "${user.id}" || global = true) && cleared ?!~ "${user.id}"`,
+    "-created",
+    20
+  );
   var response = notifications.map((notification) => {
     return {
       global: notification.get("global"),
@@ -15,17 +20,17 @@ routerAdd("GET", "/api/notifications/list", (e) => {
       body: notification.get("body"),
       unread: !(notification.get("viewed") || []).includes(user.id),
       created: notification.get("created")
-    }
-  })
-  response = response.filter(n => {
+    };
+  });
+  response = response.filter((n) => {
     if (!n.global) return true;
-    return new Date(n.created).getTime() > new Date(user.get("created")).getTime()
-  })
+    return new Date(n.created).getTime() > new Date(user.get("created")).getTime();
+  });
 
   notifications.forEach((notification) => {
     notification.set("viewed", [...(notification.get("viewed") || []), user.id]);
     $app.save(notification);
-  })
+  });
 
   return e.json(200, response);
 });
@@ -36,9 +41,16 @@ routerAdd("GET", "/api/notifications/unread", (e) => {
     return e.json(401, { error: "Unauthorized" });
   }
 
-  var notifications = $app.findRecordsByFilter("notifications", `(recipients ?~ "${user.id}" || global = true) && viewed ?!~ "${user.id}"`, "-created", 10);
-  notifications = notifications.filter(n => !(n.get("global") && new Date(n.get("created")).getTime() < new Date(user.get("created")).getTime()))
-  var response = notifications.length
+  var notifications = $app.findRecordsByFilter(
+    "notifications",
+    `(recipients ?~ "${user.id}" || global = true) && viewed ?!~ "${user.id}"`,
+    "-created",
+    10
+  );
+  notifications = notifications.filter(
+    (n) => !(n.get("global") && new Date(n.get("created")).getTime() < new Date(user.get("created")).getTime())
+  );
+  var response = notifications.length;
   return e.json(200, response);
 });
 
@@ -69,12 +81,15 @@ routerAdd("POST", "/api/notifications/{id}/clear", (e) => {
   }
 
   return e.json(200, { success: true });
-})
+});
 
 cronAdd("clean_notifications", "0 * * * *", () => {
   // remove non-global notifications seen by all recipients
 
-  var notifications = $app.findRecordsByFilter("notifications", "global = false && cleared != null && recipients != null && cleared:length >= recipients:length");
+  var notifications = $app.findRecordsByFilter(
+    "notifications",
+    "global = false && cleared != null && recipients != null && cleared:length >= recipients:length"
+  );
   notifications.forEach((notification) => {
     $app.delete(notification);
   });
@@ -101,7 +116,10 @@ onRecordAfterCreateSuccess((e) => {
     if (userId !== author.id && authorFriends.includes(userId)) {
       const notification = new Record(notifications);
       notification.set("title", `${user.get("username")} completed ${puzzleData.get("title")}`);
-      notification.set("body", `in ${util.formatDuration(record.get("time"))}${record.get("hardcore") ? " (Hardcore)" : ""}${record.get("cheated") ? " (Autocheck)" : ""}`);
+      notification.set(
+        "body",
+        `in ${util.formatDuration(record.get("time"))}${record.get("hardcore") ? " (Hardcore)" : ""}${record.get("cheated") ? " (Autocheck)" : ""}`
+      );
       notification.set("recipients", [author.id]);
       $app.save(notification);
     }
@@ -112,14 +130,14 @@ onRecordAfterCreateSuccess((e) => {
   const record = e.record;
   if (!record) return;
 
-  const util = require(`${__hooks}/util.js`);
   const notifications = $app.findCollectionByNameOrId("notifications");
 
   const userId = record.get("user");
   const user = $app.findRecordById("users", userId);
   const puzzleId = record.get("puzzle_id");
 
-  if (puzzleId >= 100000000000000) { // custom puzzle IDs are 15 digits
+  if (puzzleId >= 100000000000000) {
+    // custom puzzle IDs are 15 digits
     // Custom connections completed, notify author if completing user is the author's friend
     const puzzleData = $app.findRecordById("custom_puzzles", puzzleId);
     const author = $app.findRecordById("users", puzzleData.get("author"));
@@ -133,3 +151,29 @@ onRecordAfterCreateSuccess((e) => {
     }
   }
 }, "connections_leaderboard");
+
+onRecordAfterCreateSuccess((e) => {
+  const record = e.record;
+  if (!record) return;
+
+  const notifications = $app.findCollectionByNameOrId("notifications");
+
+  const userId = record.get("user");
+  const user = $app.findRecordById("users", userId);
+  const puzzleId = record.get("puzzle_id");
+
+  if (puzzleId >= 100000000000000) {
+    // custom puzzle IDs are 15 digits
+    // Custom wordle completed, notify author if completing user is the author's friend
+    const puzzleData = $app.findRecordById("custom_puzzles", puzzleId);
+    const author = $app.findRecordById("users", puzzleData.get("author"));
+    const authorFriends = author.get("friends") ?? [];
+
+    if (userId !== author.id && authorFriends.includes(userId)) {
+      const notification = new Record(notifications);
+      notification.set("title", `${user.get("username")} completed ${puzzleData.get("title")}`);
+      notification.set("recipients", [author.id]);
+      $app.save(notification);
+    }
+  }
+}, "wordle_leaderboard");
