@@ -179,6 +179,7 @@ export interface WordleGame {
   print_date: string;
   days_since_launch: number;
   editor: string;
+  guesses?: number;
 }
 
 export interface WordleState {

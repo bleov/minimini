@@ -10,7 +10,8 @@ export default function usePersistence(
   completeRows: number[],
   setCompleteRows: (x: number[]) => void,
   complete: boolean,
-  data: WordleGame
+  data: WordleGame,
+  setLoading: (x: boolean) => void
 ): void {
   const save = {
     letters,
@@ -97,6 +98,7 @@ export default function usePersistence(
     setCompleteRows(save.completeRows);
     setTimeout(() => {
       saveReadyRef.current = true;
+      setLoading(false);
     }, 50);
   }
 

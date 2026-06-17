@@ -13,7 +13,7 @@ export default function WordlePreview({ state, rows, columns, solution }: Wordle
   function getStates(letters: string[][]): string[][] {
     let result = new Array(rows).fill(0).map(() => new Array(columns).fill(false));
     for (let i = 0; i < rows; i++) {
-      let checkValue = solution;
+      let checkValue = solution.toLowerCase();
       const row = letters[i];
 
       for (let j = 0; j < row.length; j++) {
@@ -39,7 +39,12 @@ export default function WordlePreview({ state, rows, columns, solution }: Wordle
     return result;
   }
 
-  const states = useMemo(() => getStates(state.letters), [state, solution]);
+  const states = useMemo(() => getStates(state.letters), [state, solution, rows, columns]);
+
+  let scale = 1;
+  if (columns > 8) {
+    scale = 0.6;
+  }
 
   return (
     <Box className="wordle-preview">
@@ -49,8 +54,8 @@ export default function WordlePreview({ state, rows, columns, solution }: Wordle
             {row.map((col, colI) => {
               const state = states[rowI][colI];
               return (
-                <Center className={`wordle-tile mini ${state}`}>
-                  <Text>{col}</Text>
+                <Center className={`wordle-tile mini ${state}`} style={{ width: 16 * scale, height: 16 * scale }}>
+                  <Text style={{ scale }}>{col}</Text>
                 </Center>
               );
             })}

@@ -116,6 +116,9 @@ function CreateCard() {
         <Button startIcon={<PlusIcon />} textAlign={"left"} onClick={() => createPuzzle("connections")} loading={createLoading}>
           Connections
         </Button>
+        <Button startIcon={<PlusIcon />} textAlign={"left"} onClick={() => createPuzzle("wordle")} loading={createLoading}>
+          Wordle
+        </Button>
       </ButtonGroup>
     </Card>
   );
@@ -416,7 +419,7 @@ function PuzzleGrid({ type, active }: { type: string; active: boolean }) {
 export default function CustomPage() {
   const [activeTab, setActiveTab] = useState(() => {
     const savedTab = sessionStorage.getItem("custom-active-tab");
-    if (savedTab === "user" || savedTab === "crossword" || savedTab === "connections" /*|| savedTab === "wordle"*/) {
+    if (savedTab === "user" || savedTab === "crossword" || savedTab === "connections" || savedTab === "wordle") {
       return savedTab;
     }
     return "crossword";
@@ -455,9 +458,9 @@ export default function CustomPage() {
           >
             <PuzzleGrid type="connections" active={activeTab === "connections"} />
           </Tab>
-          {/*<Tab title="Wordle" eventKey="wordle" icon={<Image src="/icons/wordle/favicon.svg" width={16} height={16} draggable={false} />}>
+          <Tab title="Wordle" eventKey="wordle" icon={<Image src="/icons/wordle/favicon.svg" width={16} height={16} draggable={false} />}>
             <PuzzleGrid type="wordle" active={activeTab === "wordle"} />
-          </Tab>*/}
+          </Tab>
         </Tabs>
       </Panel>
     </>

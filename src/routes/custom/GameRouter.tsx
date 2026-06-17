@@ -5,10 +5,11 @@ import type { ConnectionsGame } from "@/lib/types";
 
 const ConnectionsApp = lazy(() => import("../connections/App"));
 const CrosswordApp = lazy(() => import("../crossword/App"));
+const WordleApp = lazy(() => import("../wordle/App"));
 
 export default function GameRouter() {
   const params = useParams();
-  const [type, setType] = useState<"crossword" | "connections" | null>(null);
+  const [type, setType] = useState<"crossword" | "connections" | "wordle" | null>(null);
 
   useEffect(() => {
     if (params.id) {
@@ -17,6 +18,8 @@ export default function GameRouter() {
         .then((res) => {
           if (res.type === "connections") {
             setType("connections");
+          } else if (res.type === "wordle") {
+            setType("wordle");
           } else {
             setType("crossword");
           }
@@ -29,5 +32,8 @@ export default function GameRouter() {
   }
   if (type === "crossword") {
     return <CrosswordApp type="custom" />;
+  }
+  if (type === "wordle") {
+    return <WordleApp custom={true} />;
   }
 }

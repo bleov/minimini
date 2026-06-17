@@ -7,7 +7,7 @@ import { pb } from "@/main";
 import posthog from "posthog-js";
 import { FriendsNudge, LeaderboardNudge } from "@/Components/Leaderboard";
 import WordlePreview from "./WordlePreview";
-import { COLUMNS, ROWS } from "./Wordle";
+import { DEFAULT_ROWS } from "./Wordle";
 
 interface WordleLeaderboardRecord {
   id: string;
@@ -130,7 +130,12 @@ export default function WordleLeaderboard({
                   {data.map((entry) => (
                     <Col key={entry.expand.user.id} span={12}>
                       <VStack className="wordle-leaderboard-card" width={"100%"} alignItems={"center"}>
-                        <WordlePreview state={entry.state} rows={ROWS} columns={COLUMNS} solution={puzzleData.solution} />
+                        <WordlePreview
+                          state={entry.state}
+                          rows={puzzleData.guesses ?? DEFAULT_ROWS}
+                          columns={puzzleData.solution.length}
+                          solution={puzzleData.solution}
+                        />
                         <Text>{entry.expand.user.username}</Text>
                       </VStack>
                     </Col>
