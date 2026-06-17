@@ -37,7 +37,17 @@ export default function Wordle({ data }: { data: WordleGame }) {
     if (completeRows.length === rows && letters[letters.length - 1].join("").toLowerCase() !== answer) {
       resultText = answer.toUpperCase();
     } else {
-      resultText = END_MESSAGES[completeRows.length - 1];
+      if (rows !== DEFAULT_ROWS) {
+        if (completeRows.length === rows) {
+          resultText = "Phew!";
+        } else if (completeRows.length === 1) {
+          resultText = "Genius!";
+        } else {
+          resultText = "Magnificent";
+        }
+      } else {
+        resultText = END_MESSAGES[completeRows.length - 1];
+      }
     }
   }
 
