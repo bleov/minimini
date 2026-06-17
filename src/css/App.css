@@ -284,6 +284,7 @@ canvas {
     padding-block-start: 15px;
     z-index: 2;
     background-color: white;
+    overflow-x: auto;
   }
   overflow-y: scroll;
 }
