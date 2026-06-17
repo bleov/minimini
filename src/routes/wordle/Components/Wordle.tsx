@@ -10,14 +10,17 @@ import usePersistence from "../hooks/usePersistence";
 import WordleResults from "./WordleResults";
 import WordleLeaderboard from "./WordleLeaderboard";
 
-export const ROWS = 6;
-export const COLUMNS = 5;
+export const DEFAULT_ROWS = 6;
+export const DEFAULT_COLUMNS = 5;
 
 export default function Wordle({ data }: { data: WordleGame }) {
   const ALLOWED_LETTERS = "abcdefghijklmnopqrstuvwxyz".split("");
   const END_MESSAGES = ["Genius", "Magnificent", "Impressive", "Splendid", "Great", "Phew"];
 
-  const [letters, setLetters] = useState(new Array(ROWS).fill(0).map(() => new Array(COLUMNS).fill("")));
+  const rows = data.guesses ?? DEFAULT_COLUMNS;
+  const columns = data.solution.length;
+
+  const [letters, setLetters] = useState(new Array(rows).fill(0).map(() => new Array(columns).fill("")));
   const [completeRows, setCompleteRows] = useState<number[]>([]);
   const [complete, setComplete] = useState(false);
   const [checking, setChecking] = useState(false);
@@ -25,19 +28,19 @@ export default function Wordle({ data }: { data: WordleGame }) {
   const toaster = useToaster();
 
   const answer = data.solution.toLowerCase();
-  const states = new Array(ROWS).fill(0).map(() => new Array(COLUMNS).fill(""));
+  const states = new Array(rows).fill(0).map(() => new Array(columns).fill(""));
   const currentRow = completeRows.length;
   const currentSpace = letters[currentRow]?.findIndex((x) => x === "") ?? -1;
   let resultText = "???";
   if (complete && !checking) {
-    if (completeRows.length === ROWS && letters[letters.length - 1].join("").toLowerCase() !== answer) {
+    if (completeRows.length === rows && letters[letters.length - 1].join("").toLowerCase() !== answer) {
       resultText = answer.toUpperCase();
     } else {
       resultText = END_MESSAGES[completeRows.length - 1];
     }
   }
 
-  if (currentRow === ROWS && currentSpace === -1 && !complete && !checking) {
+  if (currentRow === rows && currentSpace === -1 && !complete && !checking) {
     setComplete(true);
   }
 
@@ -84,7 +87,7 @@ export default function Wordle({ data }: { data: WordleGame }) {
     if (complete) return;
     if (checking) return;
     const word = letters[currentRow].join("").toLowerCase();
-    if (word.length < COLUMNS) {
+    if (word.length < columns) {
       toast("Not enough letters");
       return;
     }
@@ -96,7 +99,7 @@ export default function Wordle({ data }: { data: WordleGame }) {
     setCompleteRows([...completeRows, currentRow]);
     setTimeout(() => {
       setChecking(false);
-    }, 350 * COLUMNS);
+    }, 350 * columns);
   }
 
   function handleKeyDown(event: KeyboardEvent) {
@@ -114,7 +117,7 @@ export default function Wordle({ data }: { data: WordleGame }) {
       if (currentSpace > 0) {
         newLetters[currentRow][currentSpace - 1] = "";
       } else if (currentSpace === -1) {
-        newLetters[currentRow][COLUMNS - 1] = "";
+        newLetters[currentRow][columns - 1] = "";
       }
       setLetters(newLetters);
       return;
