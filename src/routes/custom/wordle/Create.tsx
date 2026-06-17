@@ -11,6 +11,7 @@ import DetailsEditor from "../Components/DetailsEditor";
 export default function WordleCreator() {
   const [record, setRecord] = useState<CustomPuzzle | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [revisiting, setRevisiting] = useState<boolean>(false);
 
   const [editingDetails, setEditingDetails] = useState<boolean>(false);
   const [details, setDetails] = useState({ title: "Untitled Puzzle", options: [] as string[] });
@@ -57,6 +58,7 @@ export default function WordleCreator() {
             const puzzle = record.puzzle as WordleGame;
             setSolutionValue(puzzle.solution);
             setGuessesValue(puzzle.guesses || 6);
+            setRevisiting(true);
           }
         })
         .catch((err) => {
@@ -97,6 +99,7 @@ export default function WordleCreator() {
       .update(record.id, newRecord)
       .then(() => {
         setSaveStatus("saved");
+        setRevisiting(true);
       })
       .catch(() => {
         setSaveStatus("error");
@@ -129,11 +132,13 @@ export default function WordleCreator() {
                 setSolutionValue(e.replaceAll(/[^a-zA-Z]/g, ""));
               }}
               textTransform={solutionValue.length > 0 ? "uppercase" : undefined}
+              disabled={revisiting}
             ></Input>
             <HStack width={"100%"} spacing={10}>
               <Text>Guesses </Text>
-              <Slider width={"100%"} progress min={1} max={12} value={guessesValue} onChange={setGuessesValue} />
+              <Slider width={"100%"} progress min={1} max={12} value={guessesValue} onChange={setGuessesValue} disabled={revisiting} />
             </HStack>
+            <Text>Worlde puzzles cannot be edited once saved.</Text>
           </VStack>
         </Center>
 
