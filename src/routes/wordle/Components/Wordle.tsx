@@ -17,7 +17,7 @@ export default function Wordle({ data }: { data: WordleGame }) {
   const ALLOWED_LETTERS = "abcdefghijklmnopqrstuvwxyz".split("");
   const END_MESSAGES = ["Genius", "Magnificent", "Impressive", "Splendid", "Great", "Phew"];
 
-  const rows = data.guesses ?? DEFAULT_COLUMNS;
+  const rows = data.guesses ?? DEFAULT_ROWS;
   const columns = data.solution.length;
 
   const [letters, setLetters] = useState(new Array(rows).fill(0).map(() => new Array(columns).fill("")));
@@ -26,6 +26,7 @@ export default function Wordle({ data }: { data: WordleGame }) {
   const [checking, setChecking] = useState(false);
   const [modalState, setModalState] = useState<"results" | "leaderboard" | null>(null);
   const toaster = useToaster();
+  const wordList = useRef<string[]>(words);
 
   const answer = data.solution.toLowerCase();
   const states = new Array(rows).fill(0).map(() => new Array(columns).fill(""));
@@ -91,7 +92,7 @@ export default function Wordle({ data }: { data: WordleGame }) {
       toast("Not enough letters");
       return;
     }
-    if (!words.includes(word)) {
+    if (word.length > 1 && !wordList.current.includes(word)) {
       toast("Not in word list");
       return;
     }
@@ -155,11 +156,30 @@ export default function Wordle({ data }: { data: WordleGame }) {
     }
   });
 
+  useEffect(() => {
+    const letters = data.solution.length;
+    if (letters === 5) {
+      return;
+    }
+    if (letters === 1) {
+      wordList.current = [];
+    }
+    if (letters > 1 && letters <= 12) {
+      (async () => {
+        const newWords = await import(`../data/${letters}-letter.json`);
+        if (!newWords.default.includes(data.solution)) {
+          newWords.default.push(data.solution.toLowerCase());
+        }
+        wordList.current = newWords.default;
+      })();
+    }
+  }, [data]);
+
   usePersistence(letters, setLetters, completeRows, setCompleteRows, complete, data);
 
   return (
     <>
-      <VStack height={"100%"} justifyContent={"center"} spacing={15}>
+      <VStack height={"100%"} minHeight={"100vh"} justifyContent={"center"} spacing={15}>
         <Center width={"100%"}>
           <VStack spacing={5}>
             {letters.map((word, row) => (

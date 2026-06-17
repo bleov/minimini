@@ -35,7 +35,7 @@
 
   &.rs-content {
     width: 100vw;
-    height: 100vh;
+    min-height: 100vh;
   }
 
   .wordle-preview {
@@ -62,9 +62,6 @@
     }
 
     &.mini {
-      width: 16px;
-      height: 16px;
-
       &:not(.absent):not(.present):not(.correct) {
         background-color: var(--border-inactive);
       }

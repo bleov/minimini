@@ -5,7 +5,7 @@ import { PencilIcon, SaveIcon, SaveOffIcon } from "lucide-react";
 import posthog from "posthog-js";
 import { useContext, useEffect, useState } from "react";
 import { useBeforeUnload, useParams } from "react-router";
-import { Box, Button, ButtonToolbar, Center, HStack, Input, Slider, Text, VStack } from "rsuite";
+import { Box, Button, ButtonToolbar, Center, HStack, Input, Slider, Text, useDialog, VStack } from "rsuite";
 import DetailsEditor from "../Components/DetailsEditor";
 
 export default function WordleCreator() {
@@ -20,6 +20,7 @@ export default function WordleCreator() {
   const [guessesValue, setGuessesValue] = useState<number>(6);
 
   const params = useParams();
+  const dialog = useDialog();
   const { user } = useContext(GlobalState);
 
   const DefaultPuzzle: WordleGame = {
@@ -73,11 +74,15 @@ export default function WordleCreator() {
     if (!user || !pb.authStore.isValid) {
       return;
     }
+    if (solutionValue.length < 1) {
+      dialog.alert("Solution must be at least 1 letter.");
+      return;
+    }
     const customPuzzles = pb.collection("custom_puzzles");
     const puzzle = {
       ...DefaultPuzzle
     };
-    puzzle.solution = solutionValue.toUpperCase();
+    puzzle.solution = solutionValue.toLowerCase();
     puzzle.guesses = guessesValue;
     const newRecord = {
       author: user.id,
