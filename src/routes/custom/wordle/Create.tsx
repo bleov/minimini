@@ -138,7 +138,7 @@ export default function WordleCreator() {
               <Text>Guesses </Text>
               <Slider width={"100%"} progress min={1} max={12} value={guessesValue} onChange={setGuessesValue} disabled={revisiting} />
             </HStack>
-            <Text>Solution & guesses cannot be edited once saved.</Text>
+            <Text>Solution & guesses can't be edited once saved.</Text>
           </VStack>
         </Center>
 
