@@ -1,6 +1,6 @@
 import PocketBase from "pocketbase";
 
-import type { ConnectionsGame, BasicArchiveRecord } from "../src/lib/types";
+import type { ConnectionsGame } from "../src/lib/types";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -20,7 +20,7 @@ await pb.collection("_superusers").authWithPassword(process.env.PB_SUPERUSER_EMA
 const archive = pb.collection("archive");
 
 console.log("Fetching archive records...");
-const missingRecords = (await archive.getFullList({ filter: "connections_id=0" })) as BasicArchiveRecord[];
+const missingRecords = await archive.getFullList({ filter: "connections_id=0" });
 console.log(`Found ${missingRecords.length} records that need importing.`);
 console.log("Continue? (y/n)");
 const userInput = await new Promise<string>((resolve) => {

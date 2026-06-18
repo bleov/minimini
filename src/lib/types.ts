@@ -1,6 +1,8 @@
-export interface MiniCrossword {
-  assets?: MiniCrosswordAsset[];
-  body: MiniCrosswordBody[];
+import type { ArchiveRecord, ArchiveResponse } from "./pb-types";
+
+export interface Crossword {
+  assets?: CrosswordAsset[];
+  body: CrosswordBody[];
   constructors: string[];
   copyright: string;
   id: number;
@@ -12,16 +14,16 @@ export interface MiniCrossword {
   editor?: string;
 }
 
-export interface MiniCrosswordBody {
+export interface CrosswordBody {
   board: string;
-  cells: MiniCrosswordCell[];
-  clueLists: MiniCrosswordClueList[];
-  clues: MiniCrosswordClue[];
-  dimensions: MiniCrosswordDimensions;
+  cells: CrosswordCell[];
+  clueLists: CrosswordClueList[];
+  clues: CrosswordClue[];
+  dimensions: CrosswordDimensions;
   SVG?: {};
 }
 
-export interface MiniCrosswordCell {
+export interface CrosswordCell {
   answer?: string;
   clues?: number[];
   label?: string;
@@ -29,117 +31,32 @@ export interface MiniCrosswordCell {
   moreAnswers?: { valid: string[] };
 }
 
-export interface MiniCrosswordClueList {
+export interface CrosswordClueList {
   clues: number[];
   name: string;
 }
 
-export interface MiniCrosswordClue {
+export interface CrosswordClue {
   cells: number[];
   direction: string;
   label: string;
   list?: number;
-  text: MiniCrosswordClueText[];
+  text: CrosswordClueText[];
   relatives?: number[];
 }
 
-export interface MiniCrosswordClueText {
+export interface CrosswordClueText {
   formatted?: string;
   plain: string;
 }
 
-export interface MiniCrosswordDimensions {
+export interface CrosswordDimensions {
   height: number;
   width: number;
 }
 
-export interface MiniCrosswordAsset {
+export interface CrosswordAsset {
   uri: string;
-}
-
-export interface BaseRecord {
-  collectionId: string;
-  collectionName: string;
-  created: string;
-  id: string;
-  updated: string;
-}
-
-export interface ArchiveRecord extends BaseRecord {
-  mini: MiniCrossword;
-  daily: MiniCrossword;
-  publication_date: string;
-  mini_id: number;
-  daily_id: number;
-  midi: MiniCrossword;
-  midi_id: number;
-}
-
-export interface BasicArchiveRecord {
-  publication_date: string;
-  mini_id: number;
-  daily_id: number;
-  midi_id: number;
-  connections_id: number;
-  wordle_id: number;
-  id: string;
-}
-
-export interface ArchiveStateRecord extends BaseRecord {
-  puzzle_id: number;
-  complete: boolean;
-  cheated: boolean;
-  time: number;
-}
-
-export interface StateRecord extends ArchiveStateRecord {
-  id: string;
-  user: string;
-  board_state: Record<string, string>;
-  autocheck: boolean;
-  selected: [number, string];
-}
-
-export interface LeaderboardRecord extends StateRecord {
-  rank: number;
-  expand: {
-    user: {
-      id: string;
-      username: string;
-    };
-  };
-}
-
-export interface UserRecord extends BaseRecord {
-  username: string;
-  friends: string[];
-  friend_code: string;
-  avatar?: string;
-}
-
-export interface CrosswordShape extends BaseRecord {
-  sort_order: number;
-  type: string;
-  data: MiniCrossword;
-}
-
-export interface CustomPuzzle extends BaseRecord {
-  author: string;
-  title: string;
-  puzzle: MiniCrossword | null;
-  public: boolean;
-  type: string;
-  shape: string | null;
-  expand?: {
-    author: UserRecord;
-    shape: CrosswordShape;
-  };
-}
-
-export interface CustomPuzzleData extends CustomPuzzle {
-  author_name: string;
-  avg_rating: number;
-  completions: number;
 }
 
 export interface ConnectionsCard {
@@ -162,17 +79,6 @@ export interface ConnectionsGame {
   categories: ConnectionsCategory[];
 }
 
-export interface ConnectionsLeaderboardRecord extends BaseRecord {
-  puzzle_id: number;
-  puzzle_date: string;
-  mistakes: number;
-  order: number[];
-  guesses: number[][];
-  expand: {
-    user: UserRecord;
-  };
-}
-
 export interface WordleGame {
   id: number;
   solution: string;
@@ -187,3 +93,14 @@ export interface WordleState {
   completeRows: number[];
   letters: string[][];
 }
+
+export type typedArchiveResponse<Texpand = unknown> = ArchiveResponse<
+  Crossword,
+  Crossword,
+  Crossword,
+  ConnectionsGame,
+  WordleGame,
+  Texpand
+>;
+
+export type typedArchiveRecord = ArchiveRecord<Crossword, Crossword, Crossword, ConnectionsGame, WordleGame>;

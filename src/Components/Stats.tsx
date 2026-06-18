@@ -1,5 +1,5 @@
 import { formatDuration } from "@/lib/formatting";
-import type { UserRecord } from "@/lib/types";
+import type { UsersRecord } from "@/lib/pb-types";
 import { pb } from "@/main";
 import { ChartNoAxesColumnIcon, ClockIcon, HashIcon, RabbitIcon, TurtleIcon } from "lucide-react";
 import type { RecordModel } from "pocketbase";
@@ -44,7 +44,7 @@ function CrosswordStats({
   setOpen
 }: {
   type: "mini" | "daily" | "midi";
-  user?: UserRecord;
+  user?: UsersRecord;
   open: boolean;
   setOpen: (open: boolean) => void;
 }) {
@@ -170,7 +170,7 @@ export function Stats({
   open: boolean;
   setOpen: (open: boolean) => void;
   type: "mini" | "daily" | "midi";
-  user?: UserRecord;
+  user?: UsersRecord;
 }) {
   return (
     <Modal open={open} onClose={() => setOpen(false)} centered size={"sm"}>

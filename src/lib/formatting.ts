@@ -1,4 +1,4 @@
-import type { MiniCrosswordClue } from "./types";
+import type { CrosswordClue } from "./types";
 
 export function formatDate(publicationDate: string): string {
   return new Date(publicationDate + "T00:00:00")
@@ -30,7 +30,7 @@ export function decodeFormatted(input: string): string {
   return s;
 }
 
-export function renderClue(clue: MiniCrosswordClue): string {
+export function renderClue(clue: CrosswordClue): string {
   if (!clue) return "";
   return clue.text
     .map((part) => {

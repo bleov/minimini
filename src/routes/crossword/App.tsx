@@ -22,7 +22,7 @@ import AccountButtons from "@/Components/AccountButtons";
 import SignIn from "@/Components/SignIn";
 import { GlobalState } from "@/lib/GlobalState";
 import { formatDate } from "@/lib/formatting";
-import type { MiniCrossword } from "@/lib/types";
+import type { Crossword as CrosswordType } from "@/lib/types";
 import { pb } from "@/main";
 import { Archive } from "./Components/Archive";
 import Crossword from "./Components/Crossword";
@@ -31,9 +31,10 @@ import { CrosswordAppState } from "./state";
 import { useNavigate, useParams } from "react-router";
 import { Stats } from "../../Components/Stats";
 import Nudge from "@/Components/Nudge";
+import type { CustomPuzzleDataResponse, CustomPuzzlesResponse, ShapesRecord, UsersRecord } from "@/lib/pb-types";
 
 function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
-  const [data, setData] = useState<MiniCrossword | null>(null);
+  const [data, setData] = useState<CrosswordType | null>(null);
   const [restoredTime, setRestoredTime] = useState<number>(-1);
   const [error, setError] = useState<string | null>(null);
   const [paused, setPaused] = useState(false);
@@ -90,18 +91,26 @@ function App({ type }: { type: "mini" | "daily" | "midi" | "custom" }) {
         return;
       }
       pb.collection("custom_puzzles")
-        .getOne(params.id, { expand: "author,shape" })
+        .getOne<
+          CustomPuzzlesResponse<
+            CrosswordType,
+            {
+              author: UsersRecord;
+              shape: ShapesRecord<CrosswordType>;
+            }
+          >
+        >(params.id, { expand: "author,shape" })
         .then((record) => {
           if (!record.expand?.shape) {
             setError("Puzzle data is corrupted.");
             return;
           }
-          const newData = record.puzzle as MiniCrossword;
+          const newData = record.puzzle as CrosswordType;
           newData.id = record.id as unknown as number;
           newData.title = record.title;
           newData.constructors = [record.expand?.author?.username ?? "Unknown User"];
           newData.editor = "";
-          newData.body[0].board = record.expand.shape.data.body[0].board;
+          newData.body[0].board = record.expand.shape.data!.body[0].board;
           setData(newData);
         })
         .catch((err) => {

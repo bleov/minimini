@@ -6,10 +6,11 @@ import { Button, Center, Checkbox, Loader, Modal, Tooltip, Whisper } from "rsuit
 import { Table } from "rsuite/Table";
 import { formatDuration } from "../lib/formatting";
 import { GlobalState } from "../lib/GlobalState";
-import type { LeaderboardRecord, MiniCrossword, StateRecord } from "../lib/types";
+import type { Crossword } from "../lib/types";
 import { pb } from "../main";
 import Nudge from "./Nudge";
 import posthog from "posthog-js";
+import type { LeaderboardRecord, PuzzleStateRecord } from "@/lib/pb-types";
 
 export function FriendsNudge() {
   const navigate = useNavigate();
@@ -61,12 +62,12 @@ export default function Leaderboard({
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
-  puzzleData: MiniCrossword;
+  puzzleData: Crossword;
 }) {
   const [loading, setLoading] = useState(true);
   // Safari and Chromium seem to have issues with rendering the Table component while the modal is animating, especially on high dpi displays.
   const [ready, setReady] = useState(false);
-  const [data, setData] = useState<StateRecord[]>([]);
+  const [data, setData] = useState<PuzzleStateRecord[]>([]);
 
   const { user } = useContext(GlobalState);
 

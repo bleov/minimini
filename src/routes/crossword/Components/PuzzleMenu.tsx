@@ -2,7 +2,7 @@ import { useContext, type RefObject } from "react";
 import posthog from "posthog-js";
 import { ArchiveIcon, ExpandIcon, LayoutGridIcon, MenuIcon, RotateCcwIcon, StarIcon, StarOffIcon, TrophyIcon, XIcon } from "lucide-react";
 
-import type { MiniCrossword } from "@/lib/types";
+import type { Crossword } from "@/lib/types";
 import { Menu, MenuDivider, MenuItem } from "@szhsin/react-menu";
 import { CrosswordAppState } from "@/routes/crossword/state";
 import { pb } from "@/main";
@@ -17,7 +17,7 @@ export default function PuzzleMenu({
   setPuzzleModalState,
   onExit
 }: {
-  data: MiniCrossword;
+  data: Crossword;
   clearLocalPuzzleData: () => Promise<void>;
   stateDocId: RefObject<string>;
   setPuzzleModalState: (state: any) => void;

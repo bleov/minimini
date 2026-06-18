@@ -3,7 +3,7 @@ import { Form, Modal } from "rsuite";
 import { pb } from "../main";
 import { Button, ButtonGroup, useDialog, VStack } from "rsuite";
 import { GlobalState } from "../lib/GlobalState";
-import type { RecordAuthResponse } from "pocketbase";
+import type { RecordAuthResponse, RecordModel } from "pocketbase";
 import posthog from "posthog-js";
 import { CircleUserRoundIcon, LogOutIcon, MailIcon, PencilIcon, TrashIcon } from "lucide-react";
 import localforage from "localforage";
@@ -48,7 +48,7 @@ const EditUsernameDialog = ({ payload, onClose }: { payload: string; onClose: (n
               .update(pb.authStore.record.id, record)
               .then(() => {
                 pb.collection("users")
-                  .authRefresh()
+                  .authRefresh<RecordModel>()
                   .then((newUser) => {
                     setLoading(false);
                     handleClose(newUser);

@@ -4,17 +4,14 @@ import { useNavigate } from "react-router";
 import { Button, Center, Loader, Modal } from "rsuite";
 import { Table } from "rsuite/Table";
 import { GlobalState } from "@/lib/GlobalState";
-import type { ConnectionsGame, ConnectionsLeaderboardRecord, LeaderboardRecord, StateRecord } from "@/lib/types";
+import type { ConnectionsGame } from "@/lib/types";
 import { pb } from "@/main";
 import Nudge from "@/Components/Nudge";
 import { FriendsNudge, LeaderboardNudge } from "@/Components/Leaderboard";
 import posthog from "posthog-js";
+import type { ConnectionsLeaderboardRecord } from "@/lib/pb-types";
 
 const categoryEmojis = ["🟨", "🟩", "🟦", "🟪"];
-
-interface RankedLeaderboardRecord extends ConnectionsLeaderboardRecord {
-  points: number;
-}
 
 export default function ConnectionsLeaderboard({
   open,
@@ -28,7 +25,7 @@ export default function ConnectionsLeaderboard({
   const [loading, setLoading] = useState(true);
   // Safari and Chromium seem to have issues with rendering the Table component while the modal is animating, especially on high dpi displays.
   const [ready, setReady] = useState(false);
-  const [data, setData] = useState<RankedLeaderboardRecord[]>([]);
+  const [data, setData] = useState<ConnectionsLeaderboardRecord[]>([]);
 
   const { user } = useContext(GlobalState);
   const navigate = useNavigate();
@@ -46,16 +43,16 @@ export default function ConnectionsLeaderboard({
           sort: "+mistakes",
           filter,
           expand: "user"
-        })) as unknown as { items: ConnectionsLeaderboardRecord[] };
+        })) as unknown as { items: ConnectionsLeaderboardRecord<number[][], number[]>[] };
 
         const pointData = leaderboardData.items.map((item, i) => {
-          const purplePosition = item.order.findIndex((index) => index === 3);
+          const purplePosition = item.order!.findIndex((index) => index === 3);
           let orderPoints = 0;
-          if (!item.order.includes(-1)) {
+          if (!item.order!.includes(-1)) {
             // reward based on the position of the first purple category, but only if all categories were found
             orderPoints = -(purplePosition - 3);
           }
-          item.order.forEach((categoryId, idx) => {
+          item.order!.forEach((categoryId, idx) => {
             if (categoryId === -1) {
               orderPoints -= 4 - idx; // penalize revealed categories
             }
@@ -63,12 +60,12 @@ export default function ConnectionsLeaderboard({
           return { ...item, points: orderPoints };
         });
 
-        const groupedByMistakes: { [key: number]: RankedLeaderboardRecord[] } = {};
+        const groupedByMistakes: { [key: number]: (ConnectionsLeaderboardRecord & { points: number })[] } = {};
         pointData.forEach((item) => {
-          if (!groupedByMistakes[item.mistakes]) {
-            groupedByMistakes[item.mistakes] = [];
+          if (!groupedByMistakes[item.mistakes!]) {
+            groupedByMistakes[item.mistakes!] = [];
           }
-          groupedByMistakes[item.mistakes].push(item);
+          groupedByMistakes[item.mistakes!].push(item);
         });
 
         const sortedData = Object.values(groupedByMistakes)

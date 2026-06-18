@@ -5,13 +5,14 @@ import posthog from "posthog-js";
 import { ArchiveIcon, CircleCheckIcon, HourglassIcon } from "lucide-react";
 
 import { pb } from "@/main";
-import type { ArchiveRecord, ArchiveStateRecord, BasicArchiveRecord, MiniCrossword } from "@/lib/types";
+import type { Crossword, typedArchiveRecord } from "@/lib/types";
 import { formatDuration, getButtonText, getMonthFilter } from "@/lib/formatting";
 import { CrosswordAppState } from "@/routes/crossword/state";
+import type { PuzzleStateRecord } from "@/lib/pb-types";
 
 export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: boolean) => void }) {
-  const [data, setData] = useState<BasicArchiveRecord[] | null>(null);
-  const [puzzleStates, setPuzzleStates] = useState<ArchiveStateRecord[] | null>(null);
+  const [data, setData] = useState<typedArchiveRecord[] | null>(null);
+  const [puzzleStates, setPuzzleStates] = useState<PuzzleStateRecord[] | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -20,13 +21,13 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
   const [selectedPuzzleState, setSelectedPuzzleState] = useState<string>("unset");
   const [buttonLoading, setButtonLoading] = useState(false);
   const [selectedPuzzleTime, setSelectedPuzzleTime] = useState<number>(0);
-  const dataCache = useRef<{ [month: string]: BasicArchiveRecord[] }>({});
-  const puzzleStateCache = useRef<{ [month: string]: ArchiveStateRecord[] }>({});
+  const dataCache = useRef<{ [month: string]: typedArchiveRecord[] }>({});
+  const puzzleStateCache = useRef<{ [month: string]: PuzzleStateRecord[] }>({});
 
   const archive = pb.collection("archive");
   const puzzleState = pb.collection("puzzle_state");
 
-  const { setData: setPuzzleData, type }: { setData: (x: MiniCrossword) => void; type: "mini" | "daily" | "midi" } =
+  const { setData: setPuzzleData, type }: { setData: (x: Crossword) => void; type: "mini" | "daily" | "midi" } =
     useContext(CrosswordAppState);
 
   useEffect(() => {
@@ -39,10 +40,10 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
           setPuzzleStates(puzzleStateCache.current[monthFilter]);
           return;
         }
-        const list = (await archive.getFullList({
+        const list = await archive.getFullList<typedArchiveRecord>({
           fields: "mini_id,daily_id,midi_id,publication_date,id",
           filter: `${type}_id!=0 && ${monthFilter}`
-        })) as BasicArchiveRecord[];
+        });
 
         let stateFilter = `user="${pb.authStore?.record?.id}"`;
 
@@ -50,13 +51,13 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
           stateFilter += ` && (${list.map((x) => `puzzle_id = "${x[`${type}_id`]}"`).join(" || ")})`;
         }
 
-        let completed: ArchiveStateRecord[] = [];
+        let completed: PuzzleStateRecord[] = [];
 
         if (list.length > 0) {
-          completed = (await puzzleState.getFullList({
+          completed = await puzzleState.getFullList({
             fields: "puzzle_id,complete,time",
             filter: stateFilter
-          })) as ArchiveStateRecord[];
+          });
         }
 
         setData(list);
@@ -170,15 +171,15 @@ export function Archive({ open, setOpen }: { open: boolean; setOpen: (open: bool
             if (!data || !selectedDate) return;
             setButtonLoading(true);
             archive
-              .getOne(data.find((r) => r.publication_date === selectedDate)!.id)
+              .getOne<typedArchiveRecord>(data.find((r) => r.publication_date === selectedDate)!.id)
               .then((record) => {
                 posthog.capture("load_archive_puzzle", {
                   publicationDate: record.publication_date,
                   id: record.id,
                   type
                 });
-                const archiveRecord = record as ArchiveRecord;
-                setPuzzleData(archiveRecord[type]);
+                const archiveRecord = record;
+                setPuzzleData(archiveRecord[type] as Crossword);
                 setOpen(false);
               })
               .finally(() => {

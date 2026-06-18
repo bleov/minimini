@@ -7,7 +7,7 @@ import { Button, Divider, Heading, HStack, Input, Text, Toggle, VStack } from "r
 import Leaderboard from "@/Components/Leaderboard";
 import { GlobalState } from "@/lib/GlobalState";
 import { renderClue } from "@/lib/formatting";
-import type { MiniCrossword, MiniCrosswordClue } from "@/lib/types";
+import type { Crossword, CrosswordClue } from "@/lib/types";
 import { CrosswordAppState } from "@/routes/crossword/state";
 import { CrosswordProvider, type CrosswordContextValue } from "./CrosswordContext";
 import IncorrectModal from "./IncorrectModal";
@@ -22,7 +22,7 @@ const Keyboard = lazy(async () => ({
 }));
 
 interface CrosswordProps {
-  data: MiniCrossword;
+  data: Crossword;
   startTouched: boolean;
   timeRef: React.RefObject<number[]>;
   stateDocId: RefObject<string>;
@@ -168,7 +168,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
     localforage.setItem(`autocheck-${data.id}`, autoCheck);
   }, [autoCheck]);
 
-  function getFirstEmptyCell(clue: MiniCrosswordClue) {
+  function getFirstEmptyCell(clue: CrosswordClue) {
     for (let i = 0; i < clue.cells.length; i++) {
       const cellIndex = clue.cells[i];
       if (!boardState[cellIndex]) {
@@ -343,7 +343,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
     localforage.setItem(`selected-${data.id}`, [selected, direction]);
   }, [selected, direction, data.id]);
 
-  let globalSelectedClue: MiniCrosswordClue | null = null;
+  let globalSelectedClue: CrosswordClue | null = null;
 
   if (selected !== null) {
     const activeClues = body.cells[selected].clues || [];
@@ -492,7 +492,7 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
   let selectedClue = -1;
   let relatedClues: number[] = [];
 
-  function getFirstEmptyCell(clue: MiniCrosswordClue) {
+  function getFirstEmptyCell(clue: CrosswordClue) {
     for (let i = 0; i < clue.cells.length; i++) {
       const cellIndex = clue.cells[i];
       if (!boardState[cellIndex]) {

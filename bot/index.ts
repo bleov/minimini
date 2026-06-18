@@ -1,6 +1,6 @@
 import PocketBase from "pocketbase";
 
-import type { ConnectionsGame, MiniCrossword, WordleGame } from "../src/lib/types";
+import type { ConnectionsGame, Crossword, WordleGame } from "../src/lib/types";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -23,7 +23,7 @@ await pb.collection("_superusers").authWithPassword(process.env.PB_SUPERUSER_EMA
 const archive = pb.collection("archive");
 
 console.log("Fetching mini data...");
-const miniData: MiniCrossword = await fetchJSON(MINI_URL);
+const miniData: Crossword = await fetchJSON(MINI_URL);
 
 if (!miniData || !miniData.body) {
   console.error(miniData);
@@ -32,11 +32,11 @@ if (!miniData || !miniData.body) {
 miniData.body[0].SVG = {};
 
 console.log("Fetching daily data...");
-const dailyData: MiniCrossword = await fetchJSON(DAILY_URL);
+const dailyData: Crossword = await fetchJSON(DAILY_URL);
 dailyData.body[0].SVG = {};
 
 console.log("Fetching midi data...");
-const midiData: MiniCrossword = await fetchJSON(MIDI_URL);
+const midiData: Crossword = await fetchJSON(MIDI_URL);
 midiData.body[0].SVG = {};
 
 console.log("Fetching connections data...");

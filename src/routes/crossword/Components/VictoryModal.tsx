@@ -3,7 +3,7 @@ import { Button, ButtonGroup, Center, Heading, Image, Modal, Text, VStack } from
 
 import Rating from "@/Components/Rating";
 import { formatDate } from "@/lib/formatting";
-import type { MiniCrossword } from "@/lib/types";
+import type { Crossword } from "@/lib/types";
 
 interface VictoryModalProps {
   open: boolean;
@@ -11,7 +11,7 @@ interface VictoryModalProps {
   onOpenLeaderboard: () => void;
   onExit: () => void;
   type: "mini" | "daily" | "midi" | "custom";
-  data: MiniCrossword;
+  data: Crossword;
   timeRef: React.RefObject<number[]>;
 }
 

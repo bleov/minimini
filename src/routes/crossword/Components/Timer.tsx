@@ -5,14 +5,14 @@ import { useStopwatch } from "react-timer-hook";
 import { HStack, Text } from "rsuite";
 import { PauseIcon } from "lucide-react";
 
-import type { MiniCrossword } from "@/lib/types";
+import type { Crossword } from "@/lib/types";
 import { CrosswordAppState } from "../state";
 
 interface TimerProps {
   onPause: () => void;
   running: boolean;
   setTime: (time: [number, number]) => void;
-  puzzle: MiniCrossword;
+  puzzle: Crossword;
   restoredTime?: number;
   isPaused: boolean;
   setPaused: Dispatch<SetStateAction<boolean>>;
