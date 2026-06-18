@@ -60,28 +60,29 @@ export default function Wordle({ data }: { data: WordleGame }) {
     let checkValue = answer;
     const row = letters[i];
     let allCorrect = true;
+
     for (let j = 0; j < row.length; j++) {
-      const letter = letters[i][j].toLowerCase();
-      if (letter === "") {
-        continue;
-      }
-      if (checkValue.indexOf(letter) === -1) {
-        states[i][j] = "absent";
-        allCorrect = false;
-        continue;
-      }
+      const letter = row[j].toLowerCase();
+
       if (letter === answer[j]) {
         states[i][j] = "correct";
-        checkValue = checkValue.replace(letter, "*");
-        continue;
-      }
-      if (answer.includes(letter)) {
-        states[i][j] = "present";
-        checkValue = checkValue.replace(letter, "*");
-        allCorrect = false;
-        continue;
+        checkValue = checkValue.substring(0, j) + "*" + checkValue.substring(1 + j);
       }
     }
+
+    for (let j = 0; j < row.length; j++) {
+      if (states[i][j] !== "") continue;
+      allCorrect = false;
+      const letter = letters[i][j].toLowerCase();
+
+      if (checkValue.includes(letter)) {
+        states[i][j] = "present";
+        checkValue = checkValue.substring(0, j) + "*" + checkValue.substring(1 + j);
+      } else {
+        states[i][j] = "absent";
+      }
+    }
+
     if (allCorrect && !complete) {
       setComplete(true);
     }
