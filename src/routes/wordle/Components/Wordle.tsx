@@ -77,7 +77,7 @@ export default function Wordle({ data }: { data: WordleGame }) {
 
       if (checkValue.includes(letter)) {
         states[i][j] = "present";
-        checkValue = checkValue.substring(0, j) + "*" + checkValue.substring(1 + j);
+        checkValue = checkValue.substring(0, checkValue.indexOf(letter)) + "*" + checkValue.substring(1 + checkValue.indexOf(letter));
       } else {
         states[i][j] = "absent";
       }

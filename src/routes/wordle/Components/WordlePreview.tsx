@@ -11,32 +11,46 @@ interface WordlePreviewProps {
 
 export default function WordlePreview({ state, rows, columns, solution }: WordlePreviewProps) {
   function getStates(letters: string[][]): string[][] {
-    let result = new Array(rows).fill(0).map(() => new Array(columns).fill(false));
-    for (let i = 0; i < rows; i++) {
-      let checkValue = solution.toLowerCase();
-      const row = letters[i];
+    const states = new Array(rows).fill(0).map(() => new Array(columns).fill(""));
+    let wasAllCorrect = false;
+
+    state.letters.forEach((row, i) => {
+      if (wasAllCorrect) {
+        // stop at any extra rows
+        return;
+      }
+
+      let checkValue = solution;
+      let allCorrect = true;
 
       for (let j = 0; j < row.length; j++) {
-        const letter = letters[i][j].toLowerCase();
-        if (letter === "") {
-          continue;
-        }
-        if (checkValue.indexOf(letter) === -1) {
-          result[i][j] = "absent";
-          continue;
-        }
+        const letter = row[j].toLowerCase();
+
         if (letter === solution[j]) {
-          result[i][j] = "correct";
-          checkValue = checkValue.replace(letter, "*");
-          continue;
-        }
-        if (solution.includes(letter)) {
-          result[i][j] = "present";
-          checkValue = checkValue.replace(letter, "*");
+          states[i][j] = "correct";
+          checkValue = checkValue.substring(0, j) + "*" + checkValue.substring(1 + j);
         }
       }
-    }
-    return result;
+
+      for (let j = 0; j < row.length; j++) {
+        if (states[i][j] !== "") continue;
+        allCorrect = false;
+        const letter = letters[i][j].toLowerCase();
+
+        if (checkValue.includes(letter)) {
+          states[i][j] = "present";
+          checkValue = checkValue.substring(0, checkValue.indexOf(letter)) + "*" + checkValue.substring(1 + checkValue.indexOf(letter));
+        } else {
+          states[i][j] = "absent";
+        }
+      }
+
+      if (allCorrect) {
+        wasAllCorrect = true;
+      }
+    });
+
+    return states;
   }
 
   const states = useMemo(() => getStates(state.letters), [state, solution, rows, columns]);
