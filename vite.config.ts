@@ -7,7 +7,7 @@ config({
   quiet: true
 });
 
-const allowedHostsString = process.env.DEV_ALLOWED_HOSTS
+const allowedHostsString = process.env.DEV_ALLOWED_HOSTS;
 let allowedHosts: string[] = [];
 if (allowedHostsString) {
   allowedHosts = allowedHostsString.split(",");

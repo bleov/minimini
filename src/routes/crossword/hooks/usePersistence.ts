@@ -26,7 +26,8 @@ export function usePersistence() {
     incorrectShown,
     setModalType,
     setComplete,
-    checkBoard
+    checkBoard,
+    toast
   } = useCrosswordContext();
 
   const cloudSave = useCallback(async () => {
@@ -127,7 +128,7 @@ export function usePersistence() {
       }
     } else if (results.totalCells > 0 && results.totalCells === results.totalFilled && results.totalCorrect < results.totalCells) {
       if (incorrectShown.current) return;
-      setModalType("incorrect");
+      toast("Not quite...", 2500);
       incorrectShown.current = true;
       posthog.capture("incorrect_solution", { puzzle: data.id, puddleDate: data.publicationDate, time: timeRef.current, autoCheck });
     }

@@ -2,7 +2,7 @@ import localforage from "localforage";
 import { ChevronLeftIcon, ChevronRightIcon, StarIcon } from "lucide-react";
 import posthog from "posthog-js";
 import { lazy, Suspense, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
-import { Button, Divider, Heading, HStack, Input, Text, Toggle, VStack } from "rsuite";
+import { Button, Divider, Heading, HStack, Input, Text, Toggle, VStack, useToaster, Message } from "rsuite";
 
 import Leaderboard from "@/Components/Leaderboard";
 import { GlobalState } from "@/lib/GlobalState";
@@ -10,7 +10,6 @@ import { renderClue } from "@/lib/formatting";
 import type { MiniCrossword, MiniCrosswordClue } from "@/lib/types";
 import { CrosswordAppState } from "@/routes/crossword/state";
 import { CrosswordProvider, type CrosswordContextValue } from "./CrosswordContext";
-import IncorrectModal from "./IncorrectModal";
 import PuzzleMenu from "./PuzzleMenu";
 import VictoryModal from "./VictoryModal";
 import { useBoardRenderer } from "../hooks/useBoardRenderer";
@@ -37,7 +36,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
   const [selected, setSelected] = useState<number | null>(null);
   const [direction, setDirection] = useState<"across" | "down">("across");
   const [boardState, setBoardState] = useState<{ [key: number]: string }>({});
-  const [modalType, setModalType] = useState<"victory" | "incorrect" | "leaderboard" | null>(null);
+  const [modalType, setModalType] = useState<"victory" | "leaderboard" | null>(null);
   const [keyboardOpen, setKeyboardOpen] = useState<boolean>(startTouched);
   const [autoCheck, setAutoCheck] = useState(false);
   const [boardHeight, setBoardHeight] = useState(0);
@@ -48,6 +47,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
   const rebusRef = useRef<HTMLInputElement>(null);
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
+  const toaster = useToaster();
   const renderedClues = useMemo(() => {
     return body.clues.map((clue) => {
       return renderClue(clue);
@@ -58,6 +58,14 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
 
   const { user } = useContext(GlobalState);
   const { paused, type, options, setModalState, complete, setComplete, setData } = useContext(CrosswordAppState);
+
+  function toast(message: string, duration: number = 1500) {
+    toaster.push(<Message>{message}</Message>, {
+      placement: "topCenter",
+      duration,
+      container: document.documentElement
+    });
+  }
 
   function exit(destination: string = "welcome") {
     setComplete(false);
@@ -412,7 +420,8 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
       arrowKey,
       checkBoard,
       overlayURL,
-      setOverlayURL
+      setOverlayURL,
+      toast
     }),
     [
       alreadyCompleted,
@@ -442,7 +451,8 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
       timeRef,
       type,
       user,
-      overlayURL
+      overlayURL,
+      toast
     ]
   );
 
@@ -660,13 +670,6 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
           setModalType("victory");
         }}
         puzzleData={data}
-      />
-
-      <IncorrectModal
-        open={modalType === "incorrect"}
-        onClose={() => {
-          setModalType(null);
-        }}
       />
 
       <div className="keyboard-container">
