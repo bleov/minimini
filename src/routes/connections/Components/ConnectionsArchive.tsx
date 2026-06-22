@@ -1,22 +1,23 @@
 import { useEffect, useRef, useState } from "react";
 import { Badge, Box, Button, Calendar, Center, Heading, HStack, IconButton, Loader, Text, VStack } from "rsuite";
-import type { ArchiveRecord, ArchiveStateRecord, BasicArchiveRecord, ConnectionsGame } from "@/lib/types";
 import { pb } from "@/main";
 import { getButtonText, getMonthFilter } from "@/lib/formatting";
 import { ArchiveIcon, ArrowLeftIcon, CircleCheckIcon, CircleIcon, HourglassIcon } from "lucide-react";
 import { Link } from "react-router";
+import type { typedArchiveRecord } from "@/lib/types";
+import type { PuzzleStateRecord, PuzzleStateResponse } from "@/lib/pb-types";
 
 export default function ConnectionsArchive() {
-  const [data, setData] = useState<BasicArchiveRecord[] | null>(null);
-  const [puzzleStates, setPuzzleStates] = useState<ArchiveStateRecord[] | null>(null);
+  const [data, setData] = useState<typedArchiveRecord[] | null>(null);
+  const [puzzleStates, setPuzzleStates] = useState<PuzzleStateRecord[] | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return today.toISOString().split("T")[0];
   });
   const [selectedPuzzleState, setSelectedPuzzleState] = useState<string>("unset");
-  const dataCache = useRef<{ [month: string]: BasicArchiveRecord[] }>({});
-  const puzzleStateCache = useRef<{ [month: string]: ArchiveStateRecord[] }>({});
+  const dataCache = useRef<{ [month: string]: typedArchiveRecord[] }>({});
+  const puzzleStateCache = useRef<{ [month: string]: PuzzleStateRecord[] }>({});
 
   const archive = pb.collection("archive");
   const connectionsState = pb.collection("connections_state");
@@ -34,17 +35,17 @@ export default function ConnectionsArchive() {
         const list = (await archive.getFullList({
           fields: "connections_id,publication_date,id",
           filter: `connections_id!=0 && ${monthFilter}`
-        })) as BasicArchiveRecord[];
+        })) as typedArchiveRecord[];
 
         let stateFilter = `user="${pb.authStore?.record?.id}" && ${monthFilter.replace("publication", "puzzle")}`;
 
-        let completed: ArchiveStateRecord[] = [];
+        let completed: PuzzleStateResponse[] = [];
 
         if (list.length > 0) {
           completed = (await connectionsState.getFullList({
             fields: "puzzle_id,complete",
             filter: stateFilter
-          })) as ArchiveStateRecord[];
+          })) as PuzzleStateResponse[];
         }
 
         setData(list);

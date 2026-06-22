@@ -1,6 +1,6 @@
 import PocketBase from "pocketbase";
 
-import type { MiniCrossword, BasicArchiveRecord } from "../src/lib/types";
+import type { Crossword } from "../src/lib/types";
 import fs from "fs";
 
 const REQUIRED_VARS = ["LOCAL_POCKETBASE_URL", "PB_SUPERUSER_EMAIL", "PB_SUPERUSER_PASSWORD"];
@@ -17,7 +17,7 @@ await pb.collection("_superusers").authWithPassword(process.env.PB_SUPERUSER_EMA
 const archive = pb.collection("archive");
 
 console.log("Fetching archive records...");
-const records = (await archive.getFullList({ fields: "publication_date", filter: "mini_id != 0" })) as BasicArchiveRecord[];
+const records = await archive.getFullList({ fields: "publication_date", filter: "mini_id != 0" });
 console.log(`Found ${records.length} pre-existing records.`);
 
 console.log("Finding files to import...");
@@ -59,7 +59,7 @@ for (const file of files) {
   const date = file.split(".")[0];
   console.log(`Importing ${file}...`);
   const content = fs.readFileSync(`bot/import/mini/${file}`, "utf-8");
-  const data = JSON.parse(content) as MiniCrossword;
+  const data = JSON.parse(content) as Crossword;
   data.body[0].SVG = {};
   try {
     await archive.create({

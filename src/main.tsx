@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import posthog from "posthog-js";
 import { PostHogProvider, PostHogErrorBoundary } from "posthog-js/react";
 import PocketBase, { type AuthRecord } from "pocketbase";
+import type { TypedPocketBase } from "@/lib/pb-types.ts";
 import { CustomProvider } from "rsuite";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router";
 import { Suspense, lazy, useEffect, useRef, useState } from "react";
@@ -33,7 +34,7 @@ const WordleApp = lazy(() => import("./routes/wordle/App.tsx"));
 
 export const pb_url = import.meta.env.VITE_POCKETBASE_URL || location.origin;
 
-export const pb = new PocketBase(pb_url);
+export const pb = new PocketBase(pb_url) as TypedPocketBase;
 
 if (import.meta.env.DEV) {
   // @ts-ignore
@@ -64,7 +65,7 @@ function Main() {
         .authRefresh()
         .then((newUser) => {
           console.log("Refreshed auth store");
-          setUser(newUser.record);
+          setUser(pb.authStore.record);
           userRefreshedRef.current = true;
         })
         .catch((err) => {

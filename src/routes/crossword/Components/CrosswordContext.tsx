@@ -8,20 +8,20 @@ import {
   type SetStateAction
 } from "react";
 
-import type { MiniCrossword, MiniCrosswordClue } from "@/lib/types";
+import type { Crossword, CrosswordClue } from "@/lib/types";
 
 export type CrosswordModalType = "victory" | "incorrect" | "leaderboard" | null;
 
 export interface CrosswordContextValue {
-  body: MiniCrossword["body"][number];
-  data: MiniCrossword;
+  body: Crossword["body"][number];
+  data: Crossword;
   user: { id: string } | null;
   stateDocId: RefObject<string>;
   boardRef: RefObject<HTMLDivElement | null>;
   rebusRef: RefObject<HTMLInputElement | null>;
   timeRef: React.RefObject<number[]>;
   incorrectShown: MutableRefObject<boolean>;
-  globalSelectedClue: MiniCrosswordClue | null;
+  globalSelectedClue: CrosswordClue | null;
 
   selected: number | null;
   direction: "across" | "down";

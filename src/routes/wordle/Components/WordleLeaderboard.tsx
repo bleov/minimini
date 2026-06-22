@@ -2,24 +2,20 @@ import { TrophyIcon } from "lucide-react";
 import { useContext, useEffect, useState } from "react";
 import { Col, Grid, Loader, Modal, Row, Text, VStack } from "rsuite";
 import { GlobalState } from "@/lib/GlobalState";
-import type { UserRecord, WordleGame, WordleState } from "@/lib/types";
+import type { WordleGame, WordleState } from "@/lib/types";
 import { pb } from "@/main";
 import posthog from "posthog-js";
 import { FriendsNudge, LeaderboardNudge } from "@/Components/Leaderboard";
 import WordlePreview from "./WordlePreview";
 import { DEFAULT_ROWS } from "./Wordle";
+import type { UsersRecord, WordleLeaderboardRecord, WordleLeaderboardResponse } from "@/lib/pb-types";
 
-interface WordleLeaderboardRecord {
-  id: string;
-  user: string;
-  puzzle_id: number;
-  puzzle_date: string;
-  guesses: number;
-  state: WordleState;
-  expand: {
-    user: UserRecord;
-  };
-}
+type ExpandedWordleLeaderboardRecord = WordleLeaderboardResponse<
+  WordleState,
+  {
+    user: UsersRecord;
+  }
+>;
 
 export default function WordleLeaderboard({
   open,
@@ -33,7 +29,7 @@ export default function WordleLeaderboard({
   const [loading, setLoading] = useState(true);
   // Safari and Chromium seem to have issues with rendering the Table component while the modal is animating, especially on high dpi displays.
   const [ready, setReady] = useState(false);
-  const [data, setData] = useState<WordleLeaderboardRecord[]>([]);
+  const [data, setData] = useState<ExpandedWordleLeaderboardRecord[]>([]);
 
   const { user } = useContext(GlobalState);
 
@@ -46,14 +42,14 @@ export default function WordleLeaderboard({
       try {
         const leaderboard = pb.collection("wordle_leaderboard");
         const filter = `puzzle_id = "${puzzleData.id}"`;
-        const leaderboardData = await leaderboard.getList(1, 50, {
+        const leaderboardData = await leaderboard.getList<ExpandedWordleLeaderboardRecord>(1, 50, {
           sort: "+guesses",
           filter,
           expand: "user"
         });
 
         if (!cancelled) {
-          setData(leaderboardData.items as unknown as WordleLeaderboardRecord[]);
+          setData(leaderboardData.items);
           posthog.capture("view_wordle_leaderboard", { puzzleId: puzzleData.id });
         }
       } catch (err) {
@@ -131,7 +127,7 @@ export default function WordleLeaderboard({
                     <Col key={entry.expand.user.id} span={12}>
                       <VStack className="wordle-leaderboard-card" width={"100%"} alignItems={"center"}>
                         <WordlePreview
-                          state={entry.state}
+                          state={entry.state!}
                           rows={puzzleData.guesses ?? DEFAULT_ROWS}
                           columns={puzzleData.solution.length}
                           solution={puzzleData.solution}

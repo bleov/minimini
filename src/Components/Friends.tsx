@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { ButtonGroup, IconButton, Modal, useDialog } from "rsuite";
 import { Button, Form, HStack, VStack, List, Text, PinInput, Avatar } from "rsuite";
 import { pb } from "../main";
-import type { UserRecord } from "../lib/types";
 
 import "../css/Friends.css";
 import { getDefaultAvatar } from "../lib/avatars";
@@ -12,6 +11,7 @@ import { Stats } from "@/Components/Stats";
 import Nudge from "./Nudge";
 import ProfileCard from "./ProfileCard";
 import posthog from "posthog-js";
+import type { UsersRecord } from "@/lib/pb-types";
 
 const pages = ["main", "list", "code", "mutual"] as const;
 
@@ -20,8 +20,8 @@ function FriendListEntry({
   setFriends,
   setFriendsLoading
 }: {
-  friend: UserRecord;
-  setFriends: (friends: UserRecord[]) => void;
+  friend: UsersRecord;
+  setFriends: (friends: UsersRecord[]) => void;
   setFriendsLoading: (loading: boolean) => void;
 }) {
   const defaultAvatar = useMemo(() => getDefaultAvatar(friend.username), []);
@@ -82,10 +82,10 @@ function FriendListEntry({
   );
 }
 
-async function fetchFriends(setFriends: (friends: UserRecord[]) => void, setFriendsLoading: (loading: boolean) => void) {
+async function fetchFriends(setFriends: (friends: UsersRecord[]) => void, setFriendsLoading: (loading: boolean) => void) {
   if (!pb.authStore.isValid || !pb.authStore.record?.id) return;
   try {
-    const friends: UserRecord[] = await pb.collection("users").getFullList({
+    const friends: UsersRecord[] = await pb.collection("users").getFullList({
       fields: "id,username,friend_code,avatar",
       sort: "username:lower",
       filter: `id != "${pb.authStore.record.id}"`
@@ -98,7 +98,7 @@ async function fetchFriends(setFriends: (friends: UserRecord[]) => void, setFrie
 }
 
 function FriendsList() {
-  const [friends, setFriends] = useState<UserRecord[]>([]);
+  const [friends, setFriends] = useState<UsersRecord[]>([]);
   const [friendsLoading, setFriendsLoading] = useState(true);
 
   useEffect(() => {

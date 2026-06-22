@@ -1,4 +1,3 @@
-import type { ConnectionsCard } from "@/lib/types";
 import { useContext } from "react";
 import { Box, Center, HStack, Text, VStack } from "rsuite";
 import { ConnectionsContext } from "./Connections";

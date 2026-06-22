@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import Wordle from "./Components/Wordle";
-import type { WordleGame } from "@/lib/types";
+import type { typedArchiveResponse, WordleGame } from "@/lib/types";
 import { Center, Content, Loader, Text } from "rsuite";
 import { pb } from "@/main";
 import { useParams } from "react-router";
 import posthog from "posthog-js";
 import WordleArchive from "./Components/WordleArchive";
+import type { CustomPuzzlesResponse, ShapesRecord } from "@/lib/pb-types";
 // import WordleArchive from "./Components/WordleArchive";
 
 export default function App({ custom = false }: { custom?: boolean }) {
@@ -27,9 +28,23 @@ export default function App({ custom = false }: { custom?: boolean }) {
     if (custom) {
       if (params.id) {
         pb.collection("custom_puzzles")
-          .getOne(params.id, { expand: "shape" })
+          .getOne<
+            CustomPuzzlesResponse<
+              WordleGame,
+              {
+                shape: ShapesRecord;
+              }
+            >
+          >(params.id, { expand: "shape" })
           .then((record) => {
-            const newData = record.puzzle as WordleGame;
+            const newData = record.puzzle;
+
+            if (!newData) {
+              setError("No puzzle data found for custom puzzle");
+              console.error("No puzzle data found for custom puzzle");
+              return;
+            }
+
             newData.id = record.id as unknown as number;
             setData(newData);
             posthog.capture("load_custom_wordle");
@@ -48,7 +63,9 @@ export default function App({ custom = false }: { custom?: boolean }) {
           setData(todayData);
           posthog.capture("load_wordle");
         } else if (!isArchive) {
-          const archiveData = await pb.collection("archive").getFirstListItem(`publication_date="${params.date}"`, { fields: "wordle" });
+          const archiveData = await pb
+            .collection("archive")
+            .getFirstListItem<typedArchiveResponse>(`publication_date="${params.date}"`, { fields: "wordle" });
           if (archiveData.wordle !== null) {
             setData(archiveData.wordle);
             posthog.capture("load_archive_wordle");
