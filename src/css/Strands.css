@@ -1,6 +1,42 @@
+@keyframes shake-horizontal {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70% {
+    transform: translateX(-10px);
+  }
+  20%,
+  40%,
+  60% {
+    transform: translateX(10px);
+  }
+  80% {
+    transform: translateX(8px);
+  }
+  90% {
+    transform: translateX(-8px);
+  }
+}
+
+@keyframes scale-up-center {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.2);
+  }
+}
+
 .strands {
+  --text-fg: #121212;
+  --text-alt-fg: #9f9f9f;
   --clue-bg: #aedfee;
   --guess-bg: #dbd8c5;
+  --hint-bg: #c4c1af;
   --spangram-bg: #f8cd05;
 
   position: absolute;
@@ -34,9 +70,56 @@
     }
   }
 
+  .hint-button {
+    position: relative;
+    width: 128px;
+    border-radius: 3vmin;
+    border: solid 2px var(--text-fg);
+
+    p {
+      color: var(--text);
+    }
+
+    .hint-button-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
+      background-color: var(--guess-bg);
+      transition: width 0.5s ease-in-out;
+    }
+
+    .hint-button-text {
+      position: absolute;
+      z-index: 100;
+    }
+  }
+
+  .constructed-word {
+    height: 1lh;
+    width: 100%;
+    text-align: center;
+
+    &.shake {
+      animation: shake-horizontal 0.8s cubic-bezier(0.455, 0.03, 0.515, 0.955) forwards 1;
+    }
+  }
+
   .strands-cell {
     --rs-col-gutter: 0px;
     padding: 6px;
+
+    & button.scale {
+      animation: scale-up-center 0.1s cubic-bezier(0.39, 0.575, 0.565, 1) 2 alternate both;
+    }
+
+    & button.scale-found {
+      animation: scale-up-center 0.1s cubic-bezier(0.39, 0.575, 0.565, 1) 2 alternate both;
+    }
+
+    & button.scale-clue {
+      animation: scale-up-center 0.1s cubic-bezier(0.39, 0.575, 0.565, 1) 2 alternate both;
+    }
 
     button {
       border-radius: 100%;
