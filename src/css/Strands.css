@@ -1,0 +1,50 @@
+.strands {
+  --clue-bg: #aedfee;
+  --guess-bg: #dbd8c5;
+  --spangram-bg: #f8cd05;
+
+  position: absolute;
+  width: 100vw;
+  height: 100vh;
+  top: 0;
+  left: 0;
+  display: grid;
+  justify-content: center;
+  align-content: center;
+
+  .strands-container {
+  }
+
+  .clue-box {
+    border: rgb(223, 223, 223) solid 1px;
+    border-radius: 6px;
+    text-align: center;
+    width: 250px;
+    overflow: hidden;
+
+    .clue-title {
+      background-color: var(--clue-bg);
+      text-transform: uppercase;
+    }
+
+    .clue-hint {
+      font-weight: 700;
+      font-size: 1.3rem;
+      padding: 8px;
+    }
+  }
+
+  .strands-cell {
+    --rs-col-gutter: 0px;
+    padding: 6px;
+
+    button {
+      border-radius: 100%;
+      width: 100%;
+      height: 100%;
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+    }
+  }
+}

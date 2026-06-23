@@ -1,6 +1,6 @@
 import PocketBase from "pocketbase";
 
-import type { ConnectionsGame, Crossword, WordleGame } from "../src/lib/types";
+import type { ConnectionsGame, Crossword, WordleGame, StrandsGame } from "../src/lib/types";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -47,6 +47,10 @@ console.log("Fetching wordle data...");
 const wordleDate = miniData.publicationDate;
 const wordleData: WordleGame = await fetchJSON([HOST, "svc", "wordle", "v2", `${wordleDate}.json`].join("/"));
 
+console.log("Fetching strands data...");
+const strandsDate = miniData.publicationDate;
+const strandsData: StrandsGame = await fetchJSON([HOST, "svc", "strands", "v2", `${strandsDate}.json`].join("/"));
+
 console.log("Creating archive record...");
 
 const data = {
@@ -60,7 +64,9 @@ const data = {
   connections_id: connectionsData.id,
   connections: connectionsData,
   wordle_id: wordleData.id,
-  wordle: wordleData
+  wordle: wordleData,
+  strands_id: strandsData.id,
+  strands: strandsData
 };
 
 const oldRecord = await archive.getFirstListItem(`publication_date="${miniData.publicationDate}"`).catch(() => null);

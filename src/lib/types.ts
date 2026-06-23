@@ -94,6 +94,21 @@ export interface WordleState {
   letters: string[][];
 }
 
+export interface StrandsGame {
+  status: string;
+  id: number;
+  printDate: string;
+  themeWords: string[];
+  editor: string;
+  constructors: string;
+  spangram: string;
+  clue: string;
+  startingBoard: string[];
+  solutions: string[];
+  themeCoords: Record<string, number[][]>;
+  spangramCoords: number[][];
+}
+
 export type typedArchiveResponse<Texpand = unknown> = ArchiveResponse<
   Crossword,
   Crossword,
