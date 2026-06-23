@@ -131,3 +131,9 @@
     }
   }
 }
+
+.strands-leaderboard-card {
+  border: 1px solid var(--rs-border-primary);
+  border-radius: var(--rs-radius-sm);
+  padding: 8px 6px;
+}

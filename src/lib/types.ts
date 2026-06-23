@@ -109,6 +109,17 @@ export interface StrandsGame {
   spangramCoords: number[][];
 }
 
+export interface StrandsState {
+  foundHints: string[];
+  gameHistory: string;
+  hintProgress: number;
+  hintsUsed: number;
+  revealedCells: number[][][];
+  revealedHintCells: number[][];
+  selectedCells: number[][];
+  spangramRevealedCells: number[][];
+}
+
 export type typedArchiveResponse<Texpand = unknown> = ArchiveResponse<
   Crossword,
   Crossword,

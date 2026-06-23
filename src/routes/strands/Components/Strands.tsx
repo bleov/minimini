@@ -1,8 +1,16 @@
 import type { StrandsGame } from "@/lib/types";
-import { createContext, useEffect, useRef, useState, type Dispatch, type SetStateAction } from "react";
-import { Box, Button, Col, Container, Grid, HStack, Loader, Row, Text, VStack } from "rsuite";
-
+import { createContext, useRef, useState, type Dispatch, type SetStateAction } from "react";
+import { Container, HStack, VStack, Box, Loader } from "rsuite";
 import "@/css/Strands.css";
+import StrandsSidebar from "./StrandsSidebar";
+import StrandsText from "./StrandsText";
+import StrandsGrid from "./StrandsGrid";
+import StrandsSVG from "./StrandsSVG";
+import usePersistence from "../hooks/usePersistence";
+
+import StrandsResults from "./StrandsResults";
+import StrandsLeaderboard from "./StrandsLeaderboard";
+
 interface StrandsProps {
   data: StrandsGame;
 }
@@ -25,6 +33,8 @@ export interface StrandsContextType {
   setHintsUsed: Dispatch<SetStateAction<number>>;
   constructedWord: string;
   setConstructedWord: Dispatch<SetStateAction<string>>;
+  gameHistory: string;
+  setGameHistory: Dispatch<SetStateAction<string>>;
   loading: boolean;
   setLoading: Dispatch<SetStateAction<boolean>>;
 }
@@ -41,12 +51,14 @@ export default function Strands({ data }: StrandsProps) {
   const [revealedHintCells, setRevealedHintCells] = useState<number[][]>([]);
   const [constructedWord, setConstructedWord] = useState("");
   const [hintsUsed, setHintsUsed] = useState(0);
+  const [gameHistory, setGameHistory] = useState("");
+  const [lastInputType, setLastInputType] = useState<"click" | "drag">("click");
 
-  const isComplete = revealedCells.length + (spangramRevealedCells.length > 0 ? 1 : 0) === data.themeWords.length + 1;
+  const [modalState, setModalState] = useState<"results" | "leaderboard" | null>(null);
 
   const constructedText = useRef<HTMLParagraphElement | null>(null);
 
-  const [lastInputType, setLastInputType] = useState<"click" | "drag">("click");
+  const isComplete = revealedCells.length + (spangramRevealedCells.length > 0 ? 1 : 0) === data.themeWords.length + 1;
 
   const context: StrandsContextType = {
     data,
@@ -54,51 +66,54 @@ export default function Strands({ data }: StrandsProps) {
     setSelectedCells,
     revealedCells,
     setRevealedCells,
-    spangramRevealedCells,
-    setSpangramRevealedCells,
     hintProgress,
     setHintProgress,
     foundHints,
     setFoundHints,
     revealedHintCells,
     setRevealedHintCells,
-    constructedWord,
-    setConstructedWord,
+    spangramRevealedCells,
+    setSpangramRevealedCells,
     hintsUsed,
     setHintsUsed,
+    constructedWord,
+    setConstructedWord,
+    gameHistory,
+    setGameHistory,
     loading,
     setLoading
   };
 
+  usePersistence(context);
+
+  if (loading) {
+    return <Loader center />;
+  }
+
+  function updateSelectedCells(newCells: number[][]) {
+    if (constructedText.current) {
+      constructedText.current.style.color = "black";
+    }
+    setSelectedCells(newCells);
+    setConstructedWord(newCells.map(([row, col]) => data.startingBoard[row][col]).join(""));
+  }
+
   function handleInteractCell(cellX: number, cellY: number, isClick = true) {
     setLastInputType(isClick ? "click" : "drag");
 
-    const updateCells = (newCells: number[][]) => {
-      constructedText.current!.style.color = "black";
-      setSelectedCells(newCells);
-      setConstructedWord(newCells.map(([row, col]) => data.startingBoard[row][col]).join(""));
-    };
-
-    // if no cells are selected, add that one to the selected
-    // else if the cell is already selected, if the new cell is not adjacent, clear the selection
-    // else if its also already selected, if the new cell is adjacent then add it to the selection
-    // if selecting an already selected cell, remove all cells after it in the chain
-    // if only one cell is selected and its the same as the new cell, clear the selection
-    // if is a click and is the same as the last cell, submit word
-
     if (selectedCells.length === 0) {
-      updateCells([[cellY, cellX]]);
+      updateSelectedCells([[cellY, cellX]]);
       return;
     }
 
     if (selectedCells.length > 19) {
-      updateCells([]);
+      setSelectedCells([]);
       setConstructedWord("Too long");
       return;
     }
 
     if (selectedCells.length === 1 && selectedCells[0][0] === cellY && selectedCells[0][1] === cellX) {
-      updateCells([]);
+      setSelectedCells([]);
       setConstructedWord("Already found");
       return;
     }
@@ -110,22 +125,21 @@ export default function Strands({ data }: StrandsProps) {
 
     const lastCell = selectedCells[selectedCells.length - 1];
     const [lastY, lastX] = lastCell;
-
     const isAdjacent = Math.abs(lastY - cellY) <= 1 && Math.abs(lastX - cellX) <= 1 && !(lastY === cellY && lastX === cellX);
-    const alreadyIsInSelection = selectedCells.findIndex(([row, col]) => row === cellY && col === cellX);
-    const isAlreadySelected = alreadyIsInSelection !== -1;
+
+    const alreadyIndex = selectedCells.findIndex(([row, col]) => row === cellY && col === cellX);
+    const isAlreadySelected = alreadyIndex !== -1;
 
     if (isAlreadySelected) {
-      updateCells(selectedCells.slice(0, alreadyIsInSelection + 1));
+      updateSelectedCells(selectedCells.slice(0, alreadyIndex + 1));
     } else if (isAdjacent) {
-      updateCells([...selectedCells, [cellY, cellX]]);
+      updateSelectedCells([...selectedCells, [cellY, cellX]]);
     } else if (isClick) {
-      updateCells([[cellY, cellX]]);
+      updateSelectedCells([[cellY, cellX]]);
     }
   }
 
   function handleSubmitWord() {
-    console.log("submitting");
     let cells = selectedCells;
     setSelectedCells([]);
 
@@ -133,49 +147,46 @@ export default function Strands({ data }: StrandsProps) {
 
     const removeHint = () =>
       setRevealedHintCells(revealedHintCells.filter(([row, col]) => !cells.some(([r, c]) => r === row && c === col)));
+
     const shakeText = () => {
       constructedText.current?.classList.add("shake");
-
       setTimeout(() => {
         constructedText.current?.classList.remove("shake");
       }, 800);
     };
-    //check for dupes
+
     if (revealedCells.some((cellGroup) => cellGroup.map(([row, col]) => data.startingBoard[row][col]).join("") === word)) {
-      console.log("Already found word:", word);
       shakeText();
       return;
     }
 
     if (spangramRevealedCells.length > 0 && spangramRevealedCells.map(([row, col]) => data.startingBoard[row][col]).join("") === word) {
-      console.log("Already found spangram");
       shakeText();
       return;
     }
 
-    if (data.themeCoords.hasOwnProperty(word)) {
-      console.log("Found word:", word);
-
+    if (Object.prototype.hasOwnProperty.call(data.themeCoords, word)) {
       removeHint();
       setRevealedCells([...revealedCells, [...cells]]);
-      constructedText.current!.style.color = "var(--clue-bg)";
-
+      if (constructedText.current) {
+        constructedText.current.style.color = "var(--clue-bg)";
+      }
+      setGameHistory(gameHistory + "🔵");
       return;
     }
 
     if (data.spangram === word) {
-      console.log("spangrammmm!!!!~~~~ :3");
-
       removeHint();
       setSpangramRevealedCells(cells);
       setConstructedWord("SPANGRAM!");
-      constructedText.current!.style.color = "var(--spangram-bg)";
-
+      if (constructedText.current) {
+        constructedText.current.style.color = "var(--spangram-bg)";
+      }
+      setGameHistory(gameHistory + "🟡");
       return;
     }
 
     if (data.solutions.includes(word)) {
-      console.log("Found solution:", word);
       if (foundHints.includes(word)) {
         shakeText();
         setTimeout(() => {
@@ -183,11 +194,11 @@ export default function Strands({ data }: StrandsProps) {
         }, 1000);
         return;
       }
-
       setFoundHints([...foundHints, word]);
-      constructedText.current!.style.color = "var(--hint-bg)";
+      if (constructedText.current) {
+        constructedText.current.style.color = "var(--hint-bg)";
+      }
       setHintProgress(hintProgress + 1);
-
       return;
     }
 
@@ -202,184 +213,71 @@ export default function Strands({ data }: StrandsProps) {
   }
 
   function handleRequestHint() {
-    if (hintProgress < 3) {
-      return;
-    }
+    if (hintProgress < 3) return;
 
     setHintProgress(hintProgress - 3);
+    setHintsUsed(hintsUsed + 1);
+    setGameHistory(gameHistory + "💡");
 
     const notFoundWords = data.themeWords.filter(
       (word) => !revealedCells.some((cellGroup) => cellGroup.map(([row, col]) => data.startingBoard[row][col]).join("") === word)
     );
 
-    if (notFoundWords.length === 0) {
-      return;
-    }
+    if (notFoundWords.length === 0) return;
 
     const randomWord = notFoundWords[Math.floor(Math.random() * notFoundWords.length)];
     const coords = data.themeCoords[randomWord];
-
     setRevealedHintCells([...coords]);
   }
 
-  const selectedPath = selectedCells.map(([row, col], i) => {
-    const x = (col + 0.5) * (313 / data.startingBoard[0].length);
-    const y = (row + 0.5) * (422 / data.startingBoard.length);
-
-    return `${i === 0 ? "M" : "L"} ${x} ${y}`;
-  });
-
-  const spangramSelectedPath = spangramRevealedCells.map(([row, col], i) => {
-    const x = (col + 0.5) * (313 / data.startingBoard[0].length);
-    const y = (row + 0.5) * (422 / data.startingBoard.length);
-
-    return `${i === 0 ? "M" : "L"} ${x} ${y}`;
-  });
+  const foundCount = revealedCells.length + (spangramRevealedCells.length > 0 ? 1 : 0);
+  const totalCount = data.themeWords.length + 1;
 
   return (
     <StrandsContext.Provider value={context}>
       <Container>
         <HStack spacing={24} width={"100%"} className="strands-container">
-          <VStack spacing={16} alignItems={"center"}>
-            <Box className="clue-box">
-              <VStack spacing={0}>
-                <Box width={"100%"} className="clue-title">
-                  Today's Theme
-                  {/* Theme from {data.printDate} */}
-                </Box>
-                <Box width={"100%"} className="clue-hint">
-                  {data.clue}
-                </Box>
-              </VStack>
-            </Box>
-            <Text size="xl">
-              <span style={{ fontWeight: "bold" }}>{revealedCells.length + (spangramRevealedCells.length > 0 ? 1 : 0)}</span> of{" "}
-              <span style={{ fontWeight: "bold" }}>
-                {/* length plus the spangram */}
-                {data.themeWords.length + 1}
-              </span>{" "}
-              theme words found.
-            </Text>
-            <Button className="hint-button" onClick={handleRequestHint}>
-              <Box className="hint-button-bg" width={`${(hintProgress / 3) * 100}%`}></Box>
-              <Text className="hint-button-text">Hint</Text>
-              <Text>Hint</Text>
-            </Button>
-          </VStack>
-          <VStack>
-            <Text size="xl" weight="bold" className="constructed-word" ref={constructedText}>
-              {constructedWord}
-            </Text>
+          <StrandsSidebar
+            clue={data.clue}
+            hintProgress={hintProgress}
+            onRequestHint={handleRequestHint}
+            foundCount={foundCount}
+            totalCount={totalCount}
+            setModal={setModalState}
+            isComplete={isComplete}
+          />
+          <VStack spacing={16}>
+            <StrandsText constructedWord={constructedWord} textRef={constructedText} />
             <Box w={324} h={422} position={"relative"}>
-              <svg
-                width="100%"
-                height="100%"
-                viewBox="0 0 324 422"
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  pointerEvents: "none"
-                }}
-              >
-                {revealedCells.map((cellGroup, i) => {
-                  const path = cellGroup
-                    .map(([row, col], i) => {
-                      // 313 is some magic number, should find a way to calc it or smth
-                      const x = (col + 0.5) * (313 / data.startingBoard[0].length);
-                      const y = (row + 0.5) * (422 / data.startingBoard.length);
-
-                      return `${i === 0 ? "M" : "L"} ${x} ${y}`;
-                    })
-                    .join(" ");
-
-                  return <path key={i} d={path} stroke="var(--clue-bg)" fill="none" strokeWidth={12} strokeLinecap="round"></path>;
-                })}
-                <path d={selectedPath.join(" ")} stroke="var(--guess-bg)" fill="none" strokeWidth={12} strokeLinecap="round"></path>
-                <path
-                  d={spangramSelectedPath.join(" ")}
-                  stroke="var(--spangram-bg)"
-                  fill="none"
-                  strokeWidth={12}
-                  strokeLinecap="round"
-                ></path>
-              </svg>
-              <Box position={"absolute"} inset={0}>
-                <Grid
-                  fluid
-                  h={"100%"}
-                  justify={"space-between"}
-                  onMouseUp={() => {
-                    if (lastInputType === "drag") {
-                      handleSubmitWord();
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (lastInputType === "drag" && e.buttons === 1) {
-                      handleSubmitWord();
-                    }
-                  }}
-                >
-                  {data.startingBoard.map((row, rowIndex) => {
-                    return (
-                      <Row height={"calc(100% / " + data.startingBoard.length + ")"} key={rowIndex} className="strands-row" w={"100%"}>
-                        {row.split("").map((cell, cellIndex) => {
-                          return (
-                            <Col span={4} key={cellIndex} className="strands-cell">
-                              <button
-                                key={
-                                  spangramRevealedCells.some(([r, c]) => r === rowIndex && c === cellIndex)
-                                    ? `spangram-${rowIndex}-${cellIndex}`
-                                    : selectedCells.some(([r, c]) => r === rowIndex && c === cellIndex)
-                                      ? `selected-${rowIndex}-${cellIndex}`
-                                      : `normal-${rowIndex}-${cellIndex}`
-                                }
-                                onMouseDown={() => handleInteractCell(cellIndex, rowIndex)}
-                                onMouseEnter={(e) => {
-                                  if (e.buttons === 1) {
-                                    handleInteractCell(cellIndex, rowIndex, false);
-                                  }
-                                }}
-                                style={{
-                                  backgroundColor: selectedCells.some(([r, c]) => r === rowIndex && c === cellIndex)
-                                    ? "var(--guess-bg)"
-                                    : revealedCells.flat(1).some(([r, c]) => r === rowIndex && c === cellIndex)
-                                      ? "var(--clue-bg)"
-                                      : spangramRevealedCells.some(([r, c]) => r === rowIndex && c === cellIndex)
-                                        ? "var(--spangram-bg)"
-                                        : "transparent",
-                                  outline: revealedHintCells.some(([r, c]) => r === rowIndex && c === cellIndex)
-                                    ? "2px dashed var(--clue-bg)"
-                                    : "none",
-                                  animationDelay: `${
-                                    spangramRevealedCells.some(([r, c]) => r === rowIndex && c === cellIndex)
-                                      ? (spangramRevealedCells.findIndex(([r, c]) => r === rowIndex && c === cellIndex) + 1) * 50
-                                      : 0
-                                  }ms`
-                                }}
-                                className={`${
-                                  selectedCells.some(([r, c]) => r === rowIndex && c === cellIndex)
-                                    ? "scale"
-                                    : spangramRevealedCells.some(([r, c]) => r === rowIndex && c === cellIndex)
-                                      ? "scale-found"
-                                      : revealedCells.flat(1).some(([r, c]) => r === rowIndex && c === cellIndex)
-                                        ? "scale-clue"
-                                        : ""
-                                }`}
-                              >
-                                <Text size="xl">{cell}</Text>
-                              </button>
-                            </Col>
-                          );
-                        })}
-                      </Row>
-                    );
-                  })}
-                </Grid>
-              </Box>
+              <StrandsSVG
+                selectedCells={selectedCells}
+                revealedCells={revealedCells}
+                spangramCells={spangramRevealedCells}
+                rows={data.startingBoard.length}
+                cols={data.startingBoard[0].length}
+              />
+              <StrandsGrid
+                board={data.startingBoard}
+                selectedCells={selectedCells}
+                revealedCells={revealedCells}
+                spangramCells={spangramRevealedCells}
+                hintCells={revealedHintCells}
+                lastInputType={lastInputType}
+                onInteractCell={handleInteractCell}
+                onSubmitWord={handleSubmitWord}
+              />
             </Box>
           </VStack>
         </HStack>
       </Container>
+      <StrandsResults
+        open={modalState === "results"}
+        onClose={() => setModalState(null)}
+        onOpenLeaderboard={() => setModalState("leaderboard")}
+        data={data}
+        resultText={hintsUsed === 0 ? "Perfect!" : hintsUsed === 1 ? "Great!" : "Well Done!"}
+      />
+      <StrandsLeaderboard setOpen={() => setModalState("results")} open={modalState === "leaderboard"} puzzleData={data} />
     </StrandsContext.Provider>
   );
 }
