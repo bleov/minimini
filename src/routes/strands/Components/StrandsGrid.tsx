@@ -25,7 +25,7 @@ export default function StrandsGrid({
   const flatRevealed = revealedCells.flat(1);
 
   return (
-    <Box position={"absolute"} inset={0}>
+    <Box position={"absolute"} inset={0} className="strands-grid">
       <Grid
         fluid
         h={"100%"}

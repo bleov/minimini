@@ -152,6 +152,10 @@
 
     font-weight: 500;
   }
+
+  .strands-grid {
+    touch-action: none;
+  }
 }
 
 .strands-leaderboard-card {
