@@ -53,18 +53,19 @@
     border: rgb(223, 223, 223) solid 1px;
     border-radius: 6px;
     text-align: center;
-    width: 250px;
+    width: 315px;
     overflow: hidden;
 
     .clue-title {
       background-color: var(--clue-bg);
       text-transform: uppercase;
+      font-weight: 600;
     }
 
     .clue-hint {
       font-weight: 700;
-      font-size: 1.3rem;
-      padding: 8px;
+      font-size: 24px;
+      padding: 12px;
     }
   }
 
