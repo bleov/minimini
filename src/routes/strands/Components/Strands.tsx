@@ -1,6 +1,6 @@
 import type { StrandsGame } from "@/lib/types";
 import { createContext, useRef, useState, type Dispatch, type SetStateAction } from "react";
-import { Container, VStack, Box, Loader, Stack, useBreakpointValue } from "rsuite";
+import { Container, VStack, Box, Loader, Stack, useMediaQuery } from "rsuite";
 import "@/css/Strands.css";
 import StrandsSidebar from "./StrandsSidebar";
 import StrandsText from "./StrandsText";
@@ -55,10 +55,7 @@ export default function Strands({ data }: StrandsProps) {
   const [lastInputType, setLastInputType] = useState<"click" | "drag">("click");
   const [modalState, setModalState] = useState<"results" | "leaderboard" | null>(null);
 
-  const stackDirection: any = useBreakpointValue({
-    sm: "column",
-    md: "row"
-  });
+  const isCollapsed: boolean = useMediaQuery("(max-width: 730px)")[0];
 
   const constructedText = useRef<HTMLParagraphElement | null>(null);
 
@@ -240,7 +237,7 @@ export default function Strands({ data }: StrandsProps) {
   return (
     <StrandsContext.Provider value={context}>
       <Container>
-        <Stack direction={stackDirection} spacing={32} width={"100%"} className="strands-container">
+        <Stack direction={isCollapsed ? "column" : "row"} spacing={32} width={"100%"} className="strands-container">
           <StrandsSidebar
             clue={data.clue}
             hintProgress={hintProgress}
