@@ -39,7 +39,7 @@ export default function StrandsCell({
         }}
         className={isSelected ? "scale" : isSpangram ? "scale-found" : isRevealed ? "scale-clue" : ""}
       >
-        <Text size="xl">{letter}</Text>
+        <Text size={24}>{letter}</Text>
       </button>
     </Col>
   );
