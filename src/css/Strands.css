@@ -103,6 +103,16 @@
         color: white;
       }
     }
+
+    background-color: white;
+    transition: scale 50ms;
+    &:hover {
+      background-color: unset;
+    }
+    &:active {
+      background-color: white;
+      scale: 0.9;
+    }
   }
 
   .constructed-word {
