@@ -38,6 +38,7 @@
   --guess-bg: #dbd8c5;
   --hint-bg: #c4c1af;
   --spangram-bg: #f8cd05;
+  --text-correct: #3f9ebc;
 
   position: absolute;
   width: 100vw;
@@ -47,9 +48,6 @@
   display: grid;
   justify-content: center;
   align-content: center;
-
-  .strands-container {
-  }
 
   .clue-box {
     border: rgb(223, 223, 223) solid 1px;

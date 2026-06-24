@@ -173,7 +173,7 @@ export default function Strands({ data }: StrandsProps) {
       removeHint();
       setRevealedCells([...revealedCells, [...cells]]);
       if (constructedText.current) {
-        constructedText.current.style.color = "var(--clue-bg)";
+        constructedText.current.style.color = "var(--text-correct)";
       }
       setGameHistory(gameHistory + "🔵");
       return;
