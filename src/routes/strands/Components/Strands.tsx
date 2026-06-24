@@ -1,6 +1,6 @@
 import type { StrandsGame } from "@/lib/types";
 import { createContext, useRef, useState, type Dispatch, type SetStateAction } from "react";
-import { Container, HStack, VStack, Box, Loader } from "rsuite";
+import { Container, VStack, Box, Loader, Stack, useBreakpointValue } from "rsuite";
 import "@/css/Strands.css";
 import StrandsSidebar from "./StrandsSidebar";
 import StrandsText from "./StrandsText";
@@ -53,8 +53,12 @@ export default function Strands({ data }: StrandsProps) {
   const [hintsUsed, setHintsUsed] = useState(0);
   const [gameHistory, setGameHistory] = useState("");
   const [lastInputType, setLastInputType] = useState<"click" | "drag">("click");
-
   const [modalState, setModalState] = useState<"results" | "leaderboard" | null>(null);
+
+  const stackDirection: any = useBreakpointValue({
+    sm: "column",
+    md: "row"
+  });
 
   const constructedText = useRef<HTMLParagraphElement | null>(null);
 
@@ -236,7 +240,7 @@ export default function Strands({ data }: StrandsProps) {
   return (
     <StrandsContext.Provider value={context}>
       <Container>
-        <HStack spacing={24} width={"100%"} className="strands-container">
+        <Stack direction={stackDirection} spacing={32} width={"100%"} className="strands-container">
           <StrandsSidebar
             clue={data.clue}
             hintProgress={hintProgress}
@@ -268,7 +272,7 @@ export default function Strands({ data }: StrandsProps) {
               />
             </Box>
           </VStack>
-        </HStack>
+        </Stack>
       </Container>
       <StrandsResults
         open={modalState === "results"}

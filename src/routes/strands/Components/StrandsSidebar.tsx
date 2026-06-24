@@ -20,7 +20,7 @@ export default function StrandsSidebar({
   isComplete
 }: StrandsSidebarProps) {
   return (
-    <VStack spacing={16} alignItems={"center"}>
+    <VStack spacing={16} alignItems={"center"} width={"100%"}>
       <Box className="clue-box">
         <VStack spacing={0}>
           <Box width={"100%"} className="clue-title">
