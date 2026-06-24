@@ -70,9 +70,11 @@
 
   .hint-button {
     position: relative;
-    width: 128px;
-    border-radius: 3vmin;
+    width: 150px;
+    height: 44px;
+    border-radius: 24px;
     border: solid 2px var(--text-fg);
+    font-size: 16px;
 
     p {
       color: var(--text);
