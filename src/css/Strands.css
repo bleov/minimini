@@ -91,6 +91,15 @@
       position: absolute;
       z-index: 100;
     }
+
+    &.full {
+      .hint-button-bg {
+        background-color: black;
+      }
+      .hint-button-text {
+        color: white;
+      }
+    }
   }
 
   .constructed-word {
