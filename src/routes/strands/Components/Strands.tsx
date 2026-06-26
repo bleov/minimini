@@ -234,6 +234,10 @@ export default function Strands({ data }: StrandsProps) {
   const foundCount = revealedCells.length + (spangramRevealedCells.length > 0 ? 1 : 0);
   const totalCount = data.themeWords.length + 1;
 
+  const containerClassList = ["strands-container"];
+  if (isCollapsed) containerClassList.push("collapsed");
+  if (isComplete) containerClassList.push("complete");
+
   return (
     <StrandsContext.Provider value={context}>
       <Container>
@@ -241,7 +245,7 @@ export default function Strands({ data }: StrandsProps) {
           direction={isCollapsed ? "column" : "row"}
           spacing={isCollapsed ? 16 : 32}
           width={"100%"}
-          className={`strands-container${isCollapsed ? " collapsed" : ""}`}
+          className={containerClassList.join(" ")}
         >
           <StrandsSidebar
             clue={data.clue}
@@ -271,6 +275,7 @@ export default function Strands({ data }: StrandsProps) {
                 lastInputType={lastInputType}
                 onInteractCell={handleInteractCell}
                 onSubmitWord={handleSubmitWord}
+                isComplete={isComplete}
               />
             </Box>
           </VStack>

@@ -163,6 +163,14 @@
       font-size: 20px;
     }
   }
+
+  .strands-container.complete {
+    .strands-cell {
+      button {
+        cursor: default;
+      }
+    }
+  }
 }
 
 .strands-leaderboard-card {

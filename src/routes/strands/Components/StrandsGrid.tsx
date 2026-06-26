@@ -10,6 +10,7 @@ interface StrandsGridProps {
   lastInputType: "click" | "drag";
   onInteractCell: (x: number, y: number, isClick: boolean) => void;
   onSubmitWord: () => void;
+  isComplete: boolean;
 }
 
 export default function StrandsGrid({
@@ -20,7 +21,8 @@ export default function StrandsGrid({
   hintCells,
   lastInputType,
   onInteractCell,
-  onSubmitWord
+  onSubmitWord,
+  isComplete
 }: StrandsGridProps) {
   const flatRevealed = revealedCells.flat(1);
 
@@ -31,12 +33,12 @@ export default function StrandsGrid({
         h={"100%"}
         justify={"space-between"}
         onMouseUp={() => {
-          if (lastInputType === "drag") {
+          if (lastInputType === "drag" && !isComplete) {
             onSubmitWord();
           }
         }}
         onMouseLeave={(e) => {
-          if (lastInputType === "drag" && e.buttons === 1) {
+          if (lastInputType === "drag" && e.buttons === 1 && !isComplete) {
             onSubmitWord();
           }
         }}
@@ -61,9 +63,12 @@ export default function StrandsGrid({
                   isSpangram={isSpangram}
                   isHint={isHint}
                   animationDelay={animationDelayMs}
-                  onMouseDown={() => onInteractCell(cellIndex, rowIndex, true)}
+                  onMouseDown={() => {
+                    if (isComplete) return;
+                    onInteractCell(cellIndex, rowIndex, true);
+                  }}
                   onMouseEnter={(e) => {
-                    if (e.buttons === 1) {
+                    if (e.buttons === 1 && !isComplete) {
                       onInteractCell(cellIndex, rowIndex, false);
                     }
                   }}
