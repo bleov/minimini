@@ -23,6 +23,8 @@ export const Collections = {
 	PuzzleStats: "puzzle_stats",
 	Ratings: "ratings",
 	Shapes: "shapes",
+	StrandsLeaderboard: "strands_leaderboard",
+	StrandsState: "strands_state",
 	UserDailyStats: "user_daily_stats",
 	UserMidiStats: "user_midi_stats",
 	UserMiniStats: "user_mini_stats",
@@ -110,7 +112,7 @@ export type SuperusersRecord = {
 	verified?: boolean
 }
 
-export type ArchiveRecord<Tconnections = unknown, Tdaily = unknown, Tmidi = unknown, Tmini = unknown, Twordle = unknown> = {
+export type ArchiveRecord<Tconnections = unknown, Tdaily = unknown, Tmidi = unknown, Tmini = unknown, Tstrands = unknown, Twordle = unknown> = {
 	connections?: null | Tconnections
 	connections_id?: number
 	created: IsoAutoDateString
@@ -123,6 +125,8 @@ export type ArchiveRecord<Tconnections = unknown, Tdaily = unknown, Tmidi = unkn
 	mini?: null | Tmini
 	mini_id?: number
 	publication_date: string
+	strands?: null | Tstrands
+	strands_id?: number
 	updated: IsoAutoDateString
 	wordle?: null | Twordle
 	wordle_id?: number
@@ -284,6 +288,28 @@ export type ShapesRecord<Tdata = unknown> = {
 	updated: IsoAutoDateString
 }
 
+export type StrandsLeaderboardRecord<Tstate = unknown> = {
+	created: IsoAutoDateString
+	hints_used: number
+	id: string
+	puzzle_date?: string
+	puzzle_id: number
+	state?: null | Tstate
+	updated: IsoAutoDateString
+	user: RecordIdString
+}
+
+export type StrandsStateRecord<Tstate = unknown> = {
+	complete?: boolean
+	created: IsoAutoDateString
+	id: string
+	puzzle_date?: string
+	puzzle_id: number
+	state?: null | Tstate
+	updated: IsoAutoDateString
+	user: RecordIdString
+}
+
 export type UserDailyStatsRecord<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown> = {
 	average_time?: null | Taverage_time
 	highest_time?: null | Thighest_time
@@ -363,7 +389,7 @@ export type ExternalauthsResponse<Texpand = unknown> = Required<ExternalauthsRec
 export type MfasResponse<Texpand = unknown> = Required<MfasRecord> & BaseSystemFields<Texpand>
 export type OtpsResponse<Texpand = unknown> = Required<OtpsRecord> & BaseSystemFields<Texpand>
 export type SuperusersResponse<Texpand = unknown> = Required<SuperusersRecord> & AuthSystemFields<Texpand>
-export type ArchiveResponse<Tconnections = unknown, Tdaily = unknown, Tmidi = unknown, Tmini = unknown, Twordle = unknown, Texpand = unknown> = Required<ArchiveRecord<Tconnections, Tdaily, Tmidi, Tmini, Twordle>> & BaseSystemFields<Texpand>
+export type ArchiveResponse<Tconnections = unknown, Tdaily = unknown, Tmidi = unknown, Tmini = unknown, Tstrands = unknown, Twordle = unknown, Texpand = unknown> = Required<ArchiveRecord<Tconnections, Tdaily, Tmidi, Tmini, Tstrands, Twordle>> & BaseSystemFields<Texpand>
 export type AverageRatingsResponse<Trating = unknown, Texpand = unknown> = Required<AverageRatingsRecord<Trating>> & BaseSystemFields<Texpand>
 export type ConnectionsLeaderboardResponse<Tguesses = unknown, Torder = unknown, Texpand = unknown> = Required<ConnectionsLeaderboardRecord<Tguesses, Torder>> & BaseSystemFields<Texpand>
 export type ConnectionsStateResponse<Tstate = unknown, Texpand = unknown> = Required<ConnectionsStateRecord<Tstate>> & BaseSystemFields<Texpand>
@@ -375,6 +401,8 @@ export type PuzzleStateResponse<Tboard_state = unknown, Tselected = unknown, Tex
 export type PuzzleStatsResponse<Taverage_time = unknown, Thighest_time = unknown, Tlowest_time = unknown, Texpand = unknown> = Required<PuzzleStatsRecord<Taverage_time, Thighest_time, Tlowest_time>> & BaseSystemFields<Texpand>
 export type RatingsResponse<Texpand = unknown> = Required<RatingsRecord> & BaseSystemFields<Texpand>
 export type ShapesResponse<Tdata = unknown, Texpand = unknown> = Required<ShapesRecord<Tdata>> & BaseSystemFields<Texpand>
+export type StrandsLeaderboardResponse<Tstate = unknown, Texpand = unknown> = Required<StrandsLeaderboardRecord<Tstate>> & BaseSystemFields<Texpand>
+export type StrandsStateResponse<Tstate = unknown, Texpand = unknown> = Required<StrandsStateRecord<Tstate>> & BaseSystemFields<Texpand>
 export type UserDailyStatsResponse<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown, Texpand = unknown> = Required<UserDailyStatsRecord<Taverage_time, Thighest_time, Thighest_time_id, Tlowest_time, Tlowest_time_id, Tnum_cheated, Tnum_desktop>> & BaseSystemFields<Texpand>
 export type UserMidiStatsResponse<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown, Texpand = unknown> = Required<UserMidiStatsRecord<Taverage_time, Thighest_time, Thighest_time_id, Tlowest_time, Tlowest_time_id, Tnum_cheated, Tnum_desktop>> & BaseSystemFields<Texpand>
 export type UserMiniStatsResponse<Taverage_time = unknown, Thighest_time = unknown, Thighest_time_id = unknown, Tlowest_time = unknown, Tlowest_time_id = unknown, Tnum_cheated = unknown, Tnum_desktop = unknown, Texpand = unknown> = Required<UserMiniStatsRecord<Taverage_time, Thighest_time, Thighest_time_id, Tlowest_time, Tlowest_time_id, Tnum_cheated, Tnum_desktop>> & BaseSystemFields<Texpand>
@@ -402,6 +430,8 @@ export type CollectionRecords = {
 	puzzle_stats: PuzzleStatsRecord
 	ratings: RatingsRecord
 	shapes: ShapesRecord
+	strands_leaderboard: StrandsLeaderboardRecord
+	strands_state: StrandsStateRecord
 	user_daily_stats: UserDailyStatsRecord
 	user_midi_stats: UserMidiStatsRecord
 	user_mini_stats: UserMiniStatsRecord
@@ -428,6 +458,8 @@ export type CollectionResponses = {
 	puzzle_stats: PuzzleStatsResponse
 	ratings: RatingsResponse
 	shapes: ShapesResponse
+	strands_leaderboard: StrandsLeaderboardResponse
+	strands_state: StrandsStateResponse
 	user_daily_stats: UserDailyStatsResponse
 	user_midi_stats: UserMidiStatsResponse
 	user_mini_stats: UserMiniStatsResponse
