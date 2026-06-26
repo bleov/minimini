@@ -34,7 +34,7 @@ export default function StrandsCell({
         onMouseEnter={onMouseEnter}
         style={{
           backgroundColor: bgColor,
-          outline: isHint ? "2px dashed var(--clue-bg)" : "none",
+          outline: isHint && !isSelected ? "2px dashed var(--clue-bg)" : "none",
           animationDelay: `${animationDelay}ms`
         }}
         className={isSelected ? "scale" : isSpangram ? "scale-found" : isRevealed ? "scale-clue" : ""}
