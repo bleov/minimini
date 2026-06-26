@@ -25,7 +25,6 @@ export default function StrandsSidebar({
         <VStack spacing={0}>
           <Box width={"100%"} className="clue-title">
             Today's Theme
-            {/* Theme from {data.printDate} */}
           </Box>
           <Box width={"100%"} className="clue-hint">
             {clue}

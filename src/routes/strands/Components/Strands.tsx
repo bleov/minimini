@@ -237,7 +237,12 @@ export default function Strands({ data }: StrandsProps) {
   return (
     <StrandsContext.Provider value={context}>
       <Container>
-        <Stack direction={isCollapsed ? "column" : "row"} spacing={32} width={"100%"} className="strands-container">
+        <Stack
+          direction={isCollapsed ? "column" : "row"}
+          spacing={isCollapsed ? 16 : 32}
+          width={"100%"}
+          className={`strands-container${isCollapsed ? " collapsed" : ""}`}
+        >
           <StrandsSidebar
             clue={data.clue}
             hintProgress={hintProgress}

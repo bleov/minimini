@@ -156,6 +156,13 @@
   .strands-grid {
     touch-action: none;
   }
+
+  .strands-container.collapsed {
+    .clue-hint {
+      padding: 6px;
+      font-size: 20px;
+    }
+  }
 }
 
 .strands-leaderboard-card {
