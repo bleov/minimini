@@ -131,7 +131,7 @@ export default function Index() {
             <LinkCard title="The Daily" description="Large crossword puzzles" link="/daily" imageSrc="/icons/daily/pwa-192x192.png" />
           </>
         ) : (
-          <CardGroup columns={columns} className="game-cards">
+          <CardGroup columns={columns} spacing={10} className="game-cards game-cards-small">
             <LinkCard title="The Midi" description="" link="/midi" imageSrc="/icons/midi/pwa-192x192.png" small />
             <LinkCard title="The Daily" description="" link="/daily" imageSrc="/icons/daily/pwa-192x192.png" small />
           </CardGroup>
@@ -159,7 +159,13 @@ export default function Index() {
             </Whisper>
           </Center>
         </LinkCard>
-        <LinkCard title="Strands" description="Uncover hidden words" link="/strands" imageSrc="/icons/strands/pwa-192x192.png" />
+        <LinkCard
+          title="Strands"
+          description="Uncover hidden words"
+          link="/strands"
+          imageSrc="/icons/strands/pwa-192x192.png"
+          badgeContent="New"
+        />
         <LinkCard
           title="Custom Puzzles"
           description="Create and share puzzles"

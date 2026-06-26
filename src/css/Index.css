@@ -42,7 +42,8 @@
     color: unset !important;
   }
 
-  .link-card:not(.link-card-small) {
+  .link-card:not(.link-card-small),
+  .game-cards-small {
     width: 305px;
   }
 
@@ -59,7 +60,7 @@
       margin-inline-start: 5px !important;
     }
     .rs-text-bold {
-      font-size: 14px;
+      font-size: 15px;
     }
     .rs-card-header {
       padding-inline-start: 5px !important;
