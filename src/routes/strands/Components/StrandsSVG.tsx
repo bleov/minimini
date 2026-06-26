@@ -33,9 +33,9 @@ export default function StrandsSVG({ selectedCells, revealedCells, spangramCells
         return <path key={i} d={path} stroke="var(--clue-bg)" fill="none" strokeWidth={12} strokeLinecap="round" />;
       })}
 
-      {selectedPath && <path d={selectedPath} stroke="var(--guess-bg)" fill="none" strokeWidth={12} strokeLinecap="round" />}
-
       {spangramPath && <path d={spangramPath} stroke="var(--spangram-bg)" fill="none" strokeWidth={12} strokeLinecap="round" />}
+
+      {selectedPath && <path d={selectedPath} stroke="var(--guess-bg)" fill="none" strokeWidth={12} strokeLinecap="round" />}
     </Box>
   );
 }
