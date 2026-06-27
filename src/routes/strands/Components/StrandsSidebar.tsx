@@ -36,7 +36,7 @@ export default function StrandsSidebar({
         found.
       </Text>
       <Button
-        className={`hint-button${hintProgress === 3 ? " full" : ""}`}
+        className={`hint-button${hintProgress === 3 && !isComplete ? " full" : ""}`}
         onClick={() => {
           if (isComplete) {
             setModal("results");
