@@ -42,7 +42,6 @@ export default function usePersistence(context: StrandsContextType): () => void 
   };
 
   const saveRef = useRef(save);
-  const completeRef = useRef(false);
   const saveReadyRef = useRef(false);
   const recordIdRef = useRef<string | null>(null);
 
@@ -81,7 +80,8 @@ export default function usePersistence(context: StrandsContextType): () => void 
       puzzle_id: data.id,
       puzzle_date: data.printDate,
       state: saveRef.current,
-      complete: completeRef.current
+      complete:
+        saveRef.current.revealedCells.length + (saveRef.current.spangramRevealedCells.length > 0 ? 1 : 0) === data.themeWords.length + 1
     };
 
     if (recordIdRef.current) {
@@ -141,8 +141,6 @@ export default function usePersistence(context: StrandsContextType): () => void 
       saveRef.current.revealedCells.length + (saveRef.current.spangramRevealedCells.length > 0 ? 1 : 0) === data.themeWords.length + 1;
 
     if (isComplete) {
-      completeRef.current = true;
-
       if (pb.authStore.isValid) {
         const leaderboard = pb.collection("strands_leaderboard");
         const user = pb.authStore.record;
