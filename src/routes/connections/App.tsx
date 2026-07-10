@@ -5,8 +5,7 @@ import { Center, Content, Loader, Text } from "rsuite";
 import { pb } from "@/main";
 import { useParams } from "react-router";
 import posthog from "posthog-js";
-import ConnectionsArchive from "./Components/ConnectionsArchive";
-import { useLocation } from "react-router";
+import ArchivePage from "@/Components/ArchivePage";
 
 export default function App({ custom = false }: { custom?: boolean }) {
   const [data, setData] = useState<ConnectionsGame | null>(null);
@@ -52,7 +51,7 @@ export default function App({ custom = false }: { custom?: boolean }) {
             .collection("archive")
             .getFirstListItem(`publication_date="${params.date}"`, { fields: "connections" });
           if (archiveData.connections !== null) {
-            setData(archiveData.connections);
+            setData(archiveData.connections as ConnectionsGame);
             posthog.capture("load_archive_connections");
           } else {
             setError("Failed to load puzzle.");
@@ -88,7 +87,7 @@ export default function App({ custom = false }: { custom?: boolean }) {
   if (isArchive) {
     return (
       <Content className="connections">
-        <ConnectionsArchive />
+        <ArchivePage type="connections" />
       </Content>
     );
   }

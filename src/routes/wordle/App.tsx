@@ -5,9 +5,8 @@ import { Center, Content, Loader, Text } from "rsuite";
 import { pb } from "@/main";
 import { useParams } from "react-router";
 import posthog from "posthog-js";
-import WordleArchive from "./Components/WordleArchive";
 import type { CustomPuzzlesResponse, ShapesRecord } from "@/lib/pb-types";
-// import WordleArchive from "./Components/WordleArchive";
+import ArchivePage from "@/Components/ArchivePage";
 
 export default function App({ custom = false }: { custom?: boolean }) {
   const [data, setData] = useState<WordleGame | null>(null);
@@ -67,7 +66,7 @@ export default function App({ custom = false }: { custom?: boolean }) {
             .collection("archive")
             .getFirstListItem<typedArchiveResponse>(`publication_date="${params.date}"`, { fields: "wordle" });
           if (archiveData.wordle !== null) {
-            setData(archiveData.wordle);
+            setData(archiveData.wordle as WordleGame);
             posthog.capture("load_archive_wordle");
           } else {
             setError("Failed to load puzzle.");
@@ -101,7 +100,7 @@ export default function App({ custom = false }: { custom?: boolean }) {
   }
 
   if (isArchive) {
-    return <Content className="connections">{<WordleArchive />}</Content>;
+    return <Content className="connections">{<ArchivePage type="wordle" />}</Content>;
   }
 
   return <Content className="wordle">{data ? <Wordle data={data} /> : <Loader center />}</Content>;

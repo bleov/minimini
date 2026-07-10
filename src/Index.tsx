@@ -159,13 +159,15 @@ export default function Index() {
             </Whisper>
           </Center>
         </LinkCard>
-        <LinkCard
-          title="Strands"
-          description="Uncover hidden words"
-          link="/strands"
-          imageSrc="/icons/strands/pwa-192x192.png"
-          badgeContent="New"
-        />
+        <LinkCard title="Strands" description="Uncover hidden words" link="/strands/today" imageSrc="/icons/strands/pwa-192x192.png">
+          <Center paddingRight={17}>
+            <Whisper placement="top" speaker={<Tooltip>Archive</Tooltip>}>
+              <Link to={"/strands/archive"}>
+                <IconButton icon={<ArchiveIcon />} />
+              </Link>
+            </Whisper>
+          </Center>
+        </LinkCard>
         <LinkCard
           title="Custom Puzzles"
           description="Create and share puzzles"

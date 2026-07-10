@@ -106,7 +106,8 @@ function Main() {
             <Route path="/wordle" element={<Navigate to="/wordle/today" replace />} />
             <Route path="/wordle/:date" element={<WordleApp />} />
 
-            <Route path="/strands" element={<StrandsApp />} />
+            <Route path="/strands" element={<Navigate to="/strands/today" replace />} />
+            <Route path="/strands/:date" element={<StrandsApp />} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>

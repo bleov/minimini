@@ -7,7 +7,7 @@ import { ArrowLeftIcon, CircleCheckIcon, CircleIcon, HourglassIcon } from "lucid
 import { Link } from "react-router";
 import type { ArchiveRecord, PuzzleStateRecord, PuzzleStatsRecord } from "@/lib/pb-types";
 
-export default function WordleArchive() {
+export default function ArchivePage({ type }: { type: "connections" | "wordle" | "strands" }) {
   const [data, setData] = useState<ArchiveRecord[] | null>(null);
   const [puzzleStates, setPuzzleStates] = useState<PuzzleStateRecord[] | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(() => {
@@ -20,7 +20,7 @@ export default function WordleArchive() {
   const puzzleStateCache = useRef<{ [month: string]: PuzzleStateRecord[] }>({});
 
   const archive = pb.collection("archive");
-  const wordleState = pb.collection("wordle_state");
+  const states = pb.collection(`${type}_state`);
 
   useEffect(() => {
     if (!data) {
@@ -33,8 +33,8 @@ export default function WordleArchive() {
           return;
         }
         const list = (await archive.getFullList({
-          fields: "wordle_id,publication_date,id",
-          filter: `wordle_id!=0 && ${monthFilter}`
+          fields: `${type}_id,publication_date,id`,
+          filter: `${type}_id!=0 && ${monthFilter}`
         })) as typedArchiveRecord[];
 
         let stateFilter = `user="${pb.authStore?.record?.id}" && ${monthFilter.replace("publication", "puzzle")}`;
@@ -42,7 +42,7 @@ export default function WordleArchive() {
         let completed: typedArchiveRecord[] = [];
 
         if (list.length > 0) {
-          completed = (await wordleState.getFullList({
+          completed = (await states.getFullList({
             fields: "puzzle_id,complete",
             filter: stateFilter
           })) as typedArchiveRecord[];
@@ -64,7 +64,7 @@ export default function WordleArchive() {
         setSelectedPuzzleState("not-found");
         return;
       }
-      const puzzleState = puzzleStates?.find((ps) => ps.puzzle_id === puzzle.wordle_id);
+      const puzzleState = puzzleStates?.find((ps) => ps.puzzle_id === puzzle[`${type}_id`]);
       if (puzzleState) {
         if (puzzleState.complete) {
           setSelectedPuzzleState("completed");
@@ -98,7 +98,8 @@ export default function WordleArchive() {
           <IconButton icon={<ArrowLeftIcon />} appearance="subtle" />
         </Link>
         <Heading level={3} textAlign={"left"} fontWeight={"normal"}>
-          Wordle Archive
+          {type.substring(0, 1).toUpperCase()}
+          {type.substring(1)} Archive
         </Heading>
       </HStack>
       <Calendar
@@ -118,7 +119,7 @@ export default function WordleArchive() {
           if (!puzzle) {
             return <CircleIcon visibility={"hidden"} className="archive-badge-icon" />;
           }
-          const puzzleState = puzzleStates?.find((ps) => ps.puzzle_id === puzzle.wordle_id);
+          const puzzleState = puzzleStates?.find((ps) => ps.puzzle_id === puzzle[`${type}_id`]);
           if (puzzleState?.complete) {
             return <CircleCheckIcon className="archive-badge-icon archive-badge-icon-completed" />;
           }
@@ -140,7 +141,7 @@ export default function WordleArchive() {
           appearance="primary"
           onClick={() => {
             if (!data || !selectedDate) return;
-            location.href = `/wordle/${selectedDate}`;
+            location.href = `/${type}/${selectedDate}`;
           }}
         >
           {getButtonText(selectedPuzzleState)}
