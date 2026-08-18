@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { KeyboardReact } from "react-simple-keyboard";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
+import { Capacitor } from "@capacitor/core";
 
 interface VirtualKeyboardProps {
   handleKeyDown: (event: KeyboardEvent, virtual: boolean) => void;
@@ -10,7 +12,10 @@ export default function VirtualKeyboard({ handleKeyDown }: VirtualKeyboardProps)
 
   return (
     <KeyboardReact
-      onKeyPress={(key) => {
+      onKeyPress={async (key) => {
+        if (Capacitor.isNativePlatform()) {
+          await Haptics.impact({ style: ImpactStyle.Light });
+        }
         if (key === "{numbers}" || key === "{abc}") {
           setKeyboardLayout(key === "{numbers}" ? "numeric" : "default");
           return;

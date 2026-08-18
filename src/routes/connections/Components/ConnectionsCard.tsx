@@ -2,6 +2,8 @@ import type { ConnectionsCard } from "@/lib/types";
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { Center, Image } from "rsuite";
 import { ConnectionsContext } from "./Connections";
+import { Capacitor } from "@capacitor/core";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 interface ConnectionsCardProps extends ConnectionsCard {
   row: number;
@@ -116,6 +118,9 @@ export function ConnectionsCard({ content, position, row, column, slideTo, image
         if (checking) return;
         if (classList.includes("disabled")) {
           return;
+        }
+        if (Capacitor.isNativePlatform()) {
+          Haptics.impact({ style: ImpactStyle.Light });
         }
         setSelectedCards((prevSelectedCards: number[]) => {
           if (prevSelectedCards.includes(position)) {

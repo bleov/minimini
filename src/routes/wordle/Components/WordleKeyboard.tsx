@@ -1,3 +1,5 @@
+import { Capacitor } from "@capacitor/core";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 import { useState } from "react";
 import { KeyboardReact } from "react-simple-keyboard";
 import { Box, Button, Center } from "rsuite";
@@ -53,6 +55,9 @@ export default function WordleKeyboard({ handleKeyDown, states, letters, complet
       <KeyboardReact
         theme="hg-theme-default"
         onKeyPress={(key) => {
+          if (Capacitor.isNativePlatform()) {
+            Haptics.impact({ style: ImpactStyle.Light });
+          }
           let keyCode = key;
           if (key === "{bksp}") keyCode = "Backspace";
           if (key === "{enter}") keyCode = "Enter";

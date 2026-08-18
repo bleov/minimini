@@ -15,6 +15,8 @@ import VictoryModal from "./VictoryModal";
 import { useBoardRenderer } from "../hooks/useBoardRenderer";
 import { useInput } from "../hooks/useInput";
 import { usePersistence } from "../hooks/usePersistence";
+import { Capacitor } from "@capacitor/core";
+import { Haptics, ImpactStyle } from "@capacitor/haptics";
 
 const Keyboard = lazy(async () => ({
   default: (await import("@/Components/VirtualKeyboard")).default
@@ -687,7 +689,10 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
             <div className="clue-bar">
               <div
                 className="clue-bar-back"
-                onClick={() => {
+                onClick={async () => {
+                  if (Capacitor.isNativePlatform()) {
+                    await Haptics.impact({ style: ImpactStyle.Light });
+                  }
                   nextEditableClue(true);
                 }}
               >
@@ -700,7 +705,10 @@ function CrosswordContent({ contextValue }: { contextValue: CrosswordContextValu
               )}
               <div
                 className="clue-bar-forward"
-                onClick={() => {
+                onClick={async () => {
+                  if (Capacitor.isNativePlatform()) {
+                    await Haptics.impact({ style: ImpactStyle.Light });
+                  }
                   nextEditableClue();
                 }}
               >

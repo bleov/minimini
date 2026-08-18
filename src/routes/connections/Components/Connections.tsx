@@ -8,6 +8,8 @@ import usePersistence from "../hooks/usePersistence";
 import ConnectionsResults from "./ConnectionsResults";
 import ConnectionsLeaderboard from "./ConnectionsLeaderboard";
 import posthog from "posthog-js";
+import { Capacitor } from "@capacitor/core";
+import { Haptics, ImpactStyle, NotificationType } from "@capacitor/haptics";
 
 export interface ConnectionsContextType {
   selectedCards: number[];
@@ -210,6 +212,9 @@ export default function Connections({ data }: ConnectionsProps) {
   function check() {
     if (checking) return;
     setChecking(true);
+    if (Capacitor.isNativePlatform()) {
+      Haptics.impact({ style: ImpactStyle.Light });
+    }
 
     if (guesses.some((guess) => guess.every((card) => selectedCards.includes(card)) && guess.length === selectedCards.length)) {
       setChecking(false);
@@ -240,6 +245,9 @@ export default function Connections({ data }: ConnectionsProps) {
         revealCategory(matchedCategory);
         posthog.capture("connections_correct");
       } else {
+        if (Capacitor.isNativePlatform()) {
+          Haptics.notification({ type: NotificationType.Error });
+        }
         setShaking(true);
         setTimeout(() => {
           setShaking(false);

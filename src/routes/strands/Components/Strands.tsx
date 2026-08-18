@@ -10,6 +10,8 @@ import usePersistence from "../hooks/usePersistence";
 
 import StrandsResults from "./StrandsResults";
 import StrandsLeaderboard from "./StrandsLeaderboard";
+import { Capacitor } from "@capacitor/core";
+import { Haptics, ImpactStyle, NotificationType } from "@capacitor/haptics";
 
 interface StrandsProps {
   data: StrandsGame;
@@ -104,18 +106,27 @@ export default function Strands({ data }: StrandsProps) {
 
     if (selectedCells.length === 0) {
       updateSelectedCells([[cellY, cellX]]);
+      if (Capacitor.isNativePlatform()) {
+        Haptics.impact({ style: ImpactStyle.Light });
+      }
       return;
     }
 
     if (selectedCells.length > 19) {
       setSelectedCells([]);
       setConstructedWord("Too long");
+      if (Capacitor.isNativePlatform()) {
+        Haptics.notification({ type: NotificationType.Error });
+      }
       return;
     }
 
     if (selectedCells.length === 1 && selectedCells[0][0] === cellY && selectedCells[0][1] === cellX) {
       setSelectedCells([]);
       setConstructedWord("Already found");
+      if (Capacitor.isNativePlatform()) {
+        Haptics.notification({ type: NotificationType.Error });
+      }
       return;
     }
 
@@ -138,6 +149,9 @@ export default function Strands({ data }: StrandsProps) {
     } else if (isClick) {
       updateSelectedCells([[cellY, cellX]]);
     }
+    if (Capacitor.isNativePlatform()) {
+      Haptics.impact({ style: ImpactStyle.Light });
+    }
   }
 
   function handleSubmitWord() {
@@ -146,10 +160,15 @@ export default function Strands({ data }: StrandsProps) {
 
     const word = constructedWord;
 
-    const removeHint = () =>
+    const removeHint = () => {
       setRevealedHintCells(revealedHintCells.filter(([row, col]) => !cells.some(([r, c]) => r === row && c === col)));
+    };
 
     const shakeText = () => {
+      if (Capacitor.isNativePlatform()) {
+        Haptics.notification({ type: NotificationType.Error });
+      }
+
       constructedText.current?.classList.add("shake");
       setTimeout(() => {
         constructedText.current?.classList.remove("shake");
@@ -173,6 +192,9 @@ export default function Strands({ data }: StrandsProps) {
         constructedText.current.style.color = "var(--text-correct)";
       }
       setGameHistory(gameHistory + "🔵");
+      if (Capacitor.isNativePlatform()) {
+        Haptics.notification({ type: NotificationType.Success });
+      }
       return;
     }
 
@@ -184,6 +206,9 @@ export default function Strands({ data }: StrandsProps) {
         constructedText.current.style.color = "var(--spangram-bg)";
       }
       setGameHistory(gameHistory + "🟡");
+      if (Capacitor.isNativePlatform()) {
+        Haptics.notification({ type: NotificationType.Success });
+      }
       return;
     }
 
@@ -215,6 +240,10 @@ export default function Strands({ data }: StrandsProps) {
 
   function handleRequestHint() {
     if (hintProgress < 3) return;
+
+    if (Capacitor.isNativePlatform()) {
+      Haptics.impact({ style: ImpactStyle.Light });
+    }
 
     setHintProgress(hintProgress - 3);
     setHintsUsed(hintsUsed + 1);
