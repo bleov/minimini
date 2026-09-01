@@ -191,7 +191,7 @@ export default function Connections({ data }: ConnectionsProps) {
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
       if (e.repeat) return;
-      if (e.key === "Enter" && !complete) {
+      if (e.key === "Enter" && !complete && selectedCards.length === 4) {
         check();
       }
       if (e.key === "Escape") {
