@@ -15,6 +15,7 @@ import VictoryModal from "./VictoryModal";
 import { useBoardRenderer } from "../hooks/useBoardRenderer";
 import { useInput } from "../hooks/useInput";
 import { usePersistence } from "../hooks/usePersistence";
+import useReplayRecorder from "../hooks/useReplayRecorder";
 
 const Keyboard = lazy(async () => ({
   default: (await import("@/Components/VirtualKeyboard")).default
@@ -48,6 +49,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
   const boardRef = useRef<HTMLDivElement>(null);
   const incorrectShown = useRef<boolean>(false);
   const toaster = useToaster();
+  const replay = useReplayRecorder();
   const renderedClues = useMemo(() => {
     return body.clues.map((clue) => {
       return renderClue(clue);
@@ -72,6 +74,43 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
     setData(null);
     setModalState(destination);
   }
+
+  useEffect(() => {
+    if (options.includes("hardcore")) {
+      replay.start();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (replay.isRecording()) {
+      replay.record("select_cell", selected);
+    }
+  }, [selected]);
+
+  useEffect(() => {
+    if (replay.isRecording()) {
+      replay.record("change_direction", direction);
+    }
+  }, [direction]);
+
+  useEffect(() => {
+    if (replay.isRecording()) {
+      if (autoCheck) {
+        replay.record("enable_autocheck");
+      } else {
+        replay.record("disable_autocheck");
+      }
+    }
+  }, [autoCheck]);
+
+  useEffect(() => {
+    if (replay.isRecording() && complete) {
+      replay.end();
+    } else if (complete && !options.includes("hardcore")) {
+      // hardcore was invalided
+      replay.cancel();
+    }
+  }, [complete]);
 
   useLayoutEffect(() => {
     if (boardRef.current) {
@@ -110,6 +149,7 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
       localforage.setItem(`state-${data.id}`, newState);
       return newState;
     });
+    replay.record("modify_cell", cellIndex, letter);
   }
 
   function getCellsInDirection(start: number, dir: "across" | "down") {

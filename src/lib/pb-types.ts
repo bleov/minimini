@@ -22,6 +22,7 @@ export const Collections = {
 	PuzzleState: "puzzle_state",
 	PuzzleStats: "puzzle_stats",
 	Ratings: "ratings",
+	Replays: "replays",
 	Shapes: "shapes",
 	StrandsLeaderboard: "strands_leaderboard",
 	StrandsState: "strands_state",
@@ -273,6 +274,20 @@ export type RatingsRecord = {
 	updated: IsoAutoDateString
 }
 
+export const ReplaysVersionOptions = {
+	"E1": "1",
+} as const
+export type ReplaysVersionOptions = typeof ReplaysVersionOptions[keyof typeof ReplaysVersionOptions]
+export type ReplaysRecord<Tevents = unknown> = {
+	created: IsoAutoDateString
+	duration: number
+	events: null | Tevents
+	id: string
+	updated: IsoAutoDateString
+	user: RecordIdString
+	version: ReplaysVersionOptions
+}
+
 export const ShapesTypeOptions = {
 	"mini": "mini",
 	"midi": "midi",
@@ -290,7 +305,7 @@ export type ShapesRecord<Tdata = unknown> = {
 
 export type StrandsLeaderboardRecord<Tstate = unknown> = {
 	created: IsoAutoDateString
-	hints_used: number
+	hints_used?: number
 	id: string
 	puzzle_date?: string
 	puzzle_id: number
@@ -400,6 +415,7 @@ export type NotificationsResponse<Texpand = unknown> = Required<NotificationsRec
 export type PuzzleStateResponse<Tboard_state = unknown, Tselected = unknown, Texpand = unknown> = Required<PuzzleStateRecord<Tboard_state, Tselected>> & BaseSystemFields<Texpand>
 export type PuzzleStatsResponse<Taverage_time = unknown, Thighest_time = unknown, Tlowest_time = unknown, Texpand = unknown> = Required<PuzzleStatsRecord<Taverage_time, Thighest_time, Tlowest_time>> & BaseSystemFields<Texpand>
 export type RatingsResponse<Texpand = unknown> = Required<RatingsRecord> & BaseSystemFields<Texpand>
+export type ReplaysResponse<Tevents = unknown, Texpand = unknown> = Required<ReplaysRecord<Tevents>> & BaseSystemFields<Texpand>
 export type ShapesResponse<Tdata = unknown, Texpand = unknown> = Required<ShapesRecord<Tdata>> & BaseSystemFields<Texpand>
 export type StrandsLeaderboardResponse<Tstate = unknown, Texpand = unknown> = Required<StrandsLeaderboardRecord<Tstate>> & BaseSystemFields<Texpand>
 export type StrandsStateResponse<Tstate = unknown, Texpand = unknown> = Required<StrandsStateRecord<Tstate>> & BaseSystemFields<Texpand>
@@ -429,6 +445,7 @@ export type CollectionRecords = {
 	puzzle_state: PuzzleStateRecord
 	puzzle_stats: PuzzleStatsRecord
 	ratings: RatingsRecord
+	replays: ReplaysRecord
 	shapes: ShapesRecord
 	strands_leaderboard: StrandsLeaderboardRecord
 	strands_state: StrandsStateRecord
@@ -457,6 +474,7 @@ export type CollectionResponses = {
 	puzzle_state: PuzzleStateResponse
 	puzzle_stats: PuzzleStatsResponse
 	ratings: RatingsResponse
+	replays: ReplaysResponse
 	shapes: ShapesResponse
 	strands_leaderboard: StrandsLeaderboardResponse
 	strands_state: StrandsStateResponse

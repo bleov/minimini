@@ -21,11 +21,18 @@ interface TimerProps {
 export default function Timer({ onPause, running, setTime, puzzle, restoredTime, isPaused, setPaused }: TimerProps) {
   const restoredTimeDate = new Date();
   restoredTimeDate.setSeconds(restoredTimeDate.getSeconds() + (restoredTime || 0));
-  const { seconds, minutes, start, pause, totalSeconds } = useStopwatch({
+  const { seconds, minutes, start, pause, totalSeconds, totalMilliseconds } = useStopwatch({
     autoStart: false,
-    interval: 20,
+    interval: 100,
     offsetTimestamp: restoredTimeDate
   });
+
+  useEffect(() => {
+    if ("timerEvent" in window) {
+      // @ts-ignore
+      window.timerEvent(totalMilliseconds);
+    }
+  }, [totalMilliseconds]);
 
   const { type, options } = useContext(CrosswordAppState);
 
