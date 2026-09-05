@@ -9,8 +9,9 @@ import {
 } from "react";
 
 import type { Crossword, CrosswordClue } from "@/lib/types";
+import type { ReplayRecorder } from "../hooks/useReplayRecorder";
 
-export type CrosswordModalType = "victory" | "incorrect" | "leaderboard" | null;
+export type CrosswordModalType = "victory" | "leaderboard" | null;
 
 export interface CrosswordContextValue {
   body: Crossword["body"][number];
@@ -41,6 +42,7 @@ export interface CrosswordContextValue {
   letters: string[];
   exit: (destination?: string) => void;
   overlayURL: string;
+  replay: ReplayRecorder;
 
   setSelected: Dispatch<SetStateAction<number | null>>;
   setDirection: Dispatch<SetStateAction<"across" | "down">>;

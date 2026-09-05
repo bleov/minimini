@@ -27,7 +27,8 @@ export function usePersistence() {
     setModalType,
     setComplete,
     checkBoard,
-    toast
+    toast,
+    replay
   } = useCrosswordContext();
 
   const cloudSave = useCallback(async () => {
@@ -84,6 +85,8 @@ export function usePersistence() {
       localforage.getItem(`cheated-${data.id}`)
     ] as any[]).then((saved) => {
       if (!saved[1]) return;
+      const replayData = replay.getData();
+
       record.set("user", user.id);
       record.set("puzzle_id", data.id.toString());
       record.set("time", saved[0]?.toString() ?? "0");
@@ -91,6 +94,9 @@ export function usePersistence() {
       record.set("platform", keyboardOpen ? "mobile" : "desktop");
       record.set("type", type);
       record.set("hardcore", options.includes("hardcore").toString());
+      if (replayData && replayData.events.length > 1) {
+        record.set("replay", JSON.stringify(replayData));
+      }
 
       leaderboard
         .create(record)

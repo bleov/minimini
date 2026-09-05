@@ -5,15 +5,25 @@ export const replayEvents: Record<string, number> = {
   complete: 1,
   select_cell: 2,
   change_direction: 3,
-  modify_cell: 4,
-  enable_autocheck: 5,
-  disable_autocheck: 6
+  modify_cell: 4
 };
 
-const defaultReplay = {
-  user: "",
+export interface ReplayRecording {
+  version: string;
+  events: [number, number, ...any[]][];
+}
+
+export interface ReplayRecorder {
+  start: () => void;
+  end: () => void;
+  cancel: () => void;
+  record: (eventId: string, ...data: any[]) => void;
+  isRecording: () => boolean;
+  getData: () => ReplayRecording;
+}
+
+const defaultReplay: ReplayRecording = {
   version: "1",
-  duration: 0,
   events: [[replayEvents.start, 0]]
 };
 
@@ -23,8 +33,8 @@ interface ReplayBufferItem {
   data: any[];
 }
 
-export default function useReplayRecorder() {
-  const replay = useRef(defaultReplay);
+export default function useReplayRecorder(): ReplayRecorder {
+  const replay = useRef<ReplayRecording>(defaultReplay);
   const replayBuffer = useRef([] as ReplayBufferItem[]);
 
   const replayObject = {
@@ -66,6 +76,9 @@ export default function useReplayRecorder() {
     },
     isRecording: () => {
       return "timerEvent" in window;
+    },
+    getData: () => {
+      return replay.current;
     }
   };
 

@@ -94,16 +94,6 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
   }, [direction]);
 
   useEffect(() => {
-    if (replay.isRecording()) {
-      if (autoCheck) {
-        replay.record("enable_autocheck");
-      } else {
-        replay.record("disable_autocheck");
-      }
-    }
-  }, [autoCheck]);
-
-  useEffect(() => {
     if (replay.isRecording() && complete) {
       replay.end();
     } else if (complete && !options.includes("hardcore")) {
@@ -461,7 +451,8 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
       checkBoard,
       overlayURL,
       setOverlayURL,
-      toast
+      toast,
+      replay
     }),
     [
       alreadyCompleted,
@@ -492,7 +483,8 @@ export default function Crossword({ data, startTouched, timeRef, stateDocId, alr
       type,
       user,
       overlayURL,
-      toast
+      toast,
+      replay
     ]
   );
 
