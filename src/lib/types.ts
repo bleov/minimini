@@ -130,3 +130,44 @@ export type typedArchiveResponse<Texpand = unknown> = ArchiveResponse<
 >;
 
 export type typedArchiveRecord = ArchiveRecord<Crossword, Crossword, Crossword, ConnectionsGame, WordleGame>;
+
+export interface CrypticClue {
+  text: string;
+  type: string | null;
+}
+
+export interface CrypticHint {
+  text: string;
+  type: string;
+  colour: string;
+  highlighting: number[][];
+}
+
+export interface CrypticGame {
+  puzzleId: string;
+  letterRevealOrder: number[];
+  hint: any;
+  clue: CrypticClue[];
+  answer: string;
+  puzzlePieces: {
+    answer: string;
+    isRevealed: boolean;
+    input: string;
+  };
+  config: number[];
+  par: number;
+  explainerVideo: string;
+  extraExplainerVideos: {
+    videoUrl: string;
+    thumbnail: string;
+  }[];
+  date: string;
+  thumbnail: string;
+  setterName: string;
+  hints: CrypticHint[];
+  parDetails: {
+    averagePar: number;
+    solveCount: number;
+    anonSolverCount: number;
+  };
+}

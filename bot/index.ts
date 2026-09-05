@@ -1,6 +1,6 @@
 import PocketBase from "pocketbase";
 
-import type { ConnectionsGame, Crossword, WordleGame, StrandsGame } from "../src/lib/types";
+import type { ConnectionsGame, Crossword, WordleGame, StrandsGame, CrypticGame } from "../src/lib/types";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -51,6 +51,9 @@ console.log("Fetching strands data...");
 const strandsDate = miniData.publicationDate;
 const strandsData: StrandsGame = await fetchJSON([HOST, "svc", "strands", "v2", `${strandsDate}.json`].join("/"));
 
+console.log("Fetching minute cryptic data...");
+const minuteCrypticData: CrypticGame = await fetchJSON("https://www.minutecryptic.com/api/daily_puzzle/today?tz=America/New_York");
+
 console.log("Creating archive record...");
 
 const data = {
@@ -66,7 +69,9 @@ const data = {
   wordle_id: wordleData.id,
   wordle: wordleData,
   strands_id: strandsData.id,
-  strands: strandsData
+  strands: strandsData,
+  cryptic_id: minuteCrypticData.puzzleId,
+  cryptic: minuteCrypticData
 };
 
 const oldRecord = await archive.getFirstListItem(`publication_date="${miniData.publicationDate}"`).catch(() => null);
